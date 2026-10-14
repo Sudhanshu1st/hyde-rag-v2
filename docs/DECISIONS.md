@@ -198,21 +198,34 @@ We report both and compare with the paper on the capped version. TREC-COVID qrel
 
 ## Compute
 
-**D-COMP-1 Measured CPU throughput on the dev laptop.** Intel i5-1235U, 16 GB RAM, no GPU, on
-AC power. Measured on 256 SciFact abstracts (fp32, batch 32):
+**D-COMP-1 Measured CPU throughput on the dev laptop.** Intel i5-1235U (2 performance + 8
+efficiency cores), 16 GB RAM, no GPU, on AC power, measured on SciFact abstracts:
 
-| Model | Throughput |
-|---|---|
-| Contriever | 0.9 docs/s |
-| bge-base | 2.0 docs/s |
-| MiniLM-L6 cross-encoder | 14 pairs/s |
+| Model | Default (10 threads, unsorted, batch 32) | Tuned (8 threads, length-sorted, batch 16) |
+|---|---|---|
+| Contriever | 0.9 docs/s | 2.4–2.9 docs/s |
+| bge-base | 2.0 docs/s | |
+| MiniLM-L6 cross-encoder | 14 pairs/s | |
 
-Consequences:
-- SciFact can be encoded locally: about 1.6 h for Contriever and 45 min for bge.
-- TREC-COVID (171K docs) would take about 53 h and 24 h, so it is encoded on a free GPU
-  (Kaggle/Colab) with a self-contained notebook, and the embeddings are downloaded back.
-- The same numbers make HyDE's query-side cost visible: encoding 8 passages on CPU takes
-  seconds per query. This is reported in the latency columns.
+Consequences, all at zero cost:
+- SciFact encodes locally in about 35 min with Contriever.
+- TREC-COVID needs roughly 20 CPU-hours for both encoders, so it runs overnight. The sharded
+  encoder resumes after interruption.
+- HyDE's query-side cost is visible on CPU: encoding 8 passages takes seconds per query. This
+  is reported in the latency columns.
+
+**D-COMP-2 Sanity gate results so far.**
+
+| Dataset | Metric | bm25s | Paper | Pyserini flat |
+|---|---|---|---|---|
+| SciFact | nDCG@10 | 0.6769 | 67.9 | .6789 |
+| SciFact | R@100 | 0.9287 | 92.5 | .9253 |
+| TREC-COVID | nDCG@10 | 0.5931 | 59.5 | .5947 |
+| TREC-COVID | R@100 | 0.1089 | – | .1091 |
+| TREC-COVID | R_cap@100 | 0.471 | 49.8 | – |
+
+All within 0.2 nDCG points. The paper's TREC-COVID R_cap 49.8 is BEIR's *Elasticsearch* BM25,
+a different system from Pyserini flat, so the 0.471 is not a parity failure.
 
 ## Licensing
 
