@@ -135,8 +135,11 @@ limits are read from the `x-ratelimit-*` headers.
 - It writes every result to the cache immediately and resumes across days.
 - Different models have separate quotas, so roles are spread across models that run in
   parallel.
-- Latency per query is measured on separate interactive calls (30-query sample per system),
-  not on the paced bulk runs.
+- Latency per query comes from the measured duration of each HTTP call (pacing waits are
+  excluded), with a system's N samples assumed to run in parallel.
+- Observed 2026-10-14: the daily token limit is a **rolling 24-hour window**. After about 390
+  gpt-oss-120b passages the API returned 429s with retry-after values of minutes, not
+  hours, so generation trickles on continuously rather than waiting for a daily reset.
 
 **D-LLM-3 Cache, committed.** JSONL files, one per (dataset, generator, instruction). The key
 is the sha256 of base URL, model, the canonical JSON of request parameters, and the sample
@@ -203,14 +206,14 @@ efficiency cores), 16 GB RAM, no GPU, on AC power, measured on SciFact abstracts
 
 | Model | Default (10 threads, unsorted, batch 32) | Tuned (8 threads, length-sorted, batch 16) |
 |---|---|---|
-| Contriever | 0.9 docs/s | 2.4–2.9 docs/s |
-| bge-base | 2.0 docs/s | |
+| Contriever | 0.9 docs/s | 2.3 docs/s (full SciFact: 37.6 min) |
+| bge-base | 2.0 docs/s | 2.3 docs/s (full SciFact: 37.0 min) |
 | MiniLM-L6 cross-encoder | 14 pairs/s | |
 
 Consequences, all at zero cost:
 - SciFact encodes locally in about 35 min with Contriever.
-- TREC-COVID needs roughly 20 CPU-hours for both encoders, so it runs overnight. The sharded
-  encoder resumes after interruption.
+- TREC-COVID documents are about 25% shorter, so expect roughly 15 CPU-hours per encoder
+  (about 30 h for both), spread over nights. The sharded encoder resumes after interruption.
 - HyDE's query-side cost is visible on CPU: encoding 8 passages takes seconds per query. This
   is reported in the latency columns.
 
