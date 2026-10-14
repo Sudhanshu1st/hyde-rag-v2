@@ -1,0 +1,34 @@
+# LLM backend: free tier only. Nothing in this project needs a paid account.
+#
+# Default: Groq's free plan through its OpenAI-compatible API. Any other OpenAI-compatible
+# endpoint works too: set OPENAI_COMPAT_BASE_URL (e.g. Ollama http://localhost:11434/v1).
+backend:
+  base_url: https://api.groq.com/openai/v1
+  api_key_env: GROQ_API_KEY
+
+# Groq free-plan limits per model (organization-wide), from https://console.groq.com/docs/rate-limits
+# as published 2026-10-14. Your account's real limits are read at runtime from the
+# x-ratelimit-* response headers, and the scheduler always honours 429 + retry-after.
+free_tier_limits:
+  openai/gpt-oss-120b: {rpm: 30, rpd: 1000, tpm: 8000, tpd: 200000}
+  openai/gpt-oss-20b:  {rpm: 30, rpd: 1000, tpm: 8000, tpd: 200000}
+  qwen/qwen3.8-27b:    {rpm: 30, rpd: 1000, tpm: 8000, tpd: 200000}  # preview model
+
+# Which model does which job. Constraints, so that no model grades or mirrors itself:
+#   question_gen != hyde_main (eval questions must not share the HyDE generator's style)
+#   judge != answerer
+roles:
+  hyde_main: openai/gpt-oss-120b      # headline HyDE + multi-query generator (strongest free model)
+  hyde_small: openai/gpt-oss-20b      # generator ablation: small model, same family
+  hyde_alt: qwen/qwen3.8-27b          # generator ablation: different family
+  answerer: openai/gpt-oss-20b        # RAG answers with citations
+  judge: qwen/qwen3.8-27b             # claim-level faithfulness / citation / correctness judge
+  question_gen: qwen/qwen3.8-27b      # food eval-set candidate questions
+  # Synthetic fine-tuning queries use a local doc2query T5 model on CPU: no API quota.
+
+# Per-model generation settings.
+# gpt-oss cannot switch reasoning off; "low" is the minimum. Qwen3 thinking is turned off.
+generation:
+  openai/gpt-oss-120b: {reasoning_effort: low}
+  openai/gpt-oss-20b: {reasoning_effort: low}
+  qwen/qwen3.8-27b: {reasoning_effort: none}

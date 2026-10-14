@@ -4,14 +4,13 @@
 # scripts/download_food_corpus.py in Phase 4.
 #
 # Commit rule:
-#   commit_raw: true   -> US federal government work (17 U.S.C. 105) or CC0, with no
+#   commit_raw: true   -> US federal government work (17 U.S.C. 105), with no
 #                          third-party copyright/permission notice found in the document.
 #   commit_raw: false  -> download script only; the raw file is never committed.
 #
 # Licence policies (publisher pages):
 #   FDA:     https://www.fda.gov/about-fda/about-website/website-policies
 #            ("Unless otherwise noted ... public domain"; record date copied and link back)
-#   openFDA: https://open.fda.gov/license/  (CC0 1.0 unless noted)
 #   USDA:    https://www.usda.gov/about-usda/policies-and-links  (most content public domain;
 #            some material "used by USDA with permission")
 #   FSSAI:   https://fssai.gov.in/website-policies  (reproduction with acknowledgement; not US PD)
@@ -23,14 +22,11 @@
 #   usda.gov / fsis.usda.gov: 403 to scripted clients from the dev network. The script
 #            supports a manual-download fallback, with sha256 verification against this file.
 #   openknowledge.fao.org: Crawl-delay 10.
-#   api.fda.gov: 1,000 requests/day without a key (plenty for 4 queries).
 
 defaults:
   fda_media: https://www.fda.gov/media/{id}/download
-  fda_wl: https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/{slug}
   usda_guidance: https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20{name}
   fsis_media: https://www.fsis.usda.gov/sites/default/files/media_file/{path}
-  openfda_enforcement: https://api.fda.gov/food/enforcement.json
 
 documents:
   # ---------------- Reference codes and standards ----------------
@@ -116,29 +112,7 @@ documents:
   - {doc_id: fsis_dir_8080_1_r8, title: "FSIS Directive 8080.1 Rev 8: Recall of Meat and Poultry Products", publisher: USDA FSIS, format: pdf,
      url: "https://www.fsis.usda.gov/sites/default/files/media_file/2020-07/8080.1.pdf", licence: public_domain_us_gov, commit_raw: true}
 
-  # ---------------- FDA warning letters (corrective-action language) ----------------
-  # Letters carry FOIA (b)(4)/(b)(6)/(b)(7)(C) redactions and name individuals. We store only the
-  # extracted letter body and mask personal names (firm names kept). See docs/DECISIONS.md D-DATA-3.
-  - {doc_id: fda_wl_dreyers_2026, title: "Warning letter: Dreyer's Grand Ice Cream (Listeria)", publisher: FDA, format: html, url_slug: dreyers-grand-ice-cream-inc-727644-09292026, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_fresh_ready_2025, title: "Warning letter: Compass Group USA / Fresh & Ready (Lm outbreak)", publisher: FDA, format: html, url_slug: compass-group-usa-709592-09052025, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_gracies_2025, title: "Warning letter: Gracie's Kitchens (Lm)", publisher: FDA, format: html, url_slug: gracies-kitchens-inc-701613-09032025, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_fathers_table_2025, title: "Warning letter: Father's Table (Lm)", publisher: FDA, format: html, url_slug: fathers-table-llc-706334-11282025, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_doco_2026, title: "Warning letter: DO&CO (Lm, multi-site)", publisher: FDA, format: html, url_slug: doco-aktiengesellschaftdoco-inc-717773-03302026, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_smucker_2023, title: "Warning letter: J.M. Smucker (Salmonella)", publisher: FDA, format: html, url_slug: jm-smucker-llc-638042-01242023, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_pepsico_2024, title: "Warning letter: PepsiCo / Quaker (Salmonella)", publisher: FDA, format: html, url_slug: pepsico-inc-679972-06122024, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_carolina_seafood_2025, title: "Warning letter: Carolina Seafood (Seafood HACCP)", publisher: FDA, format: html, url_slug: carolina-seafood-inc-710510-08212025, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_south_bay_2026, title: "Warning letter: South Bay Cold Storage (Seafood HACCP)", publisher: FDA, format: html, url_slug: south-bay-cold-storage-handling-inc-717080-01222026, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_barsotti_2024, title: "Warning letter: Barsotti Juice (Juice HACCP, C. botulinum)", publisher: FDA, format: html, url_slug: barsotti-juice-company-inc-676447-01302024, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_wellmill_2026, title: "Warning letter: Wellmill / Vitamix Laboratories (Juice HACCP)", publisher: FDA, format: html, url_slug: wellmill-llc-dba-vitamix-laboratories-725655-04202026, licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_wl_tova_2024, title: "Warning letter: Tova Industries (acidified foods)", publisher: FDA, format: html, url_slug: tova-industries-llc-693241-10292024, licence: public_domain_us_gov, commit_raw: true}
-
-  # ---------------- openFDA food enforcement (recall) snapshots, CC0 ----------------
-  # Each group is stored with its query string and meta.last_updated so it can be re-created.
-  - {doc_id: openfda_recalls_listeria, title: "Food recalls: Listeria (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
-     query: "search=reason_for_recall:listeria+AND+report_date:[20250101+TO+20261231]&limit=1000"}
-  - {doc_id: openfda_recalls_salmonella, title: "Food recalls: Salmonella (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
-     query: "search=reason_for_recall:salmonella+AND+report_date:[20250101+TO+20261231]&limit=1000"}
-  - {doc_id: openfda_recalls_allergen, title: "Food recalls: undeclared allergens (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
-     query: "search=reason_for_recall:undeclared+AND+reason_for_recall:(milk+OR+egg+OR+peanut+OR+soy+OR+wheat+OR+sesame+OR+almond+OR+cashew+OR+walnut+OR+pecan+OR+fish+OR+shrimp)+AND+report_date:[20250101+TO+20261231]&limit=1000"}
-  - {doc_id: openfda_recalls_foreign_material, title: "Food recalls: foreign material (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
-     query: "search=reason_for_recall:(metal+OR+plastic+OR+glass+OR+%22foreign+material%22)+AND+report_date:[20250101+TO+20261231]&limit=1000"}
+# Excluded on purpose (sensitive): FDA warning letters (name firms and individuals, carry FOIA
+# redactions) and openFDA / FSIS recall records (firm names, addresses, contacts).
+# Corrective-action and recall content comes from guidance documents instead (PCHF Ch 5 and 14,
+# FDA LMRTE sanitation guidance, FDA recall guidance, RPM/IOM Ch 7, FSIS 8080.1, FSSAI recall rules).

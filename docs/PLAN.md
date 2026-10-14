@@ -12,10 +12,10 @@ Each system is one config entry.
 |---|---|---|
 | S1 | BM25 (bm25s, Pyserini-flat settings) | — |
 | S2 | Naive dense | Contriever (parity) · bge-base-en-v1.5 |
-| S3 | HyDE (Eq. 8) | × encoder {Contriever, bge} × generator {Haiku 5.5, Opus 5.5, open-weights} × N {1, 4, 8} |
+| S3 | HyDE (Eq. 8) | × encoder {Contriever, bge} × generator {gpt-oss-120b, gpt-oss-20b, Qwen3} (Groq free tier) × N {1, 4, 8} |
 | S4 | Hybrid BM25 + dense (RRF) | × encoder |
 | S5 | Hybrid + HyDE (HyDE drives the dense leg) | ± Query2doc BM25 expansion |
-| S6 | Multi-query / RAG-Fusion (K=4 rewrites, RRF) | × generator {Haiku, Opus} |
+| S6 | Multi-query / RAG-Fusion (K=4 rewrites, RRF) | (gpt-oss-120b) |
 | S7 | + cross-encoder rerank (top-100) | applied to S1–S6 |
 
 ### Datasets
@@ -24,8 +24,8 @@ Each system is one config entry.
 |---|---:|---:|---|---|
 | SciFact | 5,183 | 300 (+809 train) | primary: retrieval + generation | train split = dev for τ calibration |
 | TREC-COVID | 171,332 | 50 | secondary: retrieval | dense encoding on free GPU |
-| ArguAna | 8,674 | 1,406 | optional: retrieval only | Haiku generator only (Opus ≈ $43) |
-| Food-quality (ours) | 30–80 docs | ~250 (30% dev / 70% test) | domain adaptation | human-reviewed |
+| ArguAna | 8,674 | 1,406 | optional: retrieval only | dropped from the free-tier plan (1,406 long queries) |
+| Food-quality (ours) | 43 public docs | ~250 (30% dev / 70% test) | domain adaptation | human-reviewed |
 
 ## Phases
 
@@ -59,8 +59,13 @@ Each system is one config entry.
    - README with results generated from `results/`, `RESULTS.md`, and a blog draft.
    - Checkpoint before any GitHub push.
 
-## Budget
+## Budget: zero spend
 
-See `docs/COST_PLAN.md` (generated). Planning estimate with the default roles: **about $45 over
-all phases**, of which about $16 is the Opus arm of the generator ablation. Every bulk run
-re-estimates exactly before submission and stops above $5 without approval.
+Nothing costs money. Every LLM call uses Groq's free plan, or any other OpenAI-compatible
+endpoint such as local Ollama. Encoders and rerankers run locally. The constraint is free
+quota: 200K tokens and 1K requests per model per day.
+
+`docs/QUOTA_PLAN.md` (generated) estimates about 5.7M tokens in total, which is about 15 days
+of unattended background generation if the phases run back to back. Phases overlap where
+their models differ. The runner resumes across days automatically, and every generation is
+cached and committed, so reproducing the results needs no key and no wait.

@@ -29,11 +29,9 @@ models/
 *.bin
 *.onnx
 
-# --- LLM cache: committed selectively (BEIR hypothetical docs only; see docs/DECISIONS.md) ---
-cache/*
-!cache/.gitkeep
-!cache/beir/
-cache/beir/**/*.tmp
+# --- LLM cache: committed so results reproduce without any key (see docs/DECISIONS.md D-LLM-3) ---
+cache/**/*.tmp
+cache/**/*.lock
 
 # --- misc ---
 .DS_Store

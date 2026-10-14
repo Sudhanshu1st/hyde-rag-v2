@@ -1,0 +1,42 @@
+# Planned LLM work, expressed in free-tier quota (tokens and requests), not money.
+# scripts/estimate_quota.py turns this into days of free quota per model (docs/QUOTA_PLAN.md).
+# Token figures are input + output (reasoning included) per call. A 20-call pilot replaces
+# them with measured values before each bulk run.
+
+chars_per_token: 3.5
+
+# Mean tokens per call by task and model family (planning assumptions).
+tokens_per_call:
+  hyde_passage:       {gpt-oss: 460, qwen: 370}   # ~150 prompt + ~250 passage (+ ~60 reasoning on gpt-oss)
+  multi_query_k4:     {gpt-oss: 380, qwen: 300}
+  answer_top3:        {gpt-oss: 2100, qwen: 2000}
+  judge_claims:       {gpt-oss: 1900, qwen: 1800}
+  question_gen:       {gpt-oss: 2700, qwen: 2600}
+
+runs:
+  # ---------------- Phase 2: BEIR retrieval ----------------
+  - {id: hyde_scifact_main,  phase: 2, role: hyde_main,  task: hyde_passage,   dataset: scifact,    queries: 300, samples: 8}
+  - {id: hyde_covid_main,    phase: 2, role: hyde_main,  task: hyde_passage,   dataset: trec-covid, queries: 50,  samples: 8}
+  - {id: mq_scifact,         phase: 2, role: hyde_main,  task: multi_query_k4, dataset: scifact,    queries: 300, samples: 1}
+  - {id: mq_covid,           phase: 2, role: hyde_main,  task: multi_query_k4, dataset: trec-covid, queries: 50,  samples: 1}
+  - {id: hyde_scifact_small, phase: 2, role: hyde_small, task: hyde_passage,   dataset: scifact,    queries: 300, samples: 4}
+  - {id: hyde_covid_small,   phase: 2, role: hyde_small, task: hyde_passage,   dataset: trec-covid, queries: 50,  samples: 8}
+  - {id: hyde_scifact_alt,   phase: 2, role: hyde_alt,   task: hyde_passage,   dataset: scifact,    queries: 300, samples: 4}
+  - {id: hyde_covid_alt,     phase: 2, role: hyde_alt,   task: hyde_passage,   dataset: trec-covid, queries: 50,  samples: 8}
+
+  # ---------------- Phase 3: generation on SciFact ----------------
+  # 100 claims x 2 systems (best non-HyDE vs best HyDE). Abstention gate calibrated on the
+  # SciFact train split with a non-LLM system, so no extra quota.
+  - {id: answers_scifact,    phase: 3, role: answerer,   task: answer_top3,  calls: 200}
+  - {id: judge_scifact,      phase: 3, role: judge,      task: judge_claims, calls: 200}
+
+  # ---------------- Phase 4: food eval set ----------------
+  - {id: food_question_gen,  phase: 4, role: question_gen, task: question_gen, calls: 120}
+
+  # ---------------- Phase 5: domain adaptation + final food benchmark ----------------
+  # ~200 questions (dev + test) x N=4 x {paper-generic, domain} instruction.
+  - {id: hyde_food_main,     phase: 5, role: hyde_main,  task: hyde_passage,   calls: 1600}
+  - {id: mq_food,            phase: 5, role: hyde_main,  task: multi_query_k4, calls: 200}
+  # 2 configs x ~140 test questions.
+  - {id: answers_food,       phase: 5, role: answerer,   task: answer_top3,    calls: 280}
+  - {id: judge_food,         phase: 5, role: judge,      task: judge_claims,   calls: 280}

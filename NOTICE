@@ -21,9 +21,10 @@ dataset pages before reuse.
   - TREC-COVID / CORD-19: CORD-19 Dataset License Agreement
   - ArguAna (Wachsmuth et al., 2018): CC BY 4.0 (BEIR) / CC BY-SA 3.0 (HyDE paper)
 
-cache/beir/ contains LLM-generated hypothetical documents. They are model outputs
-derived from these datasets' queries. They contain no query or corpus text and are
-shared for reproducibility only; any reuse should also respect the dataset licences above.
+cache/ contains LLM outputs (hypothetical documents, query rewrites, answers, judgements)
+generated with open-weights models (OpenAI gpt-oss, Qwen) served on Groq's free plan.
+BEIR cache records contain no query or corpus text. They are shared for reproducibility
+only; any reuse should also respect the dataset licences above and each model's licence.
 
 Models (downloaded at runtime from Hugging Face, not redistributed)
 -------------------------------------------------------------------

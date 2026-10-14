@@ -94,19 +94,16 @@ its DL19 notebook uses n=8 ("8rep" output). We generate 8 samples once and evalu
 N ∈ {1, 4, 8} on nested prefixes (samples 0..N-1). Nesting makes the N comparison paired and
 avoids re-sampling noise.
 
-**D-HYDE-3 Sampling deviation.** The paper used text-davinci-003 at temperature 0.7, top_p 1,
-max_tokens 512, and stop `"\n\n\n"`.
-- Claude Opus 5.5 rejects sampling parameters. Claude Haiku 5.5 accepts only temperature 1
-  (its default).
-- So the N samples are drawn as independent calls at default sampling.
-- We keep max_tokens=512 for visible text and the `"\n\n\n"` stop sequence.
+**D-HYDE-3 Sampling.** The paper used text-davinci-003 at temperature 0.7, top_p 1,
+max_tokens 512, and stop `"\n\n\n"`. Our open-weights generators on Groq accept a temperature,
+so we keep **temperature 0.7, top_p 1, stop `"\n\n\n"`** for paper parity. The N samples are
+drawn as independent calls with a per-sample seed; the paper drew them with `n=8` in one call.
 
-**D-HYDE-4 Thinking and effort.** Bulk generation uses `effort=low`.
-- Haiku 5.5: thinking `disabled`, which is allowed at effort ≤ high. This is closest to the
-  paper's non-reasoning generator.
-- Opus 5.5: thinking can't be disabled, so it runs adaptive at effort low with
-  `max_tokens` raised to leave room for thinking.
-- Thinking tokens are billed as output and are recorded in the cost per query.
+**D-HYDE-4 Reasoning.** gpt-oss models can't switch reasoning off, so they run at
+`reasoning_effort=low`. Their completion budget is the paper's 512 tokens for visible text,
+plus headroom for the reasoning trace. Qwen3 runs with thinking off, which is closest to the
+paper's non-reasoning generator. Reasoning tokens count against the free quota and are
+reported in the token-usage columns.
 
 **D-HYDE-5 Instructions.** Paper-parity runs use the ACL camera-ready Appendix A.1 wording
 verbatim (`configs/hyde_instructions.yaml`). It differs slightly from arXiv v1 and from the
@@ -118,41 +115,57 @@ is a deviation from the paper's raw completion prompt.
 
 ## LLM layer
 
-**D-LLM-1 Provider-agnostic client.** `LLMClient` has two backends:
-- Anthropic, the default, via the official `anthropic` SDK;
-- an OpenAI-compatible backend, via the `openai` SDK, for open-weights models on Groq or
-  Ollama ("private deployment" mode).
+**D-LLM-0 Zero spend (owner decision, 2026-10-14).** The project must not cost anything to
+build, run or reproduce. So:
+- No paid API is used. The Anthropic backend and Claude models from the original brief are
+  dropped.
+- Every LLM call goes to Groq's free plan, or to any other OpenAI-compatible endpoint,
+  e.g. local Ollama.
+- Dollar-cost reporting is replaced by token usage and latency per query.
 
-Claude is never called through an OpenAI-compatible shim.
+**D-LLM-1 One provider-agnostic client.** `LLMClient` talks to any OpenAI-compatible endpoint
+through the `openai` SDK: Groq by default, Ollama for fully local "private deployment" mode.
+The interface is backend-neutral, so other backends can be added without touching the
+pipeline.
 
-**D-LLM-2 Bulk generation.**
-- Bulk runs use the Message Batches API (50% price).
-- Latency is measured separately with interactive calls on a 30-query sample per system,
-  because batch latency is meaningless.
-- Reported LLM cost per query uses standard (non-batch) prices, i.e. what an online system
-  pays, with the batch price in a separate column.
+**D-LLM-2 Free-tier scheduling.** Groq's free plan allows each model 30 requests/min,
+1K requests/day, 8K tokens/min and 200K tokens/day (published 2026-10-14). The account's real
+limits are read from the `x-ratelimit-*` headers.
+- The bulk runner paces itself to these limits and honours `429 retry-after`.
+- It writes every result to the cache immediately and resumes across days.
+- Different models have separate quotas, so roles are spread across models that run in
+  parallel.
+- Latency per query is measured on separate interactive calls (30-query sample per system),
+  not on the paced bulk runs.
 
-**D-LLM-3 Cache.** JSONL files, one per (dataset, generator, instruction). The key is the
-sha256 of backend, model, the canonical JSON of request parameters, and the sample index. Each
-record stores `query_id`, text, usage, stop_reason, model and timestamp. **No query or corpus
-text is stored**, so the committed `cache/beir/` files don't redistribute dataset text.
+**D-LLM-3 Cache, committed.** JSONL files, one per (dataset, generator, instruction). The key
+is the sha256 of base URL, model, the canonical JSON of request parameters, and the sample
+index. Each record stores `query_id`, text, token usage, finish reason, model and timestamp.
+- BEIR cache records contain **no query or corpus text**.
+- All caches are committed, so anyone can reproduce every reported number without a key.
 
-**D-LLM-4 Cost guard.** Before any bulk run:
-- input tokens are counted exactly with `messages.count_tokens`;
-- output tokens are estimated from a 20-call pilot, which also measures thinking.
+**D-LLM-4 Quota guard instead of a cost guard.**
+- `scripts/estimate_quota.py` converts every planned run into requests, tokens and days of
+  free quota (`docs/QUOTA_PLAN.md`).
+- Before a bulk run, a 20-call pilot measures real tokens per call.
+- Runs longer than `HYDE_RAG_MAX_QUOTA_DAYS` (default 1) need `--yes`.
+- **Zero-spend safety:** if a key's rate-limit headers show paid-plan limits
+  (> 50K tokens/min), the client refuses to run unless `HYDE_RAG_ALLOW_PAID=1`.
 
-A run estimated above $5 (`HYDE_RAG_COST_LIMIT_USD`) stops unless re-run with `--approve-cost`.
-Planning totals are in `docs/COST_PLAN.md`, generated by `scripts/estimate_cost.py`.
+**D-LLM-5 Model roles** (`configs/llm.yaml`). Free Groq models only. The Llama models on
+Groq are enterprise-only as of 2026-10-14.
 
-**D-LLM-5 Model roles (pending).** Defaults in `configs/run_plan.yaml`:
-- HyDE/multi-query bulk = `claude-haiku-5-5`
-- top-generator ablation = `claude-opus-5-5`
-- answerer = `claude-sonnet-5-5`
-- judge = `claude-opus-5-5`
-- food eval-question generator = `claude-opus-5-5`, which deliberately differs from the HyDE
-  generator
-- synthetic fine-tuning queries = `claude-haiku-5-5`, which deliberately differs from the
-  question generator
+| Role | Model | Why |
+|---|---|---|
+| Headline HyDE + multi-query | `openai/gpt-oss-120b` | Strongest free model, like the paper's InstructGPT |
+| Generator ablation, small | `openai/gpt-oss-20b` | Same family, smaller |
+| Generator ablation, other family | `qwen/qwen3.8-27b` | Preview model |
+| Answerer | `openai/gpt-oss-20b` | |
+| Judge | `qwen/qwen3.8-27b` | Must differ from the answerer |
+| Food eval-question generator | `qwen/qwen3.8-27b` | Must differ from the headline HyDE generator |
+| Synthetic fine-tuning queries | local doc2query T5 on CPU | Different model from the eval questions; no quota |
+
+Preview models can be withdrawn at short notice, which is another reason caches are committed.
 
 ## Evaluation
 
@@ -212,17 +225,15 @@ name for heading detection. PyMuPDF is avoided because it is AGPL-3.0.
 
 ## Food corpus (public data only)
 
-**D-DATA-1 Composition (draft, 59 docs).** `data_sources.yaml` lists the documents, with
+**D-DATA-1 Composition (draft, 43 docs).** `data_sources.yaml` lists the documents, with
 licences verified against each publisher's own policy page on 2026-10-14:
 - reference codes: FDA Food Code 2026, Codex CXC 1-1969, FSSAI Schedule 4 + 2026 amendment,
   FSSAI recall rules;
 - FDA preventive-controls guidance chapters, Listeria, sanitation, seafood/juice HACCP, and
   recall guidance and manuals;
-- FSIS compliance guidelines and directives;
-- 12 FDA warning letters, for corrective-action language;
-- 4 openFDA recall snapshots, for root-cause questions.
+- FSIS compliance guidelines and directives.
 
-51 are committable (US public domain or CC0) and 8 are download-only.
+35 are committable US public-domain works and 8 are download-only.
 
 **D-DATA-2 "Public domain" is checked per document.** The text of each candidate PDF was
 scanned for permission notices. Two flagship US documents reproduce third-party material
@@ -234,10 +245,17 @@ Both are download-only, as is PCHF Appendix 2 (forms "adapted from" FSPCA), as a
 Codex (CC BY-NC-SA 3.0 IGO) and FSSAI (reuse with acknowledgement, not US public domain) are
 download-only under the project rule.
 
-**D-DATA-3 Warning letters (pending).** Letters are public records but name individuals
-(recipients, signatories) and carry FOIA (b)(4)/(b)(6)/(b)(7)(C) redactions. Proposal: store
-only the extracted letter body with personal names masked, keeping firm names, and never the
-site chrome.
+**D-DATA-3 No sensitive documents (owner decision, 2026-10-14).** The corpus excludes
+documents about identifiable firms or people:
+- FDA warning letters, which name firms and individuals and carry FOIA redactions;
+- openFDA and FSIS recall records, which include firm names, addresses and contacts.
+
+Corrective-action and recall questions are answered from guidance instead:
+- PCHF Ch 5 and Ch 14;
+- FDA's low-moisture RTE sanitation and corrective-action guidance;
+- FDA recall guidance, RPM Ch 7 and IOM Ch 7;
+- FSIS Directive 8080.1;
+- FSSAI recall regulations.
 
 **D-DATA-4 Polite, reproducible downloading.**
 - fda.gov: `Crawl-Delay: 30` plus bot detection, so downloads are single-threaded with ≥30 s
@@ -245,7 +263,6 @@ site chrome.
 - usda.gov/fsis.usda.gov: these return 403 to scripted clients from the dev network, so the
   script falls back to "download manually to this path" and verifies sha256. These files are
   public domain, so once committed nobody needs to re-download them.
-- openFDA: snapshots are stored with their query string and `meta.last_updated`.
 - We never try to evade bot detection.
 
 **D-DATA-5 FSSAI Schedule 4 is amended.** The 2021 compendium's Schedule 4 is partly
