@@ -72,6 +72,12 @@ class Experiment:
         self.depth = int(self.cfg.get("depth", 1000))
         self.metrics = tuple(self.cfg.get("metrics", ["ndcg@10", "recall@10", "recall@100", "mrr@10"]))
         self.qids = sorted(self.ds.queries)
+        if "query_sample" in self.cfg:  # e.g. a dev subset: {n: 300, seed: 13}
+            import random
+
+            spec = self.cfg["query_sample"]
+            self.qids = sorted(random.Random(spec["seed"]).sample(self.qids, min(spec["n"], len(self.qids))))
+        self.qrels = {q: self.ds.qrels[q] for q in self.qids}
         self.threads = threads
         self.results: dict[str, SystemResult] = {}
         self._bm25: BM25Retriever | None = None
@@ -332,7 +338,7 @@ class Experiment:
                     raise
                 log(f"- {name}: skipped ({e})")
                 continue
-            res.metrics = evaluate(self.ds.qrels, res.run, self.metrics)
+            res.metrics = evaluate(self.qrels, res.run, self.metrics)
             self.results[name] = res
             ndcg = np.mean(list(res.metrics["ndcg@10"].values()))
             log(f"- {name}: nDCG@10={ndcg:.4f}  ({time.perf_counter() - t0:.0f}s)")

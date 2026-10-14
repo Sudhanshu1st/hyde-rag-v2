@@ -1,0 +1,10 @@
+# Phase 3: grounded generation on a stratified 100-claim SciFact sample (D-EVAL-6).
+# Compares the best non-HyDE pipeline with its HyDE counterpart (pre-registered choice):
+# both rerank the top-100 with the same cross-encoder, so the gate's score scale is shared.
+name: scifact-generation
+dataset: scifact
+retrieval_experiment: scifact
+systems: [rerank-hybrid-bge, rerank-hybrid-hyde-bge]
+top_k: 3
+sample: {n: 100, seed: 13}
+gate: {experiment: scifact-dev, system: rerank-hybrid-bge, max_false_refusal: 0.05}

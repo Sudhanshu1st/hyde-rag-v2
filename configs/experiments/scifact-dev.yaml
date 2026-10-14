@@ -1,0 +1,15 @@
+# SciFact dev split for the generation phase: the original train claims (BEIR "train").
+# Used ONLY to calibrate the retrieval-gate threshold tau (D-EVAL-6). No LLM systems, so no quota.
+name: scifact-dev
+dataset: scifact
+split: train
+query_sample: {n: 300, seed: 13}
+depth: 1000
+metrics: [ndcg@10, recall@10, recall@100, mrr@10]
+baselines:
+  bge-base: dense-bge
+systems:
+  - {name: bm25, type: bm25, baseline: dense-bge}
+  - {name: dense-bge, type: dense, encoder: bge-base}
+  - {name: hybrid-bge, type: rrf, inputs: [bm25, dense-bge], baseline: dense-bge}
+  - {name: rerank-hybrid-bge, type: rerank, input: hybrid-bge, depth: 100, baseline: dense-bge}

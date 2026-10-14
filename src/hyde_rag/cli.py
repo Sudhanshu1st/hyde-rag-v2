@@ -7,6 +7,7 @@ Windows without `make`.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
@@ -140,6 +141,15 @@ def cmd_generate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_gen_eval(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.generation_eval import GenerationEval
+
+    ev = GenerationEval(args.config)
+    summary = ev.run(llm=not args.no_llm, approved=args.yes, log=lambda m: print(m, flush=True))
+    print(json.dumps(summary["systems"], indent=2))
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -178,6 +188,12 @@ def main(argv: list[str] | None = None) -> int:
         "--pilot-only", action="store_true", help="run 20 calls per job, report measured cost, stop"
     )
     p.set_defaults(func=cmd_generate)
+
+    p = sub.add_parser("gen-eval", help="generation eval: verdicts, citations, abstention, faithfulness")
+    p.add_argument("config")
+    p.add_argument("--no-llm", action="store_true", help="score cached outputs only (no API calls)")
+    p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
+    p.set_defaults(func=cmd_gen_eval)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)

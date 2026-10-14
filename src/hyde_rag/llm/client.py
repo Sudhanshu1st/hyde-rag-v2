@@ -16,6 +16,11 @@ from hyde_rag.llm.quota import assert_free_tier
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 
+def default_base_url() -> str:
+    """Endpoint used for cache keys when reading results without a client (no key needed)."""
+    return os.environ.get("OPENAI_COMPAT_BASE_URL") or GROQ_BASE_URL
+
+
 @dataclass(frozen=True)
 class LLMRequest:
     model: str
@@ -98,7 +103,7 @@ class OpenAICompatClient:
     def __init__(self, base_url: str | None = None, api_key: str | None = None, timeout: float = 120.0):
         from openai import OpenAI
 
-        self.base_url = base_url or os.environ.get("OPENAI_COMPAT_BASE_URL") or GROQ_BASE_URL
+        self.base_url = base_url or default_base_url()
         key = api_key or os.environ.get("OPENAI_COMPAT_API_KEY") or os.environ.get("GROQ_API_KEY")
         if not key:
             raise RuntimeError(
