@@ -1,0 +1,40 @@
+HyDE RAG v2
+Copyright (c) 2026 Sudhanshu Tiwari. Code licensed under the MIT License (see LICENSE).
+
+The MIT License covers the code in this repository only. Datasets, models and
+documents keep their own licences, listed below.
+
+Method
+------
+HyDE: Gao, Ma, Lin, Callan. "Precise Zero-Shot Dense Retrieval without Relevance
+Labels." ACL 2023. arXiv:2212.10496. This repository re-implements the method from
+the paper; it contains no code from the official repository (which has no licence).
+The per-dataset instructions in configs/hyde_instructions.yaml are quoted from the
+paper's Appendix A.1 for reproduction.
+
+BEIR datasets (downloaded by scripts/download_beir.py, not redistributed)
+-------------------------------------------------------------------------
+Licences as reported by the BEIR paper (Thakur et al., 2021, Appendix E) and the HyDE
+paper (Appendix A.3). The two sources disagree on some versions; check the original
+dataset pages before reuse.
+  - SciFact (Wadden et al., 2020): CC BY-NC 2.0 (BEIR) / CC BY-NC 4.0 (HyDE paper)
+  - TREC-COVID / CORD-19: CORD-19 Dataset License Agreement
+  - ArguAna (Wachsmuth et al., 2018): CC BY 4.0 (BEIR) / CC BY-SA 3.0 (HyDE paper)
+
+cache/beir/ contains LLM-generated hypothetical documents. They are model outputs
+derived from these datasets' queries. They contain no query or corpus text and are
+shared for reproducibility only; any reuse should also respect the dataset licences above.
+
+Models (downloaded at runtime from Hugging Face, not redistributed)
+-------------------------------------------------------------------
+  - facebook/contriever: CC BY-NC 4.0 (non-commercial). Used only for paper-parity
+    benchmark runs. The API and demo default to an MIT-licensed embedder.
+  - BAAI/bge-base-en-v1.5, BAAI/bge-small-en-v1.5: MIT
+  - cross-encoder/ms-marco-MiniLM-L6-v2: Apache-2.0
+  - BAAI/bge-reranker-v2-m3 (optional): Apache-2.0
+
+Food-safety documents
+---------------------
+See data_sources.yaml for every document's URL, publisher, licence, retrieval date
+and sha256. US federal government works (17 U.S.C. 105) are committed as raw files.
+Everything else is fetched by scripts/download_food_corpus.py and is not committed.

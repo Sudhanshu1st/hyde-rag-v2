@@ -1,0 +1,144 @@
+# Food-safety quality corpus: public sources only.
+# STATUS: DRAFT (Phase 1). URLs and licences were verified 2026-10-14 by fetching each
+# publisher's own pages. `retrieved` and `sha256` are filled in by
+# scripts/download_food_corpus.py in Phase 4.
+#
+# Commit rule:
+#   commit_raw: true   -> US federal government work (17 U.S.C. 105) or CC0, with no
+#                          third-party copyright/permission notice found in the document.
+#   commit_raw: false  -> download script only; the raw file is never committed.
+#
+# Licence policies (publisher pages):
+#   FDA:     https://www.fda.gov/about-fda/about-website/website-policies
+#            ("Unless otherwise noted ... public domain"; record date copied and link back)
+#   openFDA: https://open.fda.gov/license/  (CC0 1.0 unless noted)
+#   USDA:    https://www.usda.gov/about-usda/policies-and-links  (most content public domain;
+#            some material "used by USDA with permission")
+#   FSSAI:   https://fssai.gov.in/website-policies  (reproduction with acknowledgement; not US PD)
+#   Codex:   PDF imprint "(c) FAO and WHO, 2023. Some rights reserved ... CC BY-NC-SA 3.0 IGO"
+#
+# Download etiquette (observed 2026-10-14):
+#   fda.gov: robots.txt Crawl-Delay 30, plus bot detection. Single thread, >= 30 s between
+#            requests, back off on errors, never evade.
+#   usda.gov / fsis.usda.gov: 403 to scripted clients from the dev network. The script
+#            supports a manual-download fallback, with sha256 verification against this file.
+#   openknowledge.fao.org: Crawl-delay 10.
+#   api.fda.gov: 1,000 requests/day without a key (plenty for 4 queries).
+
+defaults:
+  fda_media: https://www.fda.gov/media/{id}/download
+  fda_wl: https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/{slug}
+  usda_guidance: https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20{name}
+  fsis_media: https://www.fsis.usda.gov/sites/default/files/media_file/{path}
+  openfda_enforcement: https://api.fda.gov/food/enforcement.json
+
+documents:
+  # ---------------- Reference codes and standards ----------------
+  - {doc_id: fda_food_code_2026, title: "Food Code 2026", publisher: FDA, format: pdf, pages: 732,
+     url: "https://www.fda.gov/media/194741/download", licence: public_domain_us_gov_mixed, commit_raw: false,
+     note: "Annex 4 reproduces a table 'Used with permission' (Pierson & Corlett, Chapman & Hall)."}
+  - {doc_id: codex_cxc1_1969, title: "General Principles of Food Hygiene CXC 1-1969 (rev. 2022, 2023 ed.)", publisher: FAO/WHO,
+     format: pdf, pages: 60, url: "https://openknowledge.fao.org/server/api/core/bitstreams/6866dc55-d2c0-48dd-a528-a4d634f1b0b4/content",
+     landing: "https://doi.org/10.4060/cc6125en", licence: cc_by_nc_sa_3_0_igo, commit_raw: false}
+  - {doc_id: fssai_sched4_compendium, title: "FSS (Licensing & Registration) Regulations 2011, compendium incl. Schedule 4", publisher: FSSAI,
+     format: pdf, pages: 101, url: "https://fssai.gov.in/docs/food-law/regulations/Compendium_Licensing_Regulations_04_08_2021.pdf",
+     licence: restricted_download_only, commit_raw: false, note: "Schedule 4 from ~p.35; partly superseded by Amendment No. 5 (2026)."}
+  - {doc_id: fssai_lr_amend5_2026, title: "L&R Amendment No. 5 (2026), substitutes Schedule 4 Part II para 5.2.5", publisher: FSSAI,
+     format: pdf, url: "https://fssai.gov.in/docs/food-law/regulations/amendments/licensing-registration/273797.pdf",
+     licence: restricted_download_only, commit_raw: false}
+  - {doc_id: fssai_recall_reg_2017, title: "Food Safety and Standards (Food Recall Procedure) Regulations 2017", publisher: FSSAI,
+     format: pdf, url: "https://fssai.gov.in/docs/food-law/regulations/Food_Recall_Regulations.pdf",
+     licence: restricted_download_only, commit_raw: false}
+  - {doc_id: fssai_recall_guidelines_2017, title: "Food Recall Guidelines", publisher: FSSAI,
+     format: pdf, url: "https://fssai.gov.in/docs/food-law/regulations/Guidelines_Food_Recall_28_11_2017.pdf",
+     licence: restricted_download_only, commit_raw: false}
+
+  # ---------------- FDA preventive controls for human food (draft guidance, Jan 2024) ----------------
+  # Landing: https://www.fda.gov/regulatory-information/search-fda-guidance-documents/draft-guidance-industry-hazard-analysis-and-risk-based-preventive-controls-for-human-food
+  - {doc_id: fda_pchf_intro, title: "PCHF guidance: Introduction", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99621/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch01, title: "PCHF Ch 1: The Food Safety Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99547/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch02, title: "PCHF Ch 2: Conducting a Hazard Analysis", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99554/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch03, title: "PCHF Ch 3: Potential Hazards", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99558/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch04, title: "PCHF Ch 4: Preventive Controls", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99572/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch05, title: "PCHF Ch 5: Preventive Control Management Components", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99576/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch06, title: "PCHF Ch 6: Heat Treatments", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/107327/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch11, title: "PCHF Ch 11: Food Allergen Program", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/172318/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch14, title: "PCHF Ch 14: Recall Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/131287/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch15, title: "PCHF Ch 15: Supply-Chain Program", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/110443/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch16, title: "PCHF Ch 16: Acidified Foods", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/172317/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_app2_forms, title: "PCHF Appendix 2: Food Safety Plan Forms", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99592/download",
+     licence: public_domain_us_gov_review, commit_raw: false, note: "Forms 'adapted from' FSPCA material; precautionary download-only."}
+  - {doc_id: fda_pchf_app3, title: "PCHF Appendix 3: Bacterial Pathogen Growth and Inactivation", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99598/download", licence: public_domain_us_gov, commit_raw: true}
+
+  # ---------------- Other FDA guidance ----------------
+  - {doc_id: fda_lm_rte_2017, title: "Control of Listeria monocytogenes in Ready-To-Eat Foods (draft, 2017)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/102633/download",
+     licence: public_domain_us_gov, commit_raw: true, note: "Cites recommendations 'adapted from' Tompkin et al. 1999; no permission notice found."}
+  - {doc_id: fda_lmrte_sanitation_2025, title: "Low-moisture RTE foods: sanitation and corrective actions (draft, 2025)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/184815/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_juice_haccp_2004, title: "Juice HACCP Hazards and Controls Guidance (2004)", publisher: FDA, format: html, url: null,
+     licence: public_domain_us_gov, commit_raw: true, note: "HTML only; exact URL to be confirmed in Phase 4."}
+  - {doc_id: fda_seafood_ch02, title: "Seafood HACCP Guidance Ch 2: Hazard Analysis and HACCP Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80729/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_ch12, title: "Seafood HACCP Guidance Ch 12: Pathogen growth from time/temperature abuse", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80305/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_ch13, title: "Seafood HACCP Guidance Ch 13: Clostridium botulinum", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80310/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_ch19, title: "Seafood HACCP Guidance Ch 19: Undeclared major food allergens", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80337/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_app10, title: "Seafood HACCP Guidance App 10: Allergen cleaning and sanitation", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/129671/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_add2, title: "Seafood HACCP Guidance Addendum 2: CGMP (21 CFR 117 Subpart B)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/149982/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_recall_initiation_2022, title: "Initiation of Voluntary Recalls (guidance, 2022)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/123664/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_rpm_ch07, title: "Regulatory Procedures Manual Ch 7: Recall Procedures", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/71814/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_iom2026_ch07, title: "Investigations Operations Manual 2026 Ch 7: Recall Activities", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/166535/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_retail_haccp_manual, title: "Managing Food Safety: HACCP manual for retail and food service operators", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/71976/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_rfr_qa_ed2, title: "Reportable Food Registry Q&A, Edition 2 (draft)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/79130/download", licence: public_domain_us_gov, commit_raw: true}
+
+  # ---------------- USDA FSIS (meat and poultry) ----------------
+  - {doc_id: fsis_lm_rte_2014, title: "Compliance Guideline: Controlling Lm in Post-lethality Exposed RTE Meat and Poultry (2014)", publisher: USDA FSIS, format: pdf,
+     url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20Controlling%20Listeria%20monocytogenes%20in%20Post-lethality%20Exposed%20Ready-to-Eat%20Meat%20and%20Poultry%20Products.pdf",
+     licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_appendix_a_2021, title: "Cooking Guideline for Meat and Poultry (Revised Appendix A, 2021)", publisher: USDA FSIS, format: pdf,
+     url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20FSIS%20Cooking%20Guideline%20for%20Meat%20and%20Poultry%20Products%20%28Revised%20Appendix%20A%29.pdf",
+     licence: public_domain_us_gov_mixed, commit_raw: false, note: "p.29 instruction 'reprinted with permission from the University of Wisconsin'."}
+  - {doc_id: fsis_appendix_b_2021, title: "Stabilization Guideline for Meat and Poultry (Revised Appendix B, 2021)", publisher: USDA FSIS, format: pdf,
+     url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20FSIS%20Stabilization%20Guideline%20for%20Meat%20and%20Poultry%20Products%20%28Revised%20Appendix%20B%29.pdf",
+     licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_sps_guide, title: "Sanitation Performance Standards Compliance Guide", publisher: USDA FSIS, format: pdf,
+     url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20Sanitation%20Performance%20Standards%20Compliance%20Guide.pdf",
+     licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_hazards_controls_2018, title: "Meat and Poultry Hazards and Controls Guide", publisher: USDA FSIS, format: pdf,
+     url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20Meat%20and%20Poultry%20Hazards%20and%20Controls%20Guide.pdf",
+     licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_haccp_validation, title: "Compliance Guideline: HACCP Systems Validation", publisher: USDA FSIS, format: pdf,
+     url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20FSIS%20Compliance%20Guideline%20HACCP%20Systems%20Validation.pdf",
+     licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_dir_5000_1_r8, title: "FSIS Directive 5000.1 Rev 8: Verifying an Establishment's Food Safety System", publisher: USDA FSIS, format: pdf,
+     url: "https://www.fsis.usda.gov/sites/default/files/media_file/documents/5000.1.pdf", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_dir_10240_4_r4, title: "FSIS Directive 10240.4 Rev 4: Verification of Lm in RTE products", publisher: USDA FSIS, format: pdf,
+     url: "https://www.fsis.usda.gov/sites/default/files/media_file/2020-08/10240.4.pdf", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_dir_5000_4_r3, title: "FSIS Directive 5000.4 Rev 3: Sanitation SOP verification", publisher: USDA FSIS, format: pdf,
+     url: "https://www.fsis.usda.gov/sites/default/files/media_file/2021-10/5000.4.pdf", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fsis_dir_8080_1_r8, title: "FSIS Directive 8080.1 Rev 8: Recall of Meat and Poultry Products", publisher: USDA FSIS, format: pdf,
+     url: "https://www.fsis.usda.gov/sites/default/files/media_file/2020-07/8080.1.pdf", licence: public_domain_us_gov, commit_raw: true}
+
+  # ---------------- FDA warning letters (corrective-action language) ----------------
+  # Letters carry FOIA (b)(4)/(b)(6)/(b)(7)(C) redactions and name individuals. We store only the
+  # extracted letter body and mask personal names (firm names kept). See docs/DECISIONS.md D-DATA-3.
+  - {doc_id: fda_wl_dreyers_2026, title: "Warning letter: Dreyer's Grand Ice Cream (Listeria)", publisher: FDA, format: html, url_slug: dreyers-grand-ice-cream-inc-727644-09292026, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_fresh_ready_2025, title: "Warning letter: Compass Group USA / Fresh & Ready (Lm outbreak)", publisher: FDA, format: html, url_slug: compass-group-usa-709592-09052025, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_gracies_2025, title: "Warning letter: Gracie's Kitchens (Lm)", publisher: FDA, format: html, url_slug: gracies-kitchens-inc-701613-09032025, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_fathers_table_2025, title: "Warning letter: Father's Table (Lm)", publisher: FDA, format: html, url_slug: fathers-table-llc-706334-11282025, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_doco_2026, title: "Warning letter: DO&CO (Lm, multi-site)", publisher: FDA, format: html, url_slug: doco-aktiengesellschaftdoco-inc-717773-03302026, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_smucker_2023, title: "Warning letter: J.M. Smucker (Salmonella)", publisher: FDA, format: html, url_slug: jm-smucker-llc-638042-01242023, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_pepsico_2024, title: "Warning letter: PepsiCo / Quaker (Salmonella)", publisher: FDA, format: html, url_slug: pepsico-inc-679972-06122024, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_carolina_seafood_2025, title: "Warning letter: Carolina Seafood (Seafood HACCP)", publisher: FDA, format: html, url_slug: carolina-seafood-inc-710510-08212025, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_south_bay_2026, title: "Warning letter: South Bay Cold Storage (Seafood HACCP)", publisher: FDA, format: html, url_slug: south-bay-cold-storage-handling-inc-717080-01222026, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_barsotti_2024, title: "Warning letter: Barsotti Juice (Juice HACCP, C. botulinum)", publisher: FDA, format: html, url_slug: barsotti-juice-company-inc-676447-01302024, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_wellmill_2026, title: "Warning letter: Wellmill / Vitamix Laboratories (Juice HACCP)", publisher: FDA, format: html, url_slug: wellmill-llc-dba-vitamix-laboratories-725655-04202026, licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_wl_tova_2024, title: "Warning letter: Tova Industries (acidified foods)", publisher: FDA, format: html, url_slug: tova-industries-llc-693241-10292024, licence: public_domain_us_gov, commit_raw: true}
+
+  # ---------------- openFDA food enforcement (recall) snapshots, CC0 ----------------
+  # Each group is stored with its query string and meta.last_updated so it can be re-created.
+  - {doc_id: openfda_recalls_listeria, title: "Food recalls: Listeria (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
+     query: "search=reason_for_recall:listeria+AND+report_date:[20250101+TO+20261231]&limit=1000"}
+  - {doc_id: openfda_recalls_salmonella, title: "Food recalls: Salmonella (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
+     query: "search=reason_for_recall:salmonella+AND+report_date:[20250101+TO+20261231]&limit=1000"}
+  - {doc_id: openfda_recalls_allergen, title: "Food recalls: undeclared allergens (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
+     query: "search=reason_for_recall:undeclared+AND+reason_for_recall:(milk+OR+egg+OR+peanut+OR+soy+OR+wheat+OR+sesame+OR+almond+OR+cashew+OR+walnut+OR+pecan+OR+fish+OR+shrimp)+AND+report_date:[20250101+TO+20261231]&limit=1000"}
+  - {doc_id: openfda_recalls_foreign_material, title: "Food recalls: foreign material (2025-2026)", publisher: FDA/openFDA, format: json, licence: cc0, commit_raw: true,
+     query: "search=reason_for_recall:(metal+OR+plastic+OR+glass+OR+%22foreign+material%22)+AND+report_date:[20250101+TO+20261231]&limit=1000"}

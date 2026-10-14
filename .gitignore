@@ -1,0 +1,43 @@
+# --- secrets: only .env.example is ever committed ---
+.env
+.env.*
+!.env.example
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- data: downloaded by scripts, never committed unless public domain (see data_sources.yaml) ---
+data/beir/
+data/food/raw_restricted/
+data/food/processed/
+data/indexes/
+
+# --- model artefacts ---
+models/
+*.safetensors
+*.bin
+*.onnx
+
+# --- LLM cache: committed selectively (BEIR hypothetical docs only; see docs/DECISIONS.md) ---
+cache/*
+!cache/.gitkeep
+!cache/beir/
+cache/beir/**/*.tmp
+
+# --- misc ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

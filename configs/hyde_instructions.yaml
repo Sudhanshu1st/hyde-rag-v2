@@ -1,0 +1,50 @@
+# HyDE instructions, one per dataset, following the paper's design.
+#
+# Paper-parity instructions are from Gao et al. (2023), "Precise Zero-Shot Dense
+# Retrieval without Relevance Labels", ACL 2023, Appendix A.1
+# (https://aclanthology.org/2023.acl-long.99.pdf), with the [PLACEHOLDER] written
+# as {query}. Line breaks follow the paper. Where the arXiv v1 wording differs, it is
+# noted; we use the ACL (camera-ready) wording.
+#
+# Sampling settings in the official repo (github.com/texttron/hyde, generator.py):
+# n=8, max_tokens=512, temperature=0.7, top_p=1, stop=["\n\n\n"].
+# Our deviations are recorded in docs/DECISIONS.md (D-HYDE-*).
+
+paper:
+  scifact: |-
+    Please write a scientific paper passage to support or refute the claim
+    Claim: {query}
+    Passage:
+  # arXiv v1: "...to support/refute the claim"; the repo's promptor.py adds a trailing period.
+  trec-covid: |-
+    Please write a scientific paper passage to answer the question
+    Question: {query}
+    Passage:
+  arguana: |-
+    Please write a counter argument for the passage
+    Passage: {query}
+    Counter Argument:
+  fiqa: |-
+    Please write a financial article passage to answer the question
+    Question: {query}
+    Passage:
+  dbpedia-entity: |-
+    Please write a passage to answer the question.
+    Question: {query}
+    Passage:
+  web_search: |-
+    Please write a passage to answer the question
+    Question: {query}
+    Passage:
+
+# Domain adaptation F1 (ours, not from the paper). Tuned on the food dev split only.
+domain:
+  food_quality_v1: |-
+    Please write a passage from a food safety document, such as a regulatory guidance, a food code section, a HACCP plan or a sanitation SOP, that answers the question
+    Question: {query}
+    Passage:
+
+# Chat models tend to add a preamble ("Here is a passage..."), which would leak into
+# the embedding. This system prompt asks for the passage only (deviation D-HYDE-3).
+system_passage_only: >-
+  Write only the requested text. Do not add a preamble, title, notes or follow-up questions.
