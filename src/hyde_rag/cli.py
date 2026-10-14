@@ -78,29 +78,33 @@ def cmd_generate(args: argparse.Namespace) -> int:
     from hyde_rag.llm.runner import PILOT_CALLS, run_bulk
     from hyde_rag.retrieval.hyde import cache_path, hyde_items, load_instruction, multi_query_items
 
-    cfg = yaml.safe_load(Path(args.experiment).read_text(encoding="utf-8"))
-    ds = load_beir(cfg["dataset"], split=cfg.get("split", "test"))
-    queries = {q: ds.queries[q] for q in sorted(ds.queries)}
-    jobs = _llm_jobs(cfg, set(args.system) if args.system else None)
-    if args.generator:
-        jobs = {k: v for k, v in jobs.items() if k[2] in args.generator}
-    if not jobs:
-        print("No LLM systems selected.")
-        return 0
     limits = load_limits()
     unlimited = Limits(rpm=10**6, rpd=10**9, tpm=10**12, tpd=10**15)  # e.g. local Ollama
-    client = OpenAICompatClient()
-
     by_model: dict[str, list] = {}
-    for (kind, instruction, generator), n in sorted(jobs.items()):
-        if kind == "hyde":
-            items = hyde_items(queries, load_instruction(instruction), generator, n)
-        else:
-            items = multi_query_items(queries, generator)
-        path = cache_path(ds.name, kind, instruction, generator)
-        by_model.setdefault(generator, []).append((path, items))
-        rel = path.relative_to(path.parents[4])
-        print(f"- {kind:11s} {instruction:16s} {generator:22s} {len(items):5d} calls -> {rel}")
+    # Experiments are queued in the order given; each model works through its queue alone,
+    # so one process uses each free-tier quota exactly once.
+    for experiment in args.experiment:
+        cfg = yaml.safe_load(Path(experiment).read_text(encoding="utf-8"))
+        ds = load_beir(cfg["dataset"], split=cfg.get("split", "test"))
+        queries = {q: ds.queries[q] for q in sorted(ds.queries)}
+        jobs = _llm_jobs(cfg, set(args.system) if args.system else None)
+        if args.generator:
+            jobs = {k: v for k, v in jobs.items() if k[2] in args.generator}
+        # Sort HyDE before multi-query, so the headline results arrive first.
+        for (kind, instruction, generator), n in sorted(jobs.items()):
+            if kind == "hyde":
+                n = min(n, args.max_samples) if args.max_samples else n
+                items = hyde_items(queries, load_instruction(instruction), generator, n)
+            else:
+                items = multi_query_items(queries, generator)
+            path = cache_path(ds.name, kind, instruction, generator)
+            by_model.setdefault(generator, []).append((path, items))
+            rel = path.relative_to(path.parents[4])
+            print(f"- {kind:11s} {instruction:18s} {generator:22s} {len(items):5d} calls -> {rel}")
+    if not by_model:
+        print("No LLM systems selected.")
+        return 0
+    client = OpenAICompatClient()
 
     def run_model(model: str) -> None:
         from hyde_rag.llm.quota import QuotaGuardError, estimate_run
@@ -165,7 +169,8 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=cmd_run)
 
     p = sub.add_parser("generate", help="generate missing LLM outputs for an experiment (free tier)")
-    p.add_argument("--experiment", required=True)
+    p.add_argument("--experiment", action="append", required=True, help="repeat to queue several")
+    p.add_argument("--max-samples", type=int, help="cap HyDE samples per query (core profile: 4)")
     p.add_argument("--system", action="append", help="limit to these system names")
     p.add_argument("--generator", action="append", help="limit to these generator models")
     p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")

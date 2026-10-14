@@ -1,42 +1,45 @@
 # Planned LLM work, expressed in free-tier quota (tokens and requests), not money.
 # scripts/estimate_quota.py turns this into days of free quota per model (docs/QUOTA_PLAN.md).
-# Token figures are input + output (reasoning included) per call. A 20-call pilot replaces
-# them with measured values before each bulk run.
+#
+# Profiles:
+#   core - the smallest plan that still answers "when does HyDE help": N in {1, 4},
+#          generator ablation, multi-query, both BEIR datasets, generation + food evals.
+#   full - adds the paper's N=8 and the larger ablations (about twice the quota).
+# Run `scripts/estimate_quota.py --profile core` (default) or `--profile full`.
 
-chars_per_token: 3.5
-
-# Mean tokens per call by task and model family (planning assumptions).
+# Tokens per call (prompt + completion incl. reasoning).
+# Measured: 20-call pilots on SciFact, 2026-10-14. Others are planning assumptions.
 tokens_per_call:
-  hyde_passage:       {gpt-oss: 460, qwen: 370}   # ~150 prompt + ~250 passage (+ ~60 reasoning on gpt-oss)
-  multi_query_k4:     {gpt-oss: 380, qwen: 300}
-  answer_top3:        {gpt-oss: 2100, qwen: 2000}
-  judge_claims:       {gpt-oss: 1900, qwen: 1800}
-  question_gen:       {gpt-oss: 2700, qwen: 2600}
+  hyde_passage:   {openai/gpt-oss-120b: 496, openai/gpt-oss-20b: 726, qwen/qwen3.8-27b: 310}  # measured
+  multi_query_k4: {openai/gpt-oss-120b: 208, openai/gpt-oss-20b: 260, qwen/qwen3.8-27b: 180}  # 120b measured
+  answer_top3:    {openai/gpt-oss-120b: 2100, openai/gpt-oss-20b: 2300, qwen/qwen3.8-27b: 2000}
+  judge_claims:   {openai/gpt-oss-120b: 1900, openai/gpt-oss-20b: 2100, qwen/qwen3.8-27b: 1800}
+  question_gen:   {openai/gpt-oss-120b: 2700, openai/gpt-oss-20b: 2900, qwen/qwen3.8-27b: 2600}
 
 runs:
   # ---------------- Phase 2: BEIR retrieval ----------------
-  - {id: hyde_scifact_main,  phase: 2, role: hyde_main,  task: hyde_passage,   dataset: scifact,    queries: 300, samples: 8}
-  - {id: hyde_covid_main,    phase: 2, role: hyde_main,  task: hyde_passage,   dataset: trec-covid, queries: 50,  samples: 8}
-  - {id: mq_scifact,         phase: 2, role: hyde_main,  task: multi_query_k4, dataset: scifact,    queries: 300, samples: 1}
-  - {id: mq_covid,           phase: 2, role: hyde_main,  task: multi_query_k4, dataset: trec-covid, queries: 50,  samples: 1}
-  - {id: hyde_scifact_small, phase: 2, role: hyde_small, task: hyde_passage,   dataset: scifact,    queries: 300, samples: 4}
-  - {id: hyde_covid_small,   phase: 2, role: hyde_small, task: hyde_passage,   dataset: trec-covid, queries: 50,  samples: 8}
-  - {id: hyde_scifact_alt,   phase: 2, role: hyde_alt,   task: hyde_passage,   dataset: scifact,    queries: 300, samples: 4}
-  - {id: hyde_covid_alt,     phase: 2, role: hyde_alt,   task: hyde_passage,   dataset: trec-covid, queries: 50,  samples: 8}
+  - {id: hyde_scifact_main_n4,  profile: core, phase: 2, role: hyde_main,  task: hyde_passage,   queries: 300, samples: 4}
+  - {id: hyde_scifact_main_n8,  profile: full, phase: 2, role: hyde_main,  task: hyde_passage,   queries: 300, samples: 4}  # samples 5-8
+  - {id: mq_scifact,            profile: core, phase: 2, role: hyde_main,  task: multi_query_k4, queries: 300, samples: 1}
+  - {id: hyde_covid_main_n4,    profile: core, phase: 2, role: hyde_main,  task: hyde_passage,   queries: 50,  samples: 4}
+  - {id: hyde_covid_main_n8,    profile: full, phase: 2, role: hyde_main,  task: hyde_passage,   queries: 50,  samples: 4}  # samples 5-8
+  - {id: mq_covid,              profile: core, phase: 2, role: hyde_main,  task: multi_query_k4, queries: 50,  samples: 1}
+  - {id: hyde_scifact_alt_n4,   profile: core, phase: 2, role: hyde_alt,   task: hyde_passage,   queries: 300, samples: 4}
+  - {id: hyde_covid_alt_n4,     profile: core, phase: 2, role: hyde_alt,   task: hyde_passage,   queries: 50,  samples: 4}
+  - {id: hyde_covid_small_n1,   profile: core, phase: 2, role: hyde_small, task: hyde_passage,   queries: 50,  samples: 1}
+  - {id: hyde_scifact_small_n1, profile: core, phase: 2, role: hyde_small, task: hyde_passage,   queries: 300, samples: 1}
+  - {id: hyde_scifact_small_n4, profile: full, phase: 2, role: hyde_small, task: hyde_passage,   queries: 300, samples: 3}  # samples 2-4
 
-  # ---------------- Phase 3: generation on SciFact ----------------
-  # 100 claims x 2 systems (best non-HyDE vs best HyDE). Abstention gate calibrated on the
-  # SciFact train split with a non-LLM system, so no extra quota.
-  - {id: answers_scifact,    phase: 3, role: answerer,   task: answer_top3,  calls: 200}
-  - {id: judge_scifact,      phase: 3, role: judge,      task: judge_claims, calls: 200}
+  # ---------------- Phase 3: generation on SciFact (100 claims x 2 systems) ----------------
+  - {id: answers_scifact,       profile: core, phase: 3, role: answerer,   task: answer_top3,  calls: 200}
+  - {id: judge_scifact,         profile: core, phase: 3, role: judge,      task: judge_claims, calls: 200}
 
   # ---------------- Phase 4: food eval set ----------------
-  - {id: food_question_gen,  phase: 4, role: question_gen, task: question_gen, calls: 120}
+  - {id: food_question_gen,     profile: core, phase: 4, role: question_gen, task: question_gen, calls: 120}
 
   # ---------------- Phase 5: domain adaptation + final food benchmark ----------------
-  # ~200 questions (dev + test) x N=4 x {paper-generic, domain} instruction.
-  - {id: hyde_food_main,     phase: 5, role: hyde_main,  task: hyde_passage,   calls: 1600}
-  - {id: mq_food,            phase: 5, role: hyde_main,  task: multi_query_k4, calls: 200}
-  # 2 configs x ~140 test questions.
-  - {id: answers_food,       phase: 5, role: answerer,   task: answer_top3,    calls: 280}
-  - {id: judge_food,         phase: 5, role: judge,      task: judge_claims,   calls: 280}
+  # ~200 questions x N=4 x {paper-generic, domain} instruction.
+  - {id: hyde_food_main,        profile: core, phase: 5, role: hyde_main,  task: hyde_passage,   calls: 1600}
+  - {id: mq_food,               profile: core, phase: 5, role: hyde_main,  task: multi_query_k4, calls: 200}
+  - {id: answers_food,          profile: core, phase: 5, role: answerer,   task: answer_top3,    calls: 280}
+  - {id: judge_food,            profile: core, phase: 5, role: judge,      task: judge_claims,   calls: 280}
