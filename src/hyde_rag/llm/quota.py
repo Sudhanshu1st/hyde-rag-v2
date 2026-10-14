@@ -18,8 +18,9 @@ from pathlib import Path
 
 import yaml
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_LLM_CONFIG = REPO_ROOT / "configs" / "llm.yaml"
+from hyde_rag import paths
+
+DEFAULT_LLM_CONFIG = paths.CONFIG_DIR / "llm.yaml"
 
 # Groq's free plan allows 8K tokens/minute per model; its paid Developer plan starts at
 # 250K. Anything above this threshold means the key is not on the free plan.

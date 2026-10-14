@@ -1,0 +1,57 @@
+# SciFact (BEIR test, 300 claims): the primary benchmark.
+# Every system is a config entry. Systems that need LLM output read it from cache/ and are
+# skipped (with the command to generate them) until it exists.
+name: scifact
+dataset: scifact
+split: test
+depth: 1000
+metrics: [ndcg@10, recall@10, recall@100, mrr@10]
+
+# Significance is tested against the naive dense run of the same encoder (D-EVAL-4).
+baselines:
+  contriever: dense-contriever
+  bge-base: dense-bge
+
+systems:
+  # ---- S1/S2: no LLM ----
+  - {name: bm25, type: bm25, baseline: dense-contriever}
+  - {name: dense-contriever, type: dense, encoder: contriever}
+  - {name: dense-bge, type: dense, encoder: bge-base}
+
+  # ---- S3: HyDE, headline generator, N sweep (paper parity: Contriever) ----
+  - {name: hyde-contriever-120b-n1, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 1}
+  - {name: hyde-contriever-120b-n4, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 4}
+  - {name: hyde-contriever-120b-n8, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 8}
+  - {name: hyde-bge-120b-n1, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 1}
+  - {name: hyde-bge-120b-n4, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 4}
+  - {name: hyde-bge-120b-n8, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 8}
+
+  # ---- S3: generator ablation at N=4 (paper Table 4 analogue) ----
+  - {name: hyde-contriever-20b-n4, type: hyde, encoder: contriever, generator: openai/gpt-oss-20b, instruction: paper.scifact, n: 4}
+  - {name: hyde-contriever-qwen-n4, type: hyde, encoder: contriever, generator: qwen/qwen3.8-27b, instruction: paper.scifact, n: 4}
+  - {name: hyde-bge-20b-n4, type: hyde, encoder: bge-base, generator: openai/gpt-oss-20b, instruction: paper.scifact, n: 4}
+  - {name: hyde-bge-qwen-n4, type: hyde, encoder: bge-base, generator: qwen/qwen3.8-27b, instruction: paper.scifact, n: 4}
+
+  # ---- S4: hybrid BM25 + dense (RRF) ----
+  - {name: hybrid-contriever, type: rrf, inputs: [bm25, dense-contriever], baseline: dense-contriever}
+  - {name: hybrid-bge, type: rrf, inputs: [bm25, dense-bge], baseline: dense-bge}
+
+  # ---- S5: hybrid + HyDE, and Query2doc-style BM25 expansion ----
+  - {name: hybrid-hyde-contriever, type: rrf, inputs: [bm25, hyde-contriever-120b-n8], baseline: dense-contriever}
+  - {name: hybrid-hyde-bge, type: rrf, inputs: [bm25, hyde-bge-120b-n8], baseline: dense-bge}
+  - {name: bm25-q2d, type: bm25_q2d, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 8, baseline: dense-contriever}
+  - {name: hybrid-q2d-hyde-bge, type: rrf, inputs: [bm25-q2d, hyde-bge-120b-n8], baseline: dense-bge}
+
+  # ---- S6: multi-query / RAG-Fusion (K=4 rewrites + original, RRF) ----
+  - {name: mq-bm25, type: multi_query, generator: openai/gpt-oss-120b, legs: [bm25], baseline: dense-contriever}
+  - {name: mq-hybrid-bge, type: multi_query, generator: openai/gpt-oss-120b, legs: [bm25, "dense:bge-base"], baseline: dense-bge}
+
+  # ---- S7: cross-encoder rerank of the top-100 ----
+  - {name: rerank-bm25, type: rerank, input: bm25, depth: 100, baseline: dense-contriever}
+  - {name: rerank-dense-contriever, type: rerank, input: dense-contriever, depth: 100, baseline: dense-contriever}
+  - {name: rerank-dense-bge, type: rerank, input: dense-bge, depth: 100, baseline: dense-bge}
+  - {name: rerank-hybrid-bge, type: rerank, input: hybrid-bge, depth: 100, baseline: dense-bge}
+  - {name: rerank-hyde-contriever-120b-n8, type: rerank, input: hyde-contriever-120b-n8, depth: 100, baseline: dense-contriever}
+  - {name: rerank-hyde-bge-120b-n8, type: rerank, input: hyde-bge-120b-n8, depth: 100, baseline: dense-bge}
+  - {name: rerank-hybrid-hyde-bge, type: rerank, input: hybrid-hyde-bge, depth: 100, baseline: dense-bge}
+  - {name: rerank-mq-hybrid-bge, type: rerank, input: mq-hybrid-bge, depth: 100, baseline: dense-bge}
