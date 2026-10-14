@@ -20,6 +20,7 @@ dataset pages before reuse.
   - SciFact (Wadden et al., 2020): CC BY-NC 2.0 (BEIR) / CC BY-NC 4.0 (HyDE paper)
   - TREC-COVID / CORD-19: CORD-19 Dataset License Agreement
   - ArguAna (Wachsmuth et al., 2018): CC BY 4.0 (BEIR) / CC BY-SA 3.0 (HyDE paper)
+  - SciFact claim labels (original release, scripts/download_scifact_labels.py): CC BY-NC 2.0
 
 cache/ contains LLM outputs (hypothetical documents, query rewrites, answers, judgements)
 generated with open-weights models (OpenAI gpt-oss, Qwen) served on Groq's free plan.

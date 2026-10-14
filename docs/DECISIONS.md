@@ -199,6 +199,20 @@ We report both and compare with the paper on the capped version. TREC-COVID qrel
 - judges support against the cited chunks using structured output (pydantic);
 - is validated against 50 hand labels before its numbers are trusted.
 
+**D-EVAL-6 SciFact generation task uses the original labels.** BEIR's SciFact test split is
+exactly the original SciFact dev set: all 300 claim ids are present with identical text. The
+original release (`scripts/download_scifact_labels.py`, CC BY-NC 2.0, not committed) labels
+these claims SUPPORT (124), CONTRADICT (64) and no evidence (112). BEIR still gives the
+no-evidence claims a cited abstract as "relevant", but that abstract doesn't settle the claim.
+So the generation task is three-way:
+- verdict SUPPORTED, REFUTED, or "not found in the provided documents";
+- answer correctness is scored against the gold label, without an LLM judge;
+- the 112 no-evidence claims are natural "should abstain" cases for the abstention
+  precision/recall and false-refusal metrics. This replaces the evidence-ablation idea in
+  PLAN.md.
+
+The dev split for τ calibration is the original train set (809 claims, same label scheme).
+
 ## Compute
 
 **D-COMP-1 Measured CPU throughput on the dev laptop.** Intel i5-1235U (2 performance + 8

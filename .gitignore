@@ -22,6 +22,7 @@ data/beir/
 data/food/raw_restricted/
 data/food/processed/
 data/indexes/
+data/scifact_labels/
 
 # --- model artefacts ---
 models/
