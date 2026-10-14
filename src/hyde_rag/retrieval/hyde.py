@@ -100,6 +100,19 @@ def multi_query_items(queries: dict[str, str], model: str, k: int = MULTI_QUERY_
 
 
 _NUMBERING = re.compile(r"^\s*(?:[-*•]|\d+[.)])\s*")
+_MD_HEADING = re.compile(r"^\s{0,3}#{1,6}\s*", re.MULTILINE)
+_MD_EMPHASIS = re.compile(r"(\*\*|__|`)")
+_WS = re.compile(r"\s+")
+
+
+def clean_passage(text: str) -> str:
+    """Strip markdown markup (headings, bold, code ticks) and collapse whitespace (D-HYDE-7).
+
+    Applied identically to every generator's output before encoding; the cache keeps raw text.
+    """
+    text = _MD_HEADING.sub("", text)
+    text = _MD_EMPHASIS.sub("", text)
+    return _WS.sub(" ", text).strip()
 
 
 def parse_rewrites(text: str, k: int = MULTI_QUERY_K) -> list[str]:

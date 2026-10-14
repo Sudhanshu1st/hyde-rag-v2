@@ -5,6 +5,7 @@ from hyde_rag.eval.metrics import capped_recall, evaluate, mean, remove_self_hit
 from hyde_rag.eval.stats import bootstrap_ci, compare_paired, holm
 from hyde_rag.retrieval.bm25 import BM25Retriever, LuceneLikeAnalyzer, top_k
 from hyde_rag.retrieval.fusion import hyde_vector, rrf
+from hyde_rag.retrieval.hyde import clean_passage, parse_rewrites
 
 
 def test_analyzer_mirrors_lucene_english():
@@ -72,3 +73,22 @@ def test_stats():
     same = compare_paired(base, base)
     assert same.p_value == 1.0
     assert holm({"a": 0.01, "b": 0.04, "c": 0.03}) == pytest.approx({"a": 0.03, "c": 0.06, "b": 0.06})
+
+
+MARKDOWN_PASSAGE = """## **Abstract**
+
+The claim that `0-D` materials
+
+**induce**  growth."""
+
+NUMBERED_REWRITES = """1. first query
+- second
+
+3) third
+fourth
+fifth"""
+
+
+def test_clean_passage_and_rewrites():
+    assert clean_passage(MARKDOWN_PASSAGE) == "Abstract The claim that 0-D materials induce growth."
+    assert parse_rewrites(NUMBERED_REWRITES) == ["first query", "second", "third", "fourth"]

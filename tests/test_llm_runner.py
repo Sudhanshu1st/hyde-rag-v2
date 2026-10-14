@@ -114,3 +114,14 @@ def test_pacer_respects_requests_per_minute():
         pacer.wait(10)
         pacer.record(10)
     assert t.slept and t.now >= 60.0  # the third request waited for the window to roll over
+
+
+def test_pacer_spacing_terminates_with_float_residue():
+    # Regression: a large clock value plus a tiny remaining gap must not spin forever.
+    t = FakeTime()
+    t.now = 1_000_000.123
+    pacer = Pacer(Limits(rpm=27, rpd=1000, tpm=10**6, tpd=10**9), headroom=1.0, clock=t.clock, sleep=t.sleep)
+    for _ in range(5):
+        pacer.wait(10)
+        pacer.record(10)
+    assert t.now - 1_000_000.123 >= 4 * 60 / 27 - 1e-6  # evenly spaced, ~2.2 s apart

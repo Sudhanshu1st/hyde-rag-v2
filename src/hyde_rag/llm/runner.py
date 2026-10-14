@@ -40,6 +40,11 @@ class RunReport:
     completed: int = 0
     failed: int = 0
     tokens: int = 0
+    remaining: int = 0  # items still to do (non-zero after a limited/pilot run)
+
+    @property
+    def mean_tokens(self) -> float:
+        return self.tokens / self.completed if self.completed else 0.0
 
     def __str__(self) -> str:
         return (
@@ -63,6 +68,8 @@ class Pacer:
         self.tpm = max(1, int(limits.tpm * headroom))
         self._events: deque[tuple[float, int]] = deque()
         self._clock, self._sleep = clock, sleep
+        self._min_interval = 60.0 / self.rpm  # even spacing avoids burst 429s
+        self._last: float | None = None
 
     def _trim(self, now: float) -> None:
         while self._events and now - self._events[0][0] >= 60.0:
@@ -73,6 +80,11 @@ class Pacer:
             now = self._clock()
             self._trim(now)
             used = sum(t for _, t in self._events)
+            gap = None if self._last is None else self._min_interval - (now - self._last)
+            # Threshold, not > 0: float residue (~1e-15) could otherwise loop forever.
+            if gap is not None and gap > 1e-3:
+                self._sleep(gap)
+                continue
             if len(self._events) < self.rpm and used + expected_tokens <= self.tpm:
                 return
             if not self._events:
@@ -80,7 +92,8 @@ class Pacer:
             self._sleep(max(0.05, 60.0 - (now - self._events[0][0])))
 
     def record(self, tokens: int) -> None:
-        self._events.append((self._clock(), tokens))
+        self._last = self._clock()
+        self._events.append((self._last, tokens))
 
 
 def run_bulk(
@@ -92,6 +105,7 @@ def run_bulk(
     approved: bool = False,
     max_days: float | None = None,
     pilot: int = PILOT_CALLS,
+    limit: int | None = None,
     log: Callable[[str], None] = print,
     sleep: Callable[[float], None] = time.sleep,
     clock: Callable[[], float] = time.monotonic,
@@ -100,6 +114,9 @@ def run_bulk(
     keyed = [(cache_key(client.base_url, it.request, it.sample), it) for it in items]
     todo = [(k, it) for k, it in keyed if k not in cache]
     report.already_cached = len(items) - len(todo)
+    if limit is not None:
+        report.remaining = max(0, len(todo) - limit)
+        todo = todo[:limit]
     if not todo:
         log(f"Nothing to do: all {len(items)} items are cached.")
         return report

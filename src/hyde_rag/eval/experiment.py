@@ -40,7 +40,7 @@ from hyde_rag.retrieval.dense import (
     load_index,
 )
 from hyde_rag.retrieval.fusion import hyde_vector, rrf, rrf_runs
-from hyde_rag.retrieval.hyde import cache_path, parse_rewrites
+from hyde_rag.retrieval.hyde import cache_path, clean_passage, parse_rewrites
 
 Run = dict[str, dict[str, float]]
 
@@ -153,7 +153,7 @@ class Experiment:
                 f"from {spec['generator']}. Generate them with: uv run hyde-rag generate --experiment "
                 f"{self.config_path} --system {spec['name']}"
             )
-        return {q: gens[q][:n] for q in self.qids}
+        return {q: [clean_passage(p) for p in gens[q][:n]] for q in self.qids}
 
     def passage_vecs(self, enc: str, spec: dict, passages: dict[str, list[str]]) -> dict[str, np.ndarray]:
         """Encode hypothetical passages as documents; cached per (encoder, instruction, generator)."""

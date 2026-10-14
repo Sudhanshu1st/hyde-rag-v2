@@ -75,7 +75,7 @@ def cmd_generate(args: argparse.Namespace) -> int:
     from hyde_rag.llm.cache import JsonlCache
     from hyde_rag.llm.client import OpenAICompatClient
     from hyde_rag.llm.quota import Limits, load_limits
-    from hyde_rag.llm.runner import run_bulk
+    from hyde_rag.llm.runner import PILOT_CALLS, run_bulk
     from hyde_rag.retrieval.hyde import cache_path, hyde_items, load_instruction, multi_query_items
 
     cfg = yaml.safe_load(Path(args.experiment).read_text(encoding="utf-8"))
@@ -103,15 +103,31 @@ def cmd_generate(args: argparse.Namespace) -> int:
         print(f"- {kind:11s} {instruction:16s} {generator:22s} {len(items):5d} calls -> {rel}")
 
     def run_model(model: str) -> None:
+        from hyde_rag.llm.quota import QuotaGuardError, estimate_run
+
+        lim = limits.get(model, unlimited)
         for path, items in by_model[model]:
-            run_bulk(
-                client,
-                JsonlCache(path),
-                items,
-                limits.get(model, unlimited),
-                approved=args.yes,
-                log=lambda msg: print(msg, flush=True),
-            )
+            try:
+                report = run_bulk(
+                    client,
+                    JsonlCache(path),
+                    items,
+                    lim,
+                    approved=args.yes,
+                    limit=PILOT_CALLS if args.pilot_only else None,
+                    log=lambda msg: print(msg, flush=True),
+                )
+            except QuotaGuardError as e:
+                print(f"[{model}] stopped before the full run: {e}", flush=True)
+                continue
+            if args.pilot_only and report.completed:
+                est = estimate_run(lim, model, report.remaining, report.mean_tokens)
+                print(
+                    f"[{model}] {path.parent.parent.name}/{path.parent.name}: measured "
+                    f"{report.mean_tokens:.0f} tokens/call; remaining {est.requests:,} calls = "
+                    f"{est.tokens:,} tokens = {est.days:.1f} days of free quota",
+                    flush=True,
+                )
 
     # Each free-tier model has its own quota, so models run in parallel.
     with ThreadPoolExecutor(max_workers=len(by_model)) as pool:
@@ -153,6 +169,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--system", action="append", help="limit to these system names")
     p.add_argument("--generator", action="append", help="limit to these generator models")
     p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
+    p.add_argument(
+        "--pilot-only", action="store_true", help="run 20 calls per job, report measured cost, stop"
+    )
     p.set_defaults(func=cmd_generate)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
