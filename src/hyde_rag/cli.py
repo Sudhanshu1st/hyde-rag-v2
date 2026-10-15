@@ -191,6 +191,15 @@ def cmd_build_evalset(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_verify_index(args: argparse.Namespace) -> int:
+    from hyde_rag.retrieval.dense import verify_index
+
+    report = verify_index(args.dataset, args.encoder, n=args.n)
+    for k, v in report.items():
+        print(f"{k:24s} {v}")
+    return 0 if report["ok"] else 1
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -248,6 +257,14 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("build-evalset", help="reviewed CSV -> eval_sets/food_quality/{dev,test}.jsonl")
     p.set_defaults(func=cmd_build_evalset)
+
+    p = sub.add_parser(
+        "verify-index", help="check an index built elsewhere (e.g. Colab GPU) against local CPU"
+    )
+    p.add_argument("--dataset", required=True)
+    p.add_argument("--encoder", required=True)
+    p.add_argument("--n", type=int, default=32)
+    p.set_defaults(func=cmd_verify_index)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)

@@ -152,3 +152,41 @@ def load_index(dataset: str, encoder: str) -> DenseIndex | None:
         return None
     doc_ids = json.loads((path / "doc_ids.json").read_text(encoding="utf-8"))
     return DenseIndex(doc_ids, np.load(path / "embeddings.npy").astype(np.float32))
+
+
+def verify_index(dataset: str, encoder: str, n: int = 32, seed: int = 0, threads: int | None = 4) -> dict:
+    """Check an index built elsewhere (e.g. on a Colab GPU) against this machine's encoder.
+
+    * doc_ids must equal the corpus order from load_beir();
+    * meta.json must match the encoder spec;
+    * n random documents re-encoded here on CPU must match their stored vectors
+      (fp32 GPU vs CPU differences are ~1e-6; cosine below 0.9999 means a real mismatch).
+    """
+    from hyde_rag.ingest.beir import load_beir
+
+    path = index_path(dataset, encoder)
+    ds = load_beir(dataset)
+    corpus_ids = list(ds.corpus)
+    stored_ids = json.loads((path / "doc_ids.json").read_text(encoding="utf-8"))
+    meta = json.loads((path / "meta.json").read_text(encoding="utf-8"))
+    spec = ENCODERS[encoder]
+    meta_ok = all(meta.get(k) == v for k, v in asdict(spec).items())
+    emb = np.load(path / "embeddings.npy", mmap_mode="r")
+    rng = np.random.default_rng(seed)
+    sample = sorted(rng.choice(len(corpus_ids), size=min(n, len(corpus_ids)), replace=False).tolist())
+    enc = Encoder(spec, threads=threads)
+    fresh = enc.encode(
+        [doc_text_dense(ds.corpus[corpus_ids[i]].title, ds.corpus[corpus_ids[i]].text) for i in sample],
+        is_query=False,
+    )
+    stored = np.asarray(emb[sample], dtype=np.float32)
+    cos = (fresh * stored).sum(1) / (np.linalg.norm(fresh, axis=1) * np.linalg.norm(stored, axis=1))
+    return {
+        "shape": list(emb.shape),
+        "ids_match_corpus_order": stored_ids == corpus_ids,
+        "meta_matches_spec": meta_ok,
+        "built_on": meta.get("device", "?"),
+        "min_cosine": float(cos.min()),
+        "max_abs_diff": float(np.abs(fresh - stored).max()),
+        "ok": stored_ids == corpus_ids and meta_ok and float(cos.min()) >= 0.9999,
+    }
