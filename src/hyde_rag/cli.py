@@ -175,6 +175,18 @@ def cmd_gen_questions(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_build_evalset(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.evalset import build
+
+    r = build()
+    print(f"kept {r.kept}, rejected {r.rejected}, not reviewed {r.unreviewed}")
+    for split, counts in r.by_split.items():
+        print(f"  {split}: {sum(counts.values())} items {counts}")
+    if r.excluded:
+        print(f"excluded (answerable but evidence not found): {', '.join(r.excluded)}")
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -228,6 +240,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--pilot-only", action="store_true", help="run 20 calls to check quality and cost")
     p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
     p.set_defaults(func=cmd_gen_questions)
+
+    p = sub.add_parser("build-evalset", help="reviewed CSV -> eval_sets/food_quality/{dev,test}.jsonl")
+    p.set_defaults(func=cmd_build_evalset)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)
