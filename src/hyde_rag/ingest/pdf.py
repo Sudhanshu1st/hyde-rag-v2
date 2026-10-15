@@ -78,20 +78,78 @@ def _key(text: str) -> str:
     return re.sub(r"\d+", "#", text.lower())
 
 
+def find_gutter(words: list[dict], x_lo: float, x_hi: float) -> float | None:
+    """x of a vertical gutter between x_lo and x_hi, or None.
+
+    Column layouts and multi-column tables leave a vertical band with (almost) no words.
+    A few words may cross it (e.g. "OR" markers or a full-width heading), so a band counts as
+    a gutter when its word coverage is under 10% of the typical coverage elsewhere, it lies in
+    the middle 40% of the region, it is at least 4 pt wide, and both sides hold >= 20% of words.
+    """
+    if len(words) < 40:
+        return None
+    lo, hi = int(x_lo), int(x_hi) + 1
+    occ = [0] * (hi - lo + 1)
+    for w in words:
+        for x in range(max(lo, int(w["x0"])), min(hi, int(w["x1"])) + 1):
+            occ[x - lo] += 1
+    busy = sorted(v for v in occ if v > 0)
+    if not busy:
+        return None
+    threshold = max(1, 0.1 * busy[len(busy) // 2])
+    span = hi - lo
+    start_search, end_search = int(0.3 * span), int(0.7 * span)
+    best: tuple[int, int] | None = None
+    run_start = None
+    for i in range(start_search, end_search + 1):
+        low = occ[i] <= threshold
+        if low and run_start is None:
+            run_start = i
+        if (not low or i == end_search) and run_start is not None:
+            end = i if not low else i + 1
+            if end - run_start >= 4 and (best is None or end - run_start > best[1] - best[0]):
+                best = (run_start, end)
+            run_start = None
+    if best is None:
+        return None
+    gutter = lo + (best[0] + best[1]) / 2
+    left = sum(1 for w in words if (w["x0"] + w["x1"]) / 2 < gutter)
+    if min(left, len(words) - left) < 0.2 * len(words):
+        return None
+    return gutter
+
+
+def _column_regions(page, depth: int = 2) -> list:
+    """Split a page into column regions (left to right), recursively for 3-4 columns."""
+
+    def split(region, x0: float, x1: float, level: int) -> list:
+        words = region.extract_words()
+        g = find_gutter(words, x0, x1) if level < depth else None
+        if g is None:
+            return [region]
+        left = region.filter(lambda o, g=g: o.get("object_type") != "char" or (o["x0"] + o["x1"]) / 2 < g)
+        right = region.filter(lambda o, g=g: o.get("object_type") != "char" or (o["x0"] + o["x1"]) / 2 >= g)
+        return split(left, x0, g, level + 1) + split(right, g, x1, level + 1)
+
+    return split(page, 0.0, float(page.width), 0)
+
+
 def extract_lines(pdf_path: Path) -> list[Line]:
     import pdfplumber
 
     lines: list[Line] = []
     with pdfplumber.open(pdf_path) as pdf:
         for pno, page in enumerate(pdf.pages, start=1):
-            for tl in page.extract_text_lines(return_chars=True, strip=True):
-                text = _norm(tl["text"])
-                chars = [c for c in tl.get("chars", []) if c.get("text", "").strip()]
-                if not text or not chars:
-                    continue
-                size = statistics.median(c.get("size", 0.0) for c in chars)
-                bold = sum("bold" in str(c.get("fontname", "")).lower() for c in chars) > len(chars) / 2
-                lines.append(Line(text, pno, round(size, 1), bold, float(tl["top"]), float(page.height)))
+            # Multi-column pages are read column by column instead of straight across.
+            for region in _column_regions(page):
+                for tl in region.extract_text_lines(return_chars=True, strip=True):
+                    text = _norm(tl["text"])
+                    chars = [c for c in tl.get("chars", []) if c.get("text", "").strip()]
+                    if not text or not chars:
+                        continue
+                    size = statistics.median(c.get("size", 0.0) for c in chars)
+                    bold = sum("bold" in str(c.get("fontname", "")).lower() for c in chars) > len(chars) / 2
+                    lines.append(Line(text, pno, round(size, 1), bold, float(tl["top"]), float(page.height)))
     return lines
 
 

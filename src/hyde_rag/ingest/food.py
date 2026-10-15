@@ -22,6 +22,8 @@ from hyde_rag.ingest.chunking import DocChunk, chunk_document
 from hyde_rag.ingest.pdf import parse_pdf
 
 MIN_CHARS_PER_PAGE = 200  # below this the PDF is probably scanned (no text layer)
+# Bump when parsing or chunking changes, so cached documents are re-parsed.
+PARSER_VERSION = 2  # 2: column-aware extraction
 
 
 def food_dir() -> Path:
@@ -69,7 +71,8 @@ def ingest(log=print) -> IngestReport:
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         prev = previous.get(doc_id)
         chunk_file = out / "text" / f"{doc_id}.chunks.jsonl"
-        if prev and prev["sha256"] == digest and chunk_file.exists():
+        same_input = prev and prev["sha256"] == digest and prev.get("parser_version") == PARSER_VERSION
+        if same_input and chunk_file.exists():
             docs_out.append(prev)
             chunks_out.extend(json.loads(x) for x in chunk_file.read_text(encoding="utf-8").splitlines())
             report.reused.append(doc_id)
@@ -89,6 +92,7 @@ def ingest(log=print) -> IngestReport:
             "commit_raw": src["commit_raw"],
             "url": src.get("url"),
             "sha256": digest,
+            "parser_version": PARSER_VERSION,
             "pages": n_pages,
             "chars": len(parsed.text),
             "page_starts": parsed.page_starts,

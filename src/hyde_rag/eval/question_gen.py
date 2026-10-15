@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import csv
 import difflib
+import itertools
 import json
 import math
 import random
@@ -79,8 +80,26 @@ TYPE_INSTRUCTIONS = {
     "Give at least one evidence quote from each passage.",
     "unanswerable": "Write {n} realistic question(s) on the same topic that this passage does NOT answer "
     "(for example asking for a value, scope, frequency or requirement it never states). They must "
-    "sound plausible to a quality manager. Set reference_answer to 'NOT ANSWERABLE' and "
-    "evidence_quotes to an empty list.",
+    "sound plausible to a quality manager. Set reference_answer to 'NOT ANSWERABLE'.",
+}
+
+# Unanswerable questions have no evidence, so their schema has no evidence field (an empty
+# required array made the model emit malformed keys in the pilot).
+UNANSWERABLE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "questions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"question": {"type": "string"}, "reference_answer": {"type": "string"}},
+                "required": ["question", "reference_answer"],
+                "additionalProperties": False,
+            },
+        }
+    },
+    "required": ["questions"],
+    "additionalProperties": False,
 }
 
 
@@ -99,9 +118,13 @@ def _norm(text: str) -> str:
     return _WS.sub(" ", text).strip().lower()
 
 
+_CITATION = re.compile(r"\bet al\b|\(\s*(?:19|20)\d{2}[a-z]?\s*\)")
+
+
 def eligible(chunk: DocChunk) -> bool:
+    """Body text of reasonable length; skips link lists and bibliographies."""
     words = len(chunk.text.split())
-    return 80 <= words <= 400 and chunk.text.count("http") <= 3
+    return 80 <= words <= 400 and chunk.text.count("http") <= 3 and len(_CITATION.findall(chunk.text)) < 3
 
 
 def sample_chunks(chunks: list[DocChunk], seed: int = 13) -> dict[str, list[DocChunk]]:
@@ -186,7 +209,7 @@ def build_items(
             max_tokens=1500,
             temperature=0.7,
             reasoning_effort=reasoning,
-            json_schema=QUESTION_SCHEMA,
+            json_schema=UNANSWERABLE_SCHEMA if qtype == "unanswerable" else QUESTION_SCHEMA,
         )
         item_id = f"{qtype}|" + "+".join(c.chunk_id for c in chunks)
         items.append((WorkItem(item_id, 0, req), qtype, chunks))
@@ -201,13 +224,27 @@ def build_items(
     return items
 
 
+_ELLIPSIS = re.compile(r"\.\.\.|\N{HORIZONTAL ELLIPSIS}")
+
+
 def locate(quote: str, chunk: DocChunk, doc_text: str) -> tuple[int, int] | None:
     """Char span of a quote in the document, searched within its source chunk.
 
-    Exact match after whitespace/case normalisation, else the best fuzzy match of the same
-    length if it is at least 90% similar.
+    A quote shortened with "..." is located fragment by fragment; the span runs from the first
+    fragment to the last (all must be found, in order).
     """
-    q = _norm(quote).strip(" .\"'")
+    fragments = [f for f in (_norm(p).strip(" .\"'") for p in _ELLIPSIS.split(quote)) if len(f) >= 10]
+    if len(fragments) <= 1:
+        return _locate_one(_norm(quote).strip(" .\"'"), chunk, doc_text)
+    spans = [_locate_one(f, chunk, doc_text) for f in fragments]
+    if any(s is None for s in spans) or any(a[1] > b[0] for a, b in itertools.pairwise(spans)):
+        return None
+    return spans[0][0], spans[-1][1]
+
+
+def _locate_one(q: str, chunk: DocChunk, doc_text: str) -> tuple[int, int] | None:
+    """Exact match after whitespace/case normalisation, else the best fuzzy match of the same
+    length if it is at least 90% similar."""
     if len(q) < 10:
         return None
     text = doc_text[chunk.char_start : chunk.char_end]
@@ -382,6 +419,7 @@ def generate(
     plan = sample_chunks(chunks, seed=seed)
     pairs = pair_for_multi_doc(plan.pop("multi_doc_anchor"), chunks, titles)
     items = build_items(plan, pairs, titles, model, reasoning)
+    random.Random(seed).shuffle(items)  # so a 20-call pilot covers every question type
     counts = {t: sum(1 for _, qt, _ in items if qt == t) for t in QUESTION_TYPES}
     log(f"{len(items)} generation calls with {model}: {counts}")
 

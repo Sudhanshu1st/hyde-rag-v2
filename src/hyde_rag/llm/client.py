@@ -153,6 +153,9 @@ class OpenAICompatClient:
         except openai.APIStatusError as e:
             if e.status_code >= 500:
                 raise TransientLLMError(str(e)) from e
+            if "json_validate_failed" in str(e):
+                # Sampled output broke the schema; another sample usually succeeds.
+                raise TransientLLMError(f"{e.status_code}: schema validation failed") from e
             raise PermanentLLMError(f"{e.status_code}: {e.message}") from e
         latency = time.perf_counter() - start
         headers = {k.lower(): v for k, v in raw.headers.items()}

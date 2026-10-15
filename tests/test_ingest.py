@@ -75,3 +75,32 @@ def test_chunks_are_exact_spans_with_stable_ids(monkeypatch):
     hits = [c.chunk_id for c in chunks if overlaps(c, "fc", start, end)]
     assert len(hits) == 1
     assert chunks[0].index_text("Food Code").startswith("Food Code | ")
+
+
+def test_find_gutter_splits_two_columns_but_not_single_column():
+    from hyde_rag.ingest.pdf import find_gutter
+
+    def word(x0, x1):
+        return {"x0": x0, "x1": x1}
+
+    two_cols = [word(60, 280) for _ in range(30)] + [word(330, 560) for _ in range(30)] + [word(250, 360)]
+    g = find_gutter(two_cols, 0, 612)
+    assert g is not None and 280 < g < 330
+    single = [word(60, 560) for _ in range(60)]
+    assert find_gutter(single, 0, 612) is None
+    assert find_gutter(two_cols[:20], 0, 612) is None  # too few words to decide
+
+
+def test_locate_handles_ellipsis_fragments():
+    from hyde_rag.eval.question_gen import locate
+    from hyde_rag.ingest.chunking import DocChunk
+
+    text = (
+        "Intro. Establish written validation procedures for each line. "
+        "Verify that cleaning removes allergens."
+    )
+    chunk = DocChunk("d:1:0", "d", 1, 0, "s", text, 0, len(text))
+    span = locate("Establish written validation procedures ... cleaning removes allergens", chunk, text)
+    assert span is not None and text[span[0] : span[1]].startswith("Establish written")
+    assert text[span[0] : span[1]].endswith("removes allergens")
+    assert locate("completely unrelated sentence about poultry", chunk, text) is None
