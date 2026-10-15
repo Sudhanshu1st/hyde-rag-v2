@@ -526,9 +526,19 @@ def generate(
     )
 
     EVALSET_DIR.mkdir(parents=True, exist_ok=True)
-    with (EVALSET_DIR / "candidates.jsonl").open("w", encoding="utf-8") as f:
-        for c in candidates:
-            f.write(json.dumps(c.__dict__, ensure_ascii=False))
+    # Merge by id, so a later batch (e.g. --docs) keeps earlier candidates' evidence spans.
+    cand_path = EVALSET_DIR / "candidates.jsonl"
+    merged: dict[str, dict] = {}
+    if cand_path.exists():
+        for line in cand_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                rec = json.loads(line)
+                merged[rec["id"]] = rec
+    for c in candidates:
+        merged[c.id] = c.__dict__
+    with cand_path.open("w", encoding="utf-8") as f:
+        for rec in merged.values():
+            f.write(json.dumps(rec, ensure_ascii=False))
             f.write("\n")
     review = EVALSET_DIR / "review.csv"
     unanswerable = {c.id: c.question for c in candidates if not c.answerable}

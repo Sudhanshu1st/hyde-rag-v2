@@ -110,6 +110,8 @@ def main() -> int:
     downloaded, verified, manual, skipped, failed = [], [], [], [], []
     for doc in docs:
         doc_id, url, path = doc["doc_id"], doc.get("url"), target_path(doc)
+        if doc.get("excluded"):
+            continue
         if path.exists():
             digest = sha256(path)
             if doc.get("sha256") and doc["sha256"] != digest:

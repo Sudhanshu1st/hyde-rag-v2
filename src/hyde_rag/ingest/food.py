@@ -35,7 +35,8 @@ def processed_dir() -> Path:
 
 
 def load_sources() -> list[dict]:
-    return yaml.safe_load((paths.REPO_ROOT / "data_sources.yaml").read_text(encoding="utf-8"))["documents"]
+    docs = yaml.safe_load((paths.REPO_ROOT / "data_sources.yaml").read_text(encoding="utf-8"))["documents"]
+    return [d for d in docs if not d.get("excluded")]
 
 
 def pdf_path(doc: dict) -> Path:

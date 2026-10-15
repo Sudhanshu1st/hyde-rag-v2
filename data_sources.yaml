@@ -83,31 +83,32 @@ documents:
   - {doc_id: fda_rfr_qa_ed2, retrieved: "2026-10-15", sha256: "6cdef9e7083b5818e4af346f58f64906b72d29f5d65e27797010cbec50f11b2e", bytes: 175410, title: "Reportable Food Registry Q&A, Edition 2 (draft)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/79130/download", licence: public_domain_us_gov, commit_raw: true}
 
   # ---------------- USDA FSIS (meat and poultry) ----------------
-  - {doc_id: fsis_lm_rte_2014, title: "Compliance Guideline: Controlling Lm in Post-lethality Exposed RTE Meat and Poultry (2014)", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_lm_rte_2014, retrieved: "2026-10-15", sha256: "84799b18aecd2cef7a6aa9efb1f71fbdc0ac3364b3f79b4f56acf044ecb3d37e", bytes: 3118485, title: "Compliance Guideline: Controlling Lm in Post-lethality Exposed RTE Meat and Poultry (2014)", publisher: USDA FSIS, format: pdf,
      url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20Controlling%20Listeria%20monocytogenes%20in%20Post-lethality%20Exposed%20Ready-to-Eat%20Meat%20and%20Poultry%20Products.pdf",
      licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_appendix_a_2021, title: "Cooking Guideline for Meat and Poultry (Revised Appendix A, 2021)", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_appendix_a_2021, retrieved: "2026-10-15", sha256: "abc172fdf0c4545d3ce68b7f19650963ca4c10a9ef79163276e708f613bc29d4", bytes: 2045719, title: "Cooking Guideline for Meat and Poultry (Revised Appendix A, 2021)", publisher: USDA FSIS, format: pdf,
      url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20FSIS%20Cooking%20Guideline%20for%20Meat%20and%20Poultry%20Products%20%28Revised%20Appendix%20A%29.pdf",
-     licence: public_domain_us_gov_mixed, commit_raw: false, note: "p.29 instruction 'reprinted with permission from the University of Wisconsin'."}
-  - {doc_id: fsis_appendix_b_2021, title: "Stabilization Guideline for Meat and Poultry (Revised Appendix B, 2021)", publisher: USDA FSIS, format: pdf,
+     licence: public_domain_us_gov_mixed, commit_raw: false, excluded: "a permission notice may sit in embedded images (pp. 29-30), so the PDF cannot be redistributed, and usda.gov refuses scripted downloads: excluded so every user gets an identical corpus",
+     note: "p.29 instruction 'reprinted with permission from the University of Wisconsin' (reported 2026-10-14; not in the text layer)."}
+  - {doc_id: fsis_appendix_b_2021, retrieved: "2026-10-15", sha256: "d431509b3df007b763693754ad429411b980cedc419006581019b8e644a6c2a3", bytes: 3643126, title: "Stabilization Guideline for Meat and Poultry (Revised Appendix B, 2021)", publisher: USDA FSIS, format: pdf,
      url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20FSIS%20Stabilization%20Guideline%20for%20Meat%20and%20Poultry%20Products%20%28Revised%20Appendix%20B%29.pdf",
      licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_sps_guide, title: "Sanitation Performance Standards Compliance Guide", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_sps_guide, retrieved: "2026-10-15", sha256: "320cead998680be828a1a00b5a917a7a5e40960cd5b7b49fa67723f5d9b72358", bytes: 1333530, title: "Sanitation Performance Standards Compliance Guide", publisher: USDA FSIS, format: pdf,
      url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20Sanitation%20Performance%20Standards%20Compliance%20Guide.pdf",
      licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_hazards_controls_2018, title: "Meat and Poultry Hazards and Controls Guide", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_hazards_controls_2018, retrieved: "2026-10-15", sha256: "5e043aad76b162a8a4da4f19f840dbd364c4ad3af8398c38b659d7b36c4a3e39", bytes: 2286715, title: "Meat and Poultry Hazards and Controls Guide", publisher: USDA FSIS, format: pdf,
      url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20Meat%20and%20Poultry%20Hazards%20and%20Controls%20Guide.pdf",
      licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_haccp_validation, title: "Compliance Guideline: HACCP Systems Validation", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_haccp_validation, retrieved: "2026-10-15", sha256: "774de54c760c2f86a05eedf737d201f0b96ff442b095f0890d25867f5bc2d3ad", bytes: 2354888, title: "Compliance Guideline: HACCP Systems Validation", publisher: USDA FSIS, format: pdf,
      url: "https://www.usda.gov/sites/default/files/guidance-documents/FSIS.%20FSIS%20Compliance%20Guideline%20HACCP%20Systems%20Validation.pdf",
      licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_dir_5000_1_r8, title: "FSIS Directive 5000.1 Rev 8: Verifying an Establishment's Food Safety System", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_dir_5000_1_r8, retrieved: "2026-10-15", sha256: "7e7288e9d4fc52a32dde17707f99a7c060864080784cb575c408f0246d036eee", bytes: 1191849, title: "FSIS Directive 5000.1 Rev 8: Verifying an Establishment's Food Safety System", publisher: USDA FSIS, format: pdf,
      url: "https://www.fsis.usda.gov/sites/default/files/media_file/documents/5000.1.pdf", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_dir_10240_4_r4, title: "FSIS Directive 10240.4 Rev 4: Verification of Lm in RTE products", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_dir_10240_4_r4, retrieved: "2026-10-15", sha256: "9d5099d09ea7a2a9359410f9a4cdb4f755bb8808d2b1a622298da983f22d3a0f", bytes: 581607, title: "FSIS Directive 10240.4 Rev 4: Verification of Lm in RTE products", publisher: USDA FSIS, format: pdf,
      url: "https://www.fsis.usda.gov/sites/default/files/media_file/2020-08/10240.4.pdf", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_dir_5000_4_r3, title: "FSIS Directive 5000.4 Rev 3: Sanitation SOP verification", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_dir_5000_4_r3, retrieved: "2026-10-15", sha256: "ebf4783c299796525f7e0684c44b2b43bc420dce410d3a7b8e771070a83a5843", bytes: 351550, title: "FSIS Directive 5000.4 Rev 3: Sanitation SOP verification", publisher: USDA FSIS, format: pdf,
      url: "https://www.fsis.usda.gov/sites/default/files/media_file/2021-10/5000.4.pdf", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fsis_dir_8080_1_r8, title: "FSIS Directive 8080.1 Rev 8: Recall of Meat and Poultry Products", publisher: USDA FSIS, format: pdf,
+  - {doc_id: fsis_dir_8080_1_r8, retrieved: "2026-10-15", sha256: "262b20e5124eac176a75e9cfd00e24588413d50e1ce0079fa235be12aab831b1", bytes: 866378, title: "FSIS Directive 8080.1 Rev 8: Recall of Meat and Poultry Products", publisher: USDA FSIS, format: pdf,
      url: "https://www.fsis.usda.gov/sites/default/files/media_file/2020-07/8080.1.pdf", licence: public_domain_us_gov, commit_raw: true}
 
 # Excluded: FDA Juice HACCP guidance (2004) exists only as an HTML page, no stable PDF.
