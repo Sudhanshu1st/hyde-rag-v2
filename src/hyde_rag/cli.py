@@ -150,6 +150,21 @@ def cmd_gen_eval(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ingest_food(args: argparse.Namespace) -> int:
+    from hyde_rag.ingest.food import ingest
+
+    r = ingest(log=lambda m: print(m, flush=True))
+    print(
+        f"parsed {len(r.parsed)}, unchanged {len(r.reused)}, not downloaded {len(r.missing)}, "
+        f"{r.n_chunks:,} chunks total"
+    )
+    if r.missing:
+        print("not downloaded:", ", ".join(r.missing))
+    if r.low_text:
+        print("WARNING, little extractable text (scanned PDF?):", ", ".join(r.low_text))
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -194,6 +209,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--no-llm", action="store_true", help="score cached outputs only (no API calls)")
     p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
     p.set_defaults(func=cmd_gen_eval)
+
+    p = sub.add_parser("ingest-food", help="parse downloaded food PDFs into canonical text and chunks")
+    p.set_defaults(func=cmd_ingest_food)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)
