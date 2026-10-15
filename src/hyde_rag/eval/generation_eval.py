@@ -79,21 +79,51 @@ class GenerationEval:
         self.top_k = int(self.cfg.get("top_k", 3))
         self.out_dir = paths.results_dir() / self.name
 
-    def chunks(self, run: dict[str, dict[str, float]], qid: str) -> list[Chunk]:
+    def _gate_scores(self, qid: str, query: str, doc_ids: list[str]) -> list[float] | None:
+        """Cross-encoder scores used only by the abstention gate (gate.scorer: cross-encoder).
+
+        The answer pipeline itself does not rerank: on the dev split the MiniLM reranker
+        lowered bge's nDCG@10 (D-GEN-1). Scores are cached per (query, doc)."""
+        if self.cfg["gate"].get("scorer") != "cross-encoder":
+            return None
+        if not hasattr(self, "_ce"):
+            from hyde_rag.retrieval.rerank import DEFAULT_RERANKER, CrossEncoderReranker, cache_file_for
+
+            cache = cache_file_for(paths.index_dir() / self.ds.name, DEFAULT_RERANKER)
+            self._ce = CrossEncoderReranker(DEFAULT_RERANKER, cache_file=cache, threads=8)
+        pairs = []
+        for d in doc_ids:
+            doc = self.ds.corpus[d]
+            pairs.append((qid, d, query, f"{doc.title} {doc.text}".strip()))
+        return self._ce.score(pairs)
+
+    def chunks(self, run: dict[str, dict[str, float]], qid: str, query: str | None = None) -> list[Chunk]:
         top = sorted(run.get(qid, {}).items(), key=lambda kv: (-kv[1], kv[0]))[: self.top_k]
+        gate = self._gate_scores(qid, query or self.ds.queries[qid], [d for d, _ in top])
+        scores = gate if gate is not None else [s for _, s in top]
         return [
             Chunk(did, 0, 0, self.ds.corpus[did].text, title=self.ds.corpus[did].title, score=score)
-            for did, score in top
+            for (did, _), score in zip(top, scores, strict=True)
         ]
 
     def calibrate(self) -> dict:
         g = self.cfg["gate"]
         dev = _load_run(g["experiment"], g["system"])
         train = load_labels("train")
-        ans = [max(dev[q].values()) for q in dev if dev[q] and train.get(q) in ("SUPPORT", "CONTRADICT")]
-        una = [max(dev[q].values()) for q in dev if dev[q] and train.get(q) == "NONE"]
+        train_queries = load_beir(self.cfg["dataset"], split="train").queries
+        best: dict[str, float] = {}
+        for q, docs in dev.items():
+            if docs and q in train:
+                best[q] = max(c.score for c in self.chunks(dev, q, train_queries[q]))
+        ans = [s for q, s in best.items() if train[q] in ("SUPPORT", "CONTRADICT")]
+        una = [s for q, s in best.items() if train[q] == "NONE"]
         cal = calibrate_tau(ans, una, max_false_refusal=float(g.get("max_false_refusal", 0.05)))
-        return {**asdict(cal), "dev_answerable": len(ans), "dev_unanswerable": len(una)}
+        return {
+            **asdict(cal),
+            "dev_answerable": len(ans),
+            "dev_unanswerable": len(una),
+            "scorer": g.get("scorer", "retrieval"),
+        }
 
     def _reasoning(self, model: str) -> str | None:
         return self.settings.get(model, {}).get("reasoning_effort")

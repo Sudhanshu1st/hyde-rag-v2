@@ -213,6 +213,33 @@ So the generation task is three-way:
 
 The dev split for τ calibration is the original train set (809 claims, same label scheme).
 
+**D-GEN-1 No reranking in the answer pipeline (decided on the dev split).** Phase 3 was
+pre-registered to compare reranked pipelines. On SciFact's dev split (300 train claims), the
+MS MARCO MiniLM-L6 cross-encoder lowered quality instead:
+
+| System | nDCG@10 |
+|---|---|
+| dense bge | 78.1 |
+| hybrid BM25 + bge | 75.0 (−3.1\*) |
+| hybrid + rerank | 70.8 (−7.3\*\*) |
+
+The test split shows the same pattern (bge 74.0 vs rerank 69.3). So the answer pipelines are
+dense bge vs HyDE + bge, and the cross-encoder is used only to score the top-3 abstracts for
+the abstention gate.
+
+Caveat: bge scores 78.1 on the train claims vs 74.0 on test, which hints that its training data
+may include SciFact's train split. Dev-based choices involving bge carry that caveat.
+
+**D-GEN-2 Retrieval-gate calibration (SciFact).** On the dev split (183 claims with evidence,
+117 without), the best threshold with ≤ 5% false refusals is τ = −0.457 (cross-encoder
+logit, max over the top-3):
+- precision 0.81;
+- recall 0.33 of the no-evidence claims.
+
+No-evidence claims usually still retrieve on-topic abstracts, so the gate alone cannot catch
+them. The prompt-level abstention rule (layer b) has to do most of that work, and Phase 3
+measures the two layers together.
+
 ## Compute
 
 **D-COMP-1 Measured CPU throughput on the dev laptop.** Intel i5-1235U (2 performance + 8

@@ -89,6 +89,13 @@ def home(tmp_path, monkeypatch):
     # Dev (train) claims: answerable ones score high, unanswerable low -> a usable gate.
     dev = {str(100 + i): ("c", "SUPPORT" if i < 20 else "NONE") for i in range(30)}
     (labels / "claims_train.jsonl").write_text(claims_file(dev), encoding="utf-8")
+    # BEIR train split (dev claims): queries + qrels, as in the real dataset.
+    with (ds / "queries.jsonl").open("a", encoding="utf-8") as f:
+        for q in dev:
+            f.write(json.dumps({"_id": q, "text": f"dev claim {q}"}) + "\n")
+    (ds / "qrels" / "train.tsv").write_text(
+        "query-id\tcorpus-id\tscore\n" + "".join(f"{q}\td1\t1\n" for q in dev), encoding="utf-8"
+    )
 
     def write_run(experiment, system, run):
         out = tmp_path / "results" / experiment / "runs"

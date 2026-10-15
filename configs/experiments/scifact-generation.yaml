@@ -1,10 +1,12 @@
-# Phase 3: grounded generation on a stratified 100-claim SciFact sample (D-EVAL-6).
-# Compares the best non-HyDE pipeline with its HyDE counterpart (pre-registered choice):
-# both rerank the top-100 with the same cross-encoder, so the gate's score scale is shared.
+# Phase 3: grounded generation on a stratified 100-claim SciFact sample (D-EVAL-6, D-GEN-1).
+# Compares the best non-HyDE retriever on the dev split (dense bge) with its HyDE counterpart.
+# No reranking in the answer pipeline: on the dev split the MiniLM reranker lowered bge's
+# nDCG@10 by 7.3 points. The cross-encoder is used only to score the top-3 abstracts for the
+# abstention gate (tau calibrated on the dev split).
 name: scifact-generation
 dataset: scifact
 retrieval_experiment: scifact
-systems: [rerank-hybrid-bge, rerank-hybrid-hyde-bge]
+systems: [dense-bge, hyde-bge-120b-n4]
 top_k: 3
 sample: {n: 100, seed: 13}
-gate: {experiment: scifact-dev, system: rerank-hybrid-bge, max_false_refusal: 0.05}
+gate: {experiment: scifact-dev, system: dense-bge, scorer: cross-encoder, max_false_refusal: 0.05}
