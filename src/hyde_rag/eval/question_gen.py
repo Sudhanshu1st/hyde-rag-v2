@@ -139,6 +139,7 @@ def sample_chunks(chunks: list[DocChunk], seed: int = 13) -> dict[str, list[DocC
         "jargon": draw(PLAN["jargon"], lambda c: True),
         "factual": draw(PLAN["factual"], lambda c: True),
         "unanswerable": draw(PLAN["unanswerable"] // 2, lambda c: True),  # 2 questions per chunk
+        "multi_doc_anchor": draw(PLAN["multi_doc"], lambda c: True),
     }
     return plan
 
@@ -358,3 +359,72 @@ def load_inputs() -> tuple[list[DocChunk], dict[str, str], dict[str, str]]:
     titles = {d: v["title"] for d, v in docs.items()}
     texts = {d: (processed_dir() / "text" / f"{d}.txt").read_text(encoding="utf-8") for d in docs}
     return chunks, titles, texts
+
+
+def generate(
+    *, llm: bool = True, approved: bool = False, pilot_only: bool = False, seed: int = 13, log=print
+) -> Path:
+    """Draft candidates with the question-generator model and write the review CSV."""
+    import yaml
+
+    from hyde_rag.llm.cache import JsonlCache, cache_key
+    from hyde_rag.llm.client import default_base_url
+    from hyde_rag.llm.quota import Limits, load_limits
+    from hyde_rag.llm.runner import PILOT_CALLS, run_bulk
+
+    llm_cfg = yaml.safe_load((paths.CONFIG_DIR / "llm.yaml").read_text(encoding="utf-8"))
+    model = llm_cfg["roles"]["question_gen"]
+    if model == llm_cfg["roles"]["hyde_main"]:
+        raise ValueError("The question generator must differ from the HyDE generator.")
+    reasoning = llm_cfg.get("generation", {}).get(model, {}).get("reasoning_effort")
+
+    chunks, titles, texts = load_inputs()
+    plan = sample_chunks(chunks, seed=seed)
+    pairs = pair_for_multi_doc(plan.pop("multi_doc_anchor"), chunks, titles)
+    items = build_items(plan, pairs, titles, model, reasoning)
+    counts = {t: sum(1 for _, qt, _ in items if qt == t) for t in QUESTION_TYPES}
+    log(f"{len(items)} generation calls with {model}: {counts}")
+
+    cache = JsonlCache(paths.cache_dir() / "food" / "question_gen" / f"{model.replace('/', '__')}.jsonl")
+    if llm:
+        from hyde_rag.llm.client import OpenAICompatClient
+
+        client = OpenAICompatClient()
+        limits = load_limits().get(model, Limits(10**6, 10**9, 10**12, 10**15))
+        run_bulk(
+            client,
+            cache,
+            [it for it, _, _ in items],
+            limits,
+            approved=approved,
+            limit=PILOT_CALLS if pilot_only else None,
+            log=log,
+        )
+        base_url = client.base_url
+    else:
+        base_url = default_base_url()
+
+    candidates: list[Candidate] = []
+    bad = 0
+    for it, qtype, cs in items:
+        rec = cache.get(cache_key(base_url, it.request, 0))
+        if rec is None:
+            continue
+        try:
+            candidates.extend(parse_candidates(rec.text, it.item_id, qtype, cs, texts))
+        except (json.JSONDecodeError, KeyError, TypeError):
+            bad += 1
+    located = sum(1 for c in candidates if c.evidence and all(e["located"] for e in c.evidence))
+    log(
+        f"{len(candidates)} candidates from {len(items)} calls ({bad} unparseable); "
+        f"evidence located for {located}/{sum(1 for c in candidates if c.answerable)} answerable"
+    )
+
+    EVALSET_DIR.mkdir(parents=True, exist_ok=True)
+    with (EVALSET_DIR / "candidates.jsonl").open("w", encoding="utf-8") as f:
+        for c in candidates:
+            f.write(json.dumps(c.__dict__, ensure_ascii=False))
+            f.write("\n")
+    review = EVALSET_DIR / "review.csv"
+    write_review_csv(candidates, review)
+    return review

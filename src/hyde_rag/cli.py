@@ -165,6 +165,16 @@ def cmd_ingest_food(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_gen_questions(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.question_gen import generate
+
+    review = generate(
+        llm=not args.no_llm, approved=args.yes, pilot_only=args.pilot_only, log=lambda m: print(m, flush=True)
+    )
+    print(f"Review file: {review}")
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -212,6 +222,12 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("ingest-food", help="parse downloaded food PDFs into canonical text and chunks")
     p.set_defaults(func=cmd_ingest_food)
+
+    p = sub.add_parser("gen-questions", help="draft food eval questions and write the review CSV")
+    p.add_argument("--no-llm", action="store_true", help="rebuild the CSV from cached outputs only")
+    p.add_argument("--pilot-only", action="store_true", help="run 20 calls to check quality and cost")
+    p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
+    p.set_defaults(func=cmd_gen_questions)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)
