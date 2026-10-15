@@ -253,8 +253,9 @@ efficiency cores), 16 GB RAM, no GPU, on AC power, measured on SciFact abstracts
 
 Consequences, all at zero cost:
 - SciFact encodes locally in about 35 min with Contriever.
-- TREC-COVID documents are about 25% shorter, so expect roughly 15 CPU-hours per encoder
-  (about 30 h for both), spread over nights. The sharded encoder resumes after interruption.
+- TREC-COVID on the laptop ran at only about 1.3 docs/s under sustained load (thermal
+  throttling): about 3 days at 100% CPU. So it was encoded on a free Colab T4 GPU instead
+  (D-COMP-3).
 - HyDE's query-side cost is visible on CPU: encoding 8 passages takes seconds per query. This
   is reported in the latency columns.
 
@@ -270,6 +271,15 @@ Consequences, all at zero cost:
 
 All within 0.2 nDCG points. The paper's TREC-COVID R_cap 49.8 is BEIR's *Elasticsearch* BM25,
 a different system from Pyserini flat, so the 0.471 is not a parity failure.
+
+**D-COMP-3 TREC-COVID corpus encoded on a free Colab GPU (owner decision, 2026-10-15).**
+`notebooks/encode_trec_covid_colab.ipynb` mirrors `dense.py` exactly:
+- same models and pooling, 512 tokens, `title + " " + text`, corpus order;
+- fp32 with TF32 off.
+
+`hyde-rag verify-index` re-encoded 32 random documents per encoder on the laptop CPU and found
+cosine ≥ 0.9999998 and max |Δ| < 1e-6 against the T4 vectors, with document order and settings
+identical. Queries and hypothetical passages are still encoded on the laptop.
 
 ## Licensing
 
