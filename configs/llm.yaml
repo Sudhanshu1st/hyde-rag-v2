@@ -23,7 +23,7 @@ roles:
   hyde_alt: qwen/qwen3.8-27b          # generator ablation: different family
   answerer: openai/gpt-oss-20b        # RAG answers with citations
   judge: qwen/qwen3.8-27b             # claim-level faithfulness / citation / correctness judge
-  question_gen: qwen/qwen3.8-27b      # food eval-set candidate questions
+  question_gen: openai/gpt-oss-20b    # food eval-set candidate questions (idle model; != hyde_main)
   # Synthetic fine-tuning queries use a local doc2query T5 model on CPU: no API quota.
 
 # Per-model generation settings.

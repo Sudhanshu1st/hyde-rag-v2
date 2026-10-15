@@ -30,59 +30,57 @@ defaults:
 
 documents:
   # ---------------- Reference codes and standards ----------------
-  - {doc_id: fda_food_code_2026, title: "Food Code 2026", publisher: FDA, format: pdf, pages: 732,
+  - {doc_id: fda_food_code_2026, retrieved: "2026-10-15", sha256: "a608605db1a44d07fc9255db281175a933b4290597b4dc4cf58e035158fc8e06", bytes: 5215431, title: "Food Code 2026", publisher: FDA, format: pdf, pages: 732,
      url: "https://www.fda.gov/media/194741/download", licence: public_domain_us_gov_mixed, commit_raw: false,
      note: "Annex 4 reproduces a table 'Used with permission' (Pierson & Corlett, Chapman & Hall)."}
-  - {doc_id: codex_cxc1_1969, title: "General Principles of Food Hygiene CXC 1-1969 (rev. 2022, 2023 ed.)", publisher: FAO/WHO,
+  - {doc_id: codex_cxc1_1969, retrieved: "2026-10-15", sha256: "3bd05cdb27901dc55fe3ea8f985c42bab45090b9969c2111d9e97e8d282ae2ae", bytes: 524368, title: "General Principles of Food Hygiene CXC 1-1969 (rev. 2022, 2023 ed.)", publisher: FAO/WHO,
      format: pdf, pages: 60, url: "https://openknowledge.fao.org/server/api/core/bitstreams/6866dc55-d2c0-48dd-a528-a4d634f1b0b4/content",
      landing: "https://doi.org/10.4060/cc6125en", licence: cc_by_nc_sa_3_0_igo, commit_raw: false}
-  - {doc_id: fssai_sched4_compendium, title: "FSS (Licensing & Registration) Regulations 2011, compendium incl. Schedule 4", publisher: FSSAI,
+  - {doc_id: fssai_sched4_compendium, retrieved: "2026-10-15", sha256: "041ef7e7d3a4b6d11c084182217e0d7d9d73488490b6ff1484a4a41a5d906fd8", bytes: 1255307, title: "FSS (Licensing & Registration) Regulations 2011, compendium incl. Schedule 4", publisher: FSSAI,
      format: pdf, pages: 101, url: "https://fssai.gov.in/docs/food-law/regulations/Compendium_Licensing_Regulations_04_08_2021.pdf",
      licence: restricted_download_only, commit_raw: false, note: "Schedule 4 from ~p.35; partly superseded by Amendment No. 5 (2026)."}
-  - {doc_id: fssai_lr_amend5_2026, title: "L&R Amendment No. 5 (2026), substitutes Schedule 4 Part II para 5.2.5", publisher: FSSAI,
+  - {doc_id: fssai_lr_amend5_2026, retrieved: "2026-10-15", sha256: "1caa68be56a52c5d6ec54d578075bbf311fd316f4053b20e3cf5f677ecdbd78d", bytes: 611129, title: "L&R Amendment No. 5 (2026), substitutes Schedule 4 Part II para 5.2.5", publisher: FSSAI,
      format: pdf, url: "https://fssai.gov.in/docs/food-law/regulations/amendments/licensing-registration/273797.pdf",
      licence: restricted_download_only, commit_raw: false}
-  - {doc_id: fssai_recall_reg_2017, title: "Food Safety and Standards (Food Recall Procedure) Regulations 2017", publisher: FSSAI,
+  - {doc_id: fssai_recall_reg_2017, retrieved: "2026-10-15", sha256: "4cd5fb523a693e06aac4bb4b6791e0202e5f4797f7f2482995512fb4961e431b", bytes: 1281088, title: "Food Safety and Standards (Food Recall Procedure) Regulations 2017", publisher: FSSAI,
      format: pdf, url: "https://fssai.gov.in/docs/food-law/regulations/Food_Recall_Regulations.pdf",
      licence: restricted_download_only, commit_raw: false}
-  - {doc_id: fssai_recall_guidelines_2017, title: "Food Recall Guidelines", publisher: FSSAI,
+  - {doc_id: fssai_recall_guidelines_2017, retrieved: "2026-10-15", sha256: "6a7e766e3e2414780ae6c67fec98ece4146354967e1d02e8c65ea3bcaf4b7f02", bytes: 361630, title: "Food Recall Guidelines", publisher: FSSAI,
      format: pdf, url: "https://fssai.gov.in/docs/food-law/regulations/Guidelines_Food_Recall_28_11_2017.pdf",
      licence: restricted_download_only, commit_raw: false}
 
   # ---------------- FDA preventive controls for human food (draft guidance, Jan 2024) ----------------
   # Landing: https://www.fda.gov/regulatory-information/search-fda-guidance-documents/draft-guidance-industry-hazard-analysis-and-risk-based-preventive-controls-for-human-food
-  - {doc_id: fda_pchf_intro, title: "PCHF guidance: Introduction", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99621/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch01, title: "PCHF Ch 1: The Food Safety Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99547/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch02, title: "PCHF Ch 2: Conducting a Hazard Analysis", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99554/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch03, title: "PCHF Ch 3: Potential Hazards", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99558/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch04, title: "PCHF Ch 4: Preventive Controls", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99572/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch05, title: "PCHF Ch 5: Preventive Control Management Components", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99576/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch06, title: "PCHF Ch 6: Heat Treatments", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/107327/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch11, title: "PCHF Ch 11: Food Allergen Program", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/172318/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch14, title: "PCHF Ch 14: Recall Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/131287/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch15, title: "PCHF Ch 15: Supply-Chain Program", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/110443/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_ch16, title: "PCHF Ch 16: Acidified Foods", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/172317/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_pchf_app2_forms, title: "PCHF Appendix 2: Food Safety Plan Forms", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99592/download",
+  - {doc_id: fda_pchf_intro, retrieved: "2026-10-15", sha256: "26598bc45a13b5530916c48c5874d9fd79631181c7d60251d79167dc15ffd162", bytes: 2353384, title: "PCHF guidance: Introduction", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99621/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch01, retrieved: "2026-10-15", sha256: "84dcba94d91d31098be83392afb435ee9cb22e4ab17833ce9342759c02500c84", bytes: 88519, title: "PCHF Ch 1: The Food Safety Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99547/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch02, retrieved: "2026-10-15", sha256: "6704973ddca41b22e027845e30f08eba35288ea692c1686b054b50ca9317a953", bytes: 169173, title: "PCHF Ch 2: Conducting a Hazard Analysis", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99554/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch03, retrieved: "2026-10-15", sha256: "48103b340f143e77d229bfeaee70c32ae8b6665c1b21c6d3c771cfc1d692db46", bytes: 342399, title: "PCHF Ch 3: Potential Hazards", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99558/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch04, retrieved: "2026-10-15", sha256: "0848b9dc73d00b27b240566bd9d875bdbe75c32884154e0ae59120422b0b5d85", bytes: 338783, title: "PCHF Ch 4: Preventive Controls", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99572/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch05, retrieved: "2026-10-15", sha256: "2605d1d0a934e76b65762b7da7a5a9f8aa25ec7af63069265b6ea0c0ea1a5823", bytes: 172294, title: "PCHF Ch 5: Preventive Control Management Components", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99576/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch06, retrieved: "2026-10-15", sha256: "9a51f1e346661dadec363e9a188ad882d443dabaabe00b955bb781f468bccf59", bytes: 412871, title: "PCHF Ch 6: Heat Treatments", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/107327/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch11, retrieved: "2026-10-15", sha256: "17b96429b80d2bc37a9ac5dc2fdd02651f50d4842ff74db99c560c5f6b408e58", bytes: 1022353, title: "PCHF Ch 11: Food Allergen Program", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/172318/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch14, retrieved: "2026-10-15", sha256: "4c66d38d4f070637d6c7269305689637c7d726f30742d93a771a36de1522d9c6", bytes: 120835, title: "PCHF Ch 14: Recall Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/131287/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch15, retrieved: "2026-10-15", sha256: "492e53115f1a5be3bfd0ad1f343134c69f9d294c3fc802914b16e81635b1954b", bytes: 528306, title: "PCHF Ch 15: Supply-Chain Program", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/110443/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_ch16, retrieved: "2026-10-15", sha256: "4504f1fa7521615d2406c621d25356124b82052f292314a593860344fafa3064", bytes: 421937, title: "PCHF Ch 16: Acidified Foods", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/172317/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_app2_forms, retrieved: "2026-10-15", sha256: "05b7c9a88dd5375b3f3e4b4786ff1e987978e32247b973a03958682625dcc674", bytes: 199376, title: "PCHF Appendix 2: Food Safety Plan Forms", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99592/download",
      licence: public_domain_us_gov_review, commit_raw: false, note: "Forms 'adapted from' FSPCA material; precautionary download-only."}
-  - {doc_id: fda_pchf_app3, title: "PCHF Appendix 3: Bacterial Pathogen Growth and Inactivation", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99598/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_pchf_app3, retrieved: "2026-10-15", sha256: "ba818268cc7d6894f41c0200f14b064ad254da8f649cf7f75d62ca03733207c1", bytes: 190124, title: "PCHF Appendix 3: Bacterial Pathogen Growth and Inactivation", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/99598/download", licence: public_domain_us_gov, commit_raw: true}
 
   # ---------------- Other FDA guidance ----------------
-  - {doc_id: fda_lm_rte_2017, title: "Control of Listeria monocytogenes in Ready-To-Eat Foods (draft, 2017)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/102633/download",
+  - {doc_id: fda_lm_rte_2017, retrieved: "2026-10-15", sha256: "1ffe957e05ade7467a4a484b201b86b98638a756c3ecbbce7564b1b492542769", bytes: 872618, title: "Control of Listeria monocytogenes in Ready-To-Eat Foods (draft, 2017)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/102633/download",
      licence: public_domain_us_gov, commit_raw: true, note: "Cites recommendations 'adapted from' Tompkin et al. 1999; no permission notice found."}
-  - {doc_id: fda_lmrte_sanitation_2025, title: "Low-moisture RTE foods: sanitation and corrective actions (draft, 2025)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/184815/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_juice_haccp_2004, title: "Juice HACCP Hazards and Controls Guidance (2004)", publisher: FDA, format: html, url: null,
-     licence: public_domain_us_gov, commit_raw: true, note: "HTML only; exact URL to be confirmed in Phase 4."}
-  - {doc_id: fda_seafood_ch02, title: "Seafood HACCP Guidance Ch 2: Hazard Analysis and HACCP Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80729/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_seafood_ch12, title: "Seafood HACCP Guidance Ch 12: Pathogen growth from time/temperature abuse", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80305/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_seafood_ch13, title: "Seafood HACCP Guidance Ch 13: Clostridium botulinum", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80310/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_seafood_ch19, title: "Seafood HACCP Guidance Ch 19: Undeclared major food allergens", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80337/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_seafood_app10, title: "Seafood HACCP Guidance App 10: Allergen cleaning and sanitation", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/129671/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_seafood_add2, title: "Seafood HACCP Guidance Addendum 2: CGMP (21 CFR 117 Subpart B)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/149982/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_recall_initiation_2022, title: "Initiation of Voluntary Recalls (guidance, 2022)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/123664/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_rpm_ch07, title: "Regulatory Procedures Manual Ch 7: Recall Procedures", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/71814/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_iom2026_ch07, title: "Investigations Operations Manual 2026 Ch 7: Recall Activities", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/166535/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_retail_haccp_manual, title: "Managing Food Safety: HACCP manual for retail and food service operators", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/71976/download", licence: public_domain_us_gov, commit_raw: true}
-  - {doc_id: fda_rfr_qa_ed2, title: "Reportable Food Registry Q&A, Edition 2 (draft)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/79130/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_lmrte_sanitation_2025, retrieved: "2026-10-15", sha256: "f03f70dcac08a268b510833ad6ee126a07c2c144853aae134797de69b9023a61", bytes: 480211, title: "Low-moisture RTE foods: sanitation and corrective actions (draft, 2025)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/184815/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_ch02, retrieved: "2026-10-15", sha256: "351d190f6c55436e87539adaac75d5d3f6f6b94dc902d35210326778c4cd20af", bytes: 1965795, title: "Seafood HACCP Guidance Ch 2: Hazard Analysis and HACCP Plan", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80729/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_ch12, retrieved: "2026-10-15", sha256: "3697f45fc4ae887e9db4fdc55ee50a2c2496fea543dd8950c45b3713f42895c6", bytes: 792602, title: "Seafood HACCP Guidance Ch 12: Pathogen growth from time/temperature abuse", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80305/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_ch13, retrieved: "2026-10-15", sha256: "de0a0f6bc5a6c6a977be9131d32b72b07bf665b83b2872922064c2093e8f158c", bytes: 909386, title: "Seafood HACCP Guidance Ch 13: Clostridium botulinum", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80310/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_ch19, retrieved: "2026-10-15", sha256: "bb67e0f9d1a25d966156b50a1861589d628777fdda85ed183bf04ed244f67820", bytes: 581163, title: "Seafood HACCP Guidance Ch 19: Undeclared major food allergens", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/80337/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_app10, retrieved: "2026-10-15", sha256: "223d097e09b8d6507794fb834ee7f57e97402d7141395d1591af45d02dd9a993", bytes: 238161, title: "Seafood HACCP Guidance App 10: Allergen cleaning and sanitation", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/129671/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_seafood_add2, retrieved: "2026-10-15", sha256: "29e4639f5f39891a88105ad3533798bda14fc8e557d092f7f83d0212b34f17f8", bytes: 759132, title: "Seafood HACCP Guidance Addendum 2: CGMP (21 CFR 117 Subpart B)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/149982/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_recall_initiation_2022, retrieved: "2026-10-15", sha256: "8cb3b695737b6c842e2e59662912b589fa92df2b6d0f222cf60d1d27dca7bab3", bytes: 363791, title: "Initiation of Voluntary Recalls (guidance, 2022)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/123664/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_rpm_ch07, retrieved: "2026-10-15", sha256: "eedcb01fb5a5d774d32ce76e4de5f8a3e87a7782a9e93a6c160878d44605406c", bytes: 942748, title: "Regulatory Procedures Manual Ch 7: Recall Procedures", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/71814/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_iom2026_ch07, retrieved: "2026-10-15", sha256: "7f4db1ab1455b9cee0eb27c6da0d692c2922fd72514a970b8aa8f89881f59f1f", bytes: 663693, title: "Investigations Operations Manual 2026 Ch 7: Recall Activities", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/166535/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_retail_haccp_manual, retrieved: "2026-10-15", sha256: "17473220ad0da800c7b84341eade7a74af8142184643a6253f11a4f07dc792a5", bytes: 638916, title: "Managing Food Safety: HACCP manual for retail and food service operators", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/71976/download", licence: public_domain_us_gov, commit_raw: true}
+  - {doc_id: fda_rfr_qa_ed2, retrieved: "2026-10-15", sha256: "6cdef9e7083b5818e4af346f58f64906b72d29f5d65e27797010cbec50f11b2e", bytes: 175410, title: "Reportable Food Registry Q&A, Edition 2 (draft)", publisher: FDA, format: pdf, url: "https://www.fda.gov/media/79130/download", licence: public_domain_us_gov, commit_raw: true}
 
   # ---------------- USDA FSIS (meat and poultry) ----------------
   - {doc_id: fsis_lm_rte_2014, title: "Compliance Guideline: Controlling Lm in Post-lethality Exposed RTE Meat and Poultry (2014)", publisher: USDA FSIS, format: pdf,
@@ -112,6 +110,7 @@ documents:
   - {doc_id: fsis_dir_8080_1_r8, title: "FSIS Directive 8080.1 Rev 8: Recall of Meat and Poultry Products", publisher: USDA FSIS, format: pdf,
      url: "https://www.fsis.usda.gov/sites/default/files/media_file/2020-07/8080.1.pdf", licence: public_domain_us_gov, commit_raw: true}
 
+# Excluded: FDA Juice HACCP guidance (2004) exists only as an HTML page, no stable PDF.
 # Excluded on purpose (sensitive): FDA warning letters (name firms and individuals, carry FOIA
 # redactions) and openFDA / FSIS recall records (firm names, addresses, contacts).
 # Corrective-action and recall content comes from guidance documents instead (PCHF Ch 5 and 14,

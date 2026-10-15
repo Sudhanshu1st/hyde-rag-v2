@@ -165,7 +165,7 @@ Groq are enterprise-only as of 2026-10-14.
 | Generator ablation, other family | `qwen/qwen3.8-27b` | Preview model |
 | Answerer | `openai/gpt-oss-20b` | |
 | Judge | `qwen/qwen3.8-27b` | Must differ from the answerer |
-| Food eval-question generator | `qwen/qwen3.8-27b` | Must differ from the headline HyDE generator |
+| Food eval-question generator | `openai/gpt-oss-20b` | Must differ from the headline HyDE generator; moved from Qwen3 on 2026-10-15 because gpt-oss-20b had finished its HyDE share and was idle |
 | Synthetic fine-tuning queries | local doc2query T5 on CPU | Different model from the eval questions; no quota |
 
 Preview models can be withdrawn at short notice, which is another reason caches are committed.
