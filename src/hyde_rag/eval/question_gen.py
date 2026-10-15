@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import csv
 import difflib
+import hashlib
 import itertools
 import json
 import math
@@ -122,12 +123,19 @@ _CITATION = re.compile(r"\bet al\b|\(\s*(?:19|20)\d{2}[a-z]?\s*\)")
 
 
 def eligible(chunk: DocChunk) -> bool:
-    """Body text of reasonable length; skips link lists and bibliographies."""
+    """Body text of reasonable length; skips link lists, bibliographies, forms and dense tables
+    (their extracted text is often out of order, which garbles questions and evidence)."""
     words = len(chunk.text.split())
-    return 80 <= words <= 400 and chunk.text.count("http") <= 3 and len(_CITATION.findall(chunk.text)) < 3
+    if not 80 <= words <= 400 or chunk.text.count("http") > 3 or len(_CITATION.findall(chunk.text)) >= 3:
+        return False
+    if "___" in chunk.text:
+        return False
+    lines = [ln for ln in chunk.text.splitlines() if ln.strip()]
+    short = sum(1 for ln in lines if len(ln.split()) <= 4)
+    return not (lines and short / len(lines) > 0.4)
 
 
-def sample_chunks(chunks: list[DocChunk], seed: int = 13) -> dict[str, list[DocChunk]]:
+def sample_chunks(chunks: list[DocChunk], seed: int = 13, scale: float = 1.0) -> dict[str, list[DocChunk]]:
     """Assign chunks to single-chunk question types, spread across documents."""
     rng = random.Random(seed)
     pool = [c for c in chunks if eligible(c)]
@@ -156,13 +164,16 @@ def sample_chunks(chunks: list[DocChunk], seed: int = 13) -> dict[str, list[DocC
                 by_doc[d].clear()
         return picked
 
+    def n(qtype: str) -> int:
+        return max(1, round(PLAN[qtype] * scale))
+
     plan = {
-        "numeric": draw(PLAN["numeric"], lambda c: len(_NUMERIC.findall(c.text)) >= 2),
-        "procedural": draw(PLAN["procedural"], lambda c: len(_PROCEDURAL.findall(c.text)) >= 3),
-        "jargon": draw(PLAN["jargon"], lambda c: True),
-        "factual": draw(PLAN["factual"], lambda c: True),
-        "unanswerable": draw(PLAN["unanswerable"] // 2, lambda c: True),  # 2 questions per chunk
-        "multi_doc_anchor": draw(PLAN["multi_doc"], lambda c: True),
+        "numeric": draw(n("numeric"), lambda c: len(_NUMERIC.findall(c.text)) >= 2),
+        "procedural": draw(n("procedural"), lambda c: len(_PROCEDURAL.findall(c.text)) >= 3),
+        "jargon": draw(n("jargon"), lambda c: True),
+        "factual": draw(n("factual"), lambda c: True),
+        "unanswerable": draw(max(1, n("unanswerable") // 2), lambda c: True),  # 2 questions per chunk
+        "multi_doc_anchor": draw(n("multi_doc"), lambda c: True),
     }
     return plan
 
@@ -315,7 +326,7 @@ def parse_candidates(
                 )
         out.append(
             Candidate(
-                id=f"{qtype[:3]}-{abs(hash(item_id)) % 10**6:06d}-{k}",
+                id=stable_id(qtype, item_id, k),
                 type=qtype,
                 question=q["question"].strip(),
                 reference_answer=q["reference_answer"].strip(),
@@ -337,57 +348,101 @@ REVIEW_COLUMNS = [
     "evidence_page",
     "evidence_quote",
     "evidence_located",
+    "check_passages",
     "decision",
     "edited_question",
     "edited_answer",
     "notes",
 ]
+# Fields a reviewer may change; re-running never overwrites them.
+REVIEWER_FIELDS = ("decision", "edited_question", "edited_answer", "notes", "evidence_quote", "evidence_doc")
 
 
-def write_review_csv(candidates: list[Candidate], path: Path, n_blank_human: int = 30) -> None:
-    """One row per candidate. decision: accept | edit | reject (blank = not reviewed).
-    Blank 'human' rows at the end are for questions you write yourself."""
+def stable_id(qtype: str, item_id: str, k: int) -> str:
+    """Deterministic across runs and machines (Python's hash() is randomised per process)."""
+    return f"{qtype[:3]}-{hashlib.sha1(item_id.encode('utf-8')).hexdigest()[:8]}-{k}"
+
+
+def write_review_csv(
+    candidates: list[Candidate],
+    path: Path,
+    check_passages: dict[str, str] | None = None,
+    n_blank_human: int = 30,
+) -> None:
+    """Write/merge the review sheet. decision: accept | edit | reject (blank = not reviewed).
+
+    Re-running is safe: reviewer fields, rows from earlier batches, and your own 'human' rows
+    are kept; only new candidates are added. Blank 'human' rows are for your own questions.
+    """
+    check_passages = check_passages or {}
+    existing: dict[str, dict] = {}
+    if path.exists():
+        with path.open(encoding="utf-8-sig", newline="") as f:
+            existing = {row["id"]: row for row in csv.DictReader(f)}
+    rows: list[dict] = []
+    seen: set[str] = set()
+    for c in candidates:
+        ev = c.evidence[0] if c.evidence else {}
+        row = {
+            "id": c.id,
+            "type": c.type,
+            "answerable": c.answerable,
+            "question": c.question,
+            "reference_answer": c.reference_answer,
+            "evidence_doc": ev.get("doc_id", ""),
+            "evidence_page": ev.get("page", ""),
+            "evidence_quote": " || ".join(e["quote"] for e in c.evidence),
+            "evidence_located": all(e["located"] for e in c.evidence) if c.evidence else "",
+            "check_passages": check_passages.get(c.id, ""),
+            "decision": "",
+            "edited_question": "",
+            "edited_answer": "",
+            "notes": "",
+        }
+        old = existing.get(c.id)
+        if old:
+            for field_name in REVIEWER_FIELDS:
+                if old.get(field_name):
+                    row[field_name] = old[field_name]
+        rows.append(row)
+        seen.add(c.id)
+    # Keep rows from earlier batches (e.g. documents added later) and every human row.
+    rows += [r for i, r in existing.items() if i not in seen and r.get("type") != "human"]
+    humans = [r for r in existing.values() if r.get("type") == "human"]
+    for i in range(len(humans), n_blank_human):
+        humans.append(
+            {
+                "id": f"hum-{i + 1:03d}",
+                "type": "human",
+                "notes": "write your own question; give evidence_doc and a verbatim evidence_quote",
+            }
+        )
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:  # BOM so Excel opens UTF-8 correctly
         w = csv.DictWriter(f, fieldnames=REVIEW_COLUMNS)
         w.writeheader()
-        for c in candidates:
-            ev = c.evidence[0] if c.evidence else {}
-            w.writerow(
-                {
-                    "id": c.id,
-                    "type": c.type,
-                    "answerable": c.answerable,
-                    "question": c.question,
-                    "reference_answer": c.reference_answer,
-                    "evidence_doc": ev.get("doc_id", ""),
-                    "evidence_page": ev.get("page", ""),
-                    "evidence_quote": " || ".join(e["quote"] for e in c.evidence),
-                    "evidence_located": all(e["located"] for e in c.evidence) if c.evidence else "",
-                    "decision": "",
-                    "edited_question": "",
-                    "edited_answer": "",
-                    "notes": "",
-                }
-            )
-        for i in range(n_blank_human):
-            w.writerow(
-                {
-                    "id": f"hum-{i + 1:03d}",
-                    "type": "human",
-                    "answerable": "",
-                    "question": "",
-                    "reference_answer": "",
-                    "evidence_doc": "",
-                    "evidence_page": "",
-                    "evidence_quote": "",
-                    "evidence_located": "",
-                    "decision": "",
-                    "edited_question": "",
-                    "edited_answer": "",
-                    "notes": "write your own question; give evidence_doc and a verbatim evidence_quote",
-                }
-            )
+        for r in rows + humans:
+            w.writerow({k: r.get(k, "") for k in REVIEW_COLUMNS})
+
+
+def closest_passages(
+    questions: dict[str, str], chunks: list[DocChunk], titles: dict[str, str], k: int = 2
+) -> dict:
+    """For unanswerable candidates: the corpus passages most likely to answer them, so the
+    reviewer can quickly confirm the question really is unanswerable."""
+    from hyde_rag.retrieval.bm25 import BM25Retriever
+
+    if not questions:
+        return {}
+    bm25 = BM25Retriever()
+    bm25.index([c.chunk_id for c in chunks], [c.index_text(titles[c.doc_id]) for c in chunks])
+    by_id = {c.chunk_id: c for c in chunks}
+    run = bm25.search(questions, k=k)
+    out = {}
+    for qid, hits in run.items():
+        top = sorted(hits.items(), key=lambda kv: -kv[1])[:k]
+        out[qid] = " || ".join(f"[{cid}] {_WS.sub(' ', by_id[cid].text)[:300]}" for cid, _ in top)
+    return out
 
 
 def load_inputs() -> tuple[list[DocChunk], dict[str, str], dict[str, str]]:
@@ -399,7 +454,13 @@ def load_inputs() -> tuple[list[DocChunk], dict[str, str], dict[str, str]]:
 
 
 def generate(
-    *, llm: bool = True, approved: bool = False, pilot_only: bool = False, seed: int = 13, log=print
+    *,
+    llm: bool = True,
+    approved: bool = False,
+    pilot_only: bool = False,
+    seed: int = 13,
+    docs: set[str] | None = None,
+    log=print,
 ) -> Path:
     """Draft candidates with the question-generator model and write the review CSV."""
     import yaml
@@ -416,8 +477,14 @@ def generate(
     reasoning = llm_cfg.get("generation", {}).get(model, {}).get("reasoning_effort")
 
     chunks, titles, texts = load_inputs()
-    plan = sample_chunks(chunks, seed=seed)
-    pairs = pair_for_multi_doc(plan.pop("multi_doc_anchor"), chunks, titles)
+    all_chunks = chunks
+    scale = 1.0
+    if docs:  # a later batch for added documents, sized by their share of the corpus
+        chunks = [c for c in chunks if c.doc_id in docs]
+        scale = len(chunks) / len(all_chunks)
+        log(f"batch for {len(docs)} document(s): {len(chunks)} chunks, plan scaled by {scale:.2f}")
+    plan = sample_chunks(chunks, seed=seed, scale=scale)
+    pairs = pair_for_multi_doc(plan.pop("multi_doc_anchor"), all_chunks, titles)
     items = build_items(plan, pairs, titles, model, reasoning)
     random.Random(seed).shuffle(items)  # so a 20-call pilot covers every question type
     counts = {t: sum(1 for _, qt, _ in items if qt == t) for t in QUESTION_TYPES}
@@ -464,5 +531,6 @@ def generate(
             f.write(json.dumps(c.__dict__, ensure_ascii=False))
             f.write("\n")
     review = EVALSET_DIR / "review.csv"
-    write_review_csv(candidates, review)
+    unanswerable = {c.id: c.question for c in candidates if not c.answerable}
+    write_review_csv(candidates, review, closest_passages(unanswerable, all_chunks, titles))
     return review

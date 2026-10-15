@@ -136,3 +136,32 @@ def test_build_evalset(tmp_path, monkeypatch):
     assert TEXT[span["char_start"] : span["char_end"]].startswith("Shellstock shall be cooled")
     assert items["una-3"]["answerable"] is False and items["una-3"]["gold_evidence"] == []
     assert items["hum-001"]["source"] == "human" and items["hum-001"]["type"] == "human"
+
+
+def test_review_csv_merge_keeps_reviewer_work(tmp_path):
+    from hyde_rag.eval.question_gen import Candidate, stable_id, write_review_csv
+
+    assert stable_id("factual", "factual|doc:1:0", 0) == stable_id("factual", "factual|doc:1:0", 0)
+    ev = [{"doc_id": "d", "page": 1, "quote": "q", "located": True}]
+    a = Candidate("fac-a-0", "factual", "Q1?", "A1", True, ev, ["d:1:0"])
+    b = Candidate("una-b-0", "unanswerable", "Q2?", "NOT ANSWERABLE", False, [], ["d:2:0"])
+    path = tmp_path / "review.csv"
+    write_review_csv([a, b], path, {"una-b-0": "[d:9:0] closest text"})
+    rows = list(csv.DictReader(path.open(encoding="utf-8-sig", newline="")))
+    assert [r["id"] for r in rows[:2]] == ["fac-a-0", "una-b-0"] and len(rows) == 32  # + 30 human rows
+    assert rows[1]["check_passages"].startswith("[d:9:0]")
+    # Reviewer fills in a decision and writes a question of their own.
+    rows[0]["decision"], rows[0]["edited_question"] = "edit", "Better Q1?"
+    rows[2]["question"], rows[2]["answerable"] = "My own question?", "yes"
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        w.writeheader()
+        w.writerows(rows)
+    # A later batch adds a new candidate; earlier work must survive.
+    c = Candidate("num-c-0", "numeric", "Q3?", "5C", True, ev, ["e:1:0"])
+    write_review_csv([c], path)
+    after = {r["id"]: r for r in csv.DictReader(path.open(encoding="utf-8-sig", newline=""))}
+    assert after["fac-a-0"]["decision"] == "edit" and after["fac-a-0"]["edited_question"] == "Better Q1?"
+    assert "una-b-0" in after and "num-c-0" in after
+    assert after["hum-001"]["question"] == "My own question?"
+    assert sum(1 for r in after.values() if r["type"] == "human") == 30
