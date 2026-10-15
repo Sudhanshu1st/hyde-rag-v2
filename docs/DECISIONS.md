@@ -268,8 +268,12 @@ Consequences, all at zero cost:
 | TREC-COVID | nDCG@10 | 0.5931 | 59.5 | .5947 |
 | TREC-COVID | R@100 | 0.1089 | – | .1091 |
 | TREC-COVID | R_cap@100 | 0.471 | 49.8 | – |
+| SciFact | Contriever nDCG@10 | 0.6493 | 64.9 | .6493 |
+| TREC-COVID | Contriever nDCG@10 | 0.2745 | 27.3 | .2732 |
+| TREC-COVID | Contriever R_cap@100 | 0.1722 | 17.2 | – |
+| SciFact | BM25 + MiniLM CE nDCG@10 | 0.6881 | – | BEIR paper 0.688 |
 
-All within 0.2 nDCG points. The paper's TREC-COVID R_cap 49.8 is BEIR's *Elasticsearch* BM25,
+Every parity check is within 0.2 points. The paper's TREC-COVID BM25 R_cap 49.8 is BEIR's *Elasticsearch* BM25,
 a different system from Pyserini flat, so the 0.471 is not a parity failure.
 
 **D-COMP-3 TREC-COVID corpus encoded on a free Colab GPU (owner decision, 2026-10-15).**
