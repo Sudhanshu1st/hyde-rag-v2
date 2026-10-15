@@ -172,7 +172,7 @@ def cmd_gen_questions(args: argparse.Namespace) -> int:
         llm=not args.no_llm,
         approved=args.yes,
         pilot_only=args.pilot_only,
-        docs=set(args.docs) if args.docs else None,
+        batch=args.batch,
         log=lambda m: print(m, flush=True),
     )
     print(f"Review file: {review}")
@@ -242,7 +242,7 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("gen-questions", help="draft food eval questions and write the review CSV")
     p.add_argument("--no-llm", action="store_true", help="rebuild the CSV from cached outputs only")
     p.add_argument("--pilot-only", action="store_true", help="run 20 calls to check quality and cost")
-    p.add_argument("--docs", nargs="+", help="extra batch for these doc_ids only (merged into review.csv)")
+    p.add_argument("--batch", default="main", help="batch name from configs/question_batches.yaml")
     p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
     p.set_defaults(func=cmd_gen_questions)
 

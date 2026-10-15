@@ -418,7 +418,16 @@ def write_review_csv(
             }
         )
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8-sig", newline="") as f:  # BOM so Excel opens UTF-8 correctly
+    try:
+        f = path.open("w", encoding="utf-8-sig", newline="")  # BOM so Excel opens UTF-8 correctly
+    except PermissionError:
+        # Windows: the sheet is open in Excel. Don't lose the new rows; write them alongside.
+        path = path.with_name(path.stem + ".pending.csv")
+        print(
+            f"review sheet is open elsewhere; wrote {path.name} instead. Close it and re-run with --no-llm."
+        )
+        f = path.open("w", encoding="utf-8-sig", newline="")
+    with f:
         w = csv.DictWriter(f, fieldnames=REVIEW_COLUMNS)
         w.writeheader()
         for r in rows + humans:
@@ -459,10 +468,15 @@ def generate(
     approved: bool = False,
     pilot_only: bool = False,
     seed: int = 13,
-    docs: set[str] | None = None,
+    batch: str = "main",
     log=print,
 ) -> Path:
-    """Draft candidates with the question-generator model and write the review CSV."""
+    """Draft one batch of candidates (configs/question_batches.yaml) and merge it into the review CSV.
+
+    A batch samples questions only from its own documents; multi-document partners come from
+    its documents plus those of earlier batches. Adding documents later therefore never
+    changes an earlier batch, so its cached generations stay valid.
+    """
     import yaml
 
     from hyde_rag.llm.cache import JsonlCache, cache_key
@@ -476,15 +490,26 @@ def generate(
         raise ValueError("The question generator must differ from the HyDE generator.")
     reasoning = llm_cfg.get("generation", {}).get(model, {}).get("reasoning_effort")
 
-    chunks, titles, texts = load_inputs()
-    all_chunks = chunks
-    scale = 1.0
-    if docs:  # a later batch for added documents, sized by their share of the corpus
-        chunks = [c for c in chunks if c.doc_id in docs]
-        scale = len(chunks) / len(all_chunks)
-        log(f"batch for {len(docs)} document(s): {len(chunks)} chunks, plan scaled by {scale:.2f}")
+    all_chunks, titles, texts = load_inputs()
+    batches = yaml.safe_load((paths.CONFIG_DIR / "question_batches.yaml").read_text(encoding="utf-8"))[
+        "batches"
+    ]
+    if batch not in batches:
+        raise ValueError(f"unknown batch {batch!r}; known: {', '.join(batches)}")
+    all_docs = {c.doc_id for c in all_chunks}
+
+    def batch_docs(spec: dict) -> set[str]:
+        return set(spec["docs"]) & all_docs if "docs" in spec else all_docs - set(spec.get("exclude", []))
+
+    names = list(batches)
+    own = batch_docs(batches[batch])
+    pool_docs = set().union(*(batch_docs(batches[n]) for n in names[: names.index(batch) + 1]))
+    chunks = [c for c in all_chunks if c.doc_id in own]
+    pool = [c for c in all_chunks if c.doc_id in pool_docs]
+    scale = len(chunks) / len(pool) if batches[batch].get("scale_by_share") else 1.0
+    log(f"batch {batch!r}: {len(own)} documents, {len(chunks)} chunks, plan scale {scale:.2f}")
     plan = sample_chunks(chunks, seed=seed, scale=scale)
-    pairs = pair_for_multi_doc(plan.pop("multi_doc_anchor"), all_chunks, titles)
+    pairs = pair_for_multi_doc(plan.pop("multi_doc_anchor"), pool, titles)
     items = build_items(plan, pairs, titles, model, reasoning)
     random.Random(seed).shuffle(items)  # so a 20-call pilot covers every question type
     counts = {t: sum(1 for _, qt, _ in items if qt == t) for t in QUESTION_TYPES}
