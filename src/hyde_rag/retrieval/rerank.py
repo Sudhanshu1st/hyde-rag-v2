@@ -34,17 +34,30 @@ class CrossEncoderReranker:
     def _key(qid: str, did: str) -> str:
         return f"{qid}\x1f{did}"
 
-    def score(self, pairs: list[tuple[str, str, str, str]], batch_size: int = 32) -> list[float]:
-        """pairs: (query_id, doc_id, query_text, doc_text) -> scores, using the cache."""
-        missing = [p for p in pairs if self._key(p[0], p[1]) not in self._scores]
-        if missing:
-            # Sort by length to reduce padding; restore via the cache dict.
-            missing.sort(key=lambda p: len(p[2]) + len(p[3]))
+    def score(
+        self, pairs: list[tuple[str, str, str, str]], batch_size: int = 32, save_every: int = 2048
+    ) -> list[float]:
+        """pairs: (query_id, doc_id, query_text, doc_text) -> scores, using the cache.
+
+        Missing pairs are scored in blocks of `save_every` and appended to the cache file after
+        each block, so an interrupted run (e.g. the laptop sleeping) resumes where it stopped.
+        """
+        seen: set[str] = set()
+        missing = []
+        for p in pairs:
+            k = self._key(p[0], p[1])
+            if k not in self._scores and k not in seen:
+                seen.add(k)
+                missing.append(p)
+        # Sort by length to reduce padding; results are stored by key, so order doesn't matter.
+        missing.sort(key=lambda p: len(p[2]) + len(p[3]))
+        for start in range(0, len(missing), save_every):
+            block = missing[start : start + save_every]
             values = self._model.predict(
-                [(p[2], p[3]) for p in missing], batch_size=batch_size, show_progress_bar=False
+                [(p[2], p[3]) for p in block], batch_size=batch_size, show_progress_bar=False
             )
             new_lines = []
-            for p, v in zip(missing, values, strict=True):
+            for p, v in zip(block, values, strict=True):
                 k = self._key(p[0], p[1])
                 self._scores[k] = float(v)
                 new_lines.append(f"{k}\t{float(v)!r}")
