@@ -135,8 +135,15 @@ def eligible(chunk: DocChunk) -> bool:
     return not (lines and short / len(lines) > 0.4)
 
 
-def sample_chunks(chunks: list[DocChunk], seed: int = 13, scale: float = 1.0) -> dict[str, list[DocChunk]]:
-    """Assign chunks to single-chunk question types, spread across documents."""
+def sample_chunks(
+    chunks: list[DocChunk], seed: int = 13, scale: float = 1.0, sampler: int = 2
+) -> dict[str, list[DocChunk]]:
+    """Assign chunks to single-chunk question types, spread across documents.
+
+    sampler=1 reproduces the original batch "main" exactly. It had a bug: a document with no
+    chunk suitable for one type (e.g. no numeric limits) was dropped for ALL later types, so 22
+    of 32 documents got 0-3 questions. sampler=2 skips such a document for that type only.
+    """
     rng = random.Random(seed)
     pool = [c for c in chunks if eligible(c)]
     by_doc: dict[str, list[DocChunk]] = {}
@@ -146,8 +153,8 @@ def sample_chunks(chunks: list[DocChunk], seed: int = 13, scale: float = 1.0) ->
         rng.shuffle(v)
     weights = {d: math.sqrt(len(v)) for d, v in by_doc.items()}
 
-    def draw(n: int, accept) -> list[DocChunk]:
-        """Round-robin over documents (weighted) until n accepted chunks are drawn."""
+    def draw_v1(n: int, accept) -> list[DocChunk]:
+        """Original (buggy) weighted round-robin; kept only to rebuild batch "main"."""
         picked: list[DocChunk] = []
         docs = sorted(by_doc, key=lambda d: -weights[d])
         credit = dict.fromkeys(docs, 0.0)
@@ -163,6 +170,30 @@ def sample_chunks(chunks: list[DocChunk], seed: int = 13, scale: float = 1.0) ->
             else:
                 by_doc[d].clear()
         return picked
+
+    def draw_v2(n: int, accept) -> list[DocChunk]:
+        """Smooth weighted round-robin over documents with a suitable chunk for this type."""
+        picked: list[DocChunk] = []
+        docs = sorted(by_doc, key=lambda d: -weights[d])
+        credit = dict.fromkeys(docs, 0.0)
+        skip: set[str] = set()  # no acceptable chunk left for THIS type only
+        while len(picked) < n:
+            active = [d for d in docs if by_doc[d] and d not in skip]
+            if not active:
+                break
+            for d in active:
+                credit[d] += weights[d]
+            d = max(active, key=lambda x: credit[x])
+            credit[d] -= sum(weights[x] for x in active)
+            for i, c in enumerate(by_doc[d]):
+                if accept(c):
+                    picked.append(by_doc[d].pop(i))
+                    break
+            else:
+                skip.add(d)
+        return picked
+
+    draw = draw_v1 if sampler == 1 else draw_v2
 
     def n(qtype: str) -> int:
         return max(1, round(PLAN[qtype] * scale))
@@ -508,7 +539,7 @@ def generate(
     pool = [c for c in all_chunks if c.doc_id in pool_docs]
     scale = len(chunks) / len(pool) if batches[batch].get("scale_by_share") else 1.0
     log(f"batch {batch!r}: {len(own)} documents, {len(chunks)} chunks, plan scale {scale:.2f}")
-    plan = sample_chunks(chunks, seed=seed, scale=scale)
+    plan = sample_chunks(chunks, seed=seed, scale=scale, sampler=int(batches[batch].get("sampler", 2)))
     pairs = pair_for_multi_doc(plan.pop("multi_doc_anchor"), pool, titles)
     items = build_items(plan, pairs, titles, model, reasoning)
     random.Random(seed).shuffle(items)  # so a 20-call pilot covers every question type

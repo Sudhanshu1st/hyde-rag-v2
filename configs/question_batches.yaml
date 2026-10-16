@@ -1,15 +1,26 @@
 # Food eval-set question batches. Each batch samples only its own documents, so adding
 # documents later never changes an earlier batch (cached generations stay valid and anyone
 # can rebuild the identical review sheet with `uv run hyde-rag gen-questions --no-llm`).
-#   main: the 32 documents downloaded first (2026-10-15), full question plan
-#   fsis: 9 USDA FSIS documents added the same day, plan scaled by their share of chunks
+#   main: the 32 documents downloaded first (2026-10-15), full question plan. It uses
+#         sampler 1, which had a bug (documents without a numeric chunk were dropped for
+#         every type), so 22 documents got 0-3 questions. Kept as-is so it stays reproducible.
+#   fsis: 9 USDA FSIS documents, plan scaled by their share of chunks (fixed sampler 2)
+#   coverage: the 22 under-covered main documents, scaled by share (fixed sampler 2)
 batches:
   main:
     exclude: [fsis_lm_rte_2014, fsis_appendix_b_2021, fsis_sps_guide, fsis_hazards_controls_2018,
               fsis_haccp_validation, fsis_dir_5000_1_r8, fsis_dir_10240_4_r4, fsis_dir_5000_4_r3,
               fsis_dir_8080_1_r8]
+    sampler: 1
   fsis:
     docs: [fsis_lm_rte_2014, fsis_appendix_b_2021, fsis_sps_guide, fsis_hazards_controls_2018,
            fsis_haccp_validation, fsis_dir_5000_1_r8, fsis_dir_10240_4_r4, fsis_dir_5000_4_r3,
            fsis_dir_8080_1_r8]
+    scale_by_share: true
+  coverage:
+    docs: [fda_pchf_ch11, codex_cxc1_1969, fda_pchf_ch15, fda_retail_haccp_manual, fda_pchf_intro,
+           fda_lmrte_sanitation_2025, fda_pchf_ch16, fda_rfr_qa_ed2, fda_iom2026_ch07, fda_pchf_ch02,
+           fssai_recall_reg_2017, fda_pchf_ch05, fda_pchf_app3, fda_seafood_ch02, fda_pchf_app2_forms,
+           fda_pchf_ch14, fda_recall_initiation_2022, fda_seafood_add2, fda_pchf_ch01,
+           fssai_recall_guidelines_2017, fda_seafood_app10, fssai_lr_amend5_2026]
     scale_by_share: true

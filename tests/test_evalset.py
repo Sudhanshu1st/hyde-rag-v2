@@ -165,3 +165,22 @@ def test_review_csv_merge_keeps_reviewer_work(tmp_path):
     assert "una-b-0" in after and "num-c-0" in after
     assert after["hum-001"]["question"] == "My own question?"
     assert sum(1 for r in after.values() if r["type"] == "human") == 30
+
+
+def test_sampler_v2_spreads_questions_across_documents():
+    from hyde_rag.eval.question_gen import sample_chunks
+    from hyde_rag.ingest.chunking import DocChunk
+
+    words = " ".join(["requirement"] * 90)
+    chunks = []
+    for d in range(6):
+        for k in range(10):
+            # Only documents 0-1 have numeric limits; the others must still get other question types.
+            numeric = " cool to 5 \N{DEGREE SIGN}C within 4 hours" if d < 2 else ""
+            chunks.append(DocChunk(f"d{d}:1:{k}", f"d{d}", 1, k, "s", words + numeric, 0, 1))
+    v2 = sample_chunks(chunks, seed=1, scale=0.1, sampler=2)
+    v1 = sample_chunks(chunks, seed=1, scale=0.1, sampler=1)
+    docs_v2 = {c.doc_id for c in v2["factual"] + v2["jargon"]}
+    docs_v1 = {c.doc_id for c in v1["factual"] + v1["jargon"]}
+    assert len(docs_v2) >= 4  # fixed: non-numeric documents still get questions
+    assert docs_v1 <= {"d0", "d1"}  # the original bug, kept only to rebuild batch "main"
