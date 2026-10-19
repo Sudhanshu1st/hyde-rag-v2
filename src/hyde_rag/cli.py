@@ -197,6 +197,21 @@ def cmd_build_evalset(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_review_audit_sheet(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.review_audit import export
+
+    print(f"Audit sheet: {export(n_kept=args.kept, n_rejected=args.rejected)}")
+    print("Fill human_verdict with agree / disagree for each row, then run review-audit-agreement.")
+    return 0
+
+
+def cmd_review_audit_agreement(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.review_audit import agreement
+
+    print(json.dumps(agreement(), indent=2))
+    return 0
+
+
 def cmd_verify_index(args: argparse.Namespace) -> int:
     from hyde_rag.retrieval.dense import verify_index
 
@@ -323,6 +338,14 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("build-evalset", help="reviewed CSV -> eval_sets/food_quality/{dev,test}.jsonl")
     p.set_defaults(func=cmd_build_evalset)
+
+    p = sub.add_parser("review-audit-sheet", help="random sample of LLM review decisions for a human audit")
+    p.add_argument("--kept", type=int, default=30)
+    p.add_argument("--rejected", type=int, default=10)
+    p.set_defaults(func=cmd_review_audit_sheet)
+
+    p = sub.add_parser("review-audit-agreement", help="agreement of the human audit with the LLM review")
+    p.set_defaults(func=cmd_review_audit_agreement)
 
     p = sub.add_parser(
         "verify-index", help="check an index built elsewhere (e.g. Colab GPU) against local CPU"

@@ -250,3 +250,70 @@ def test_pending_questions_skip_rejected_and_use_edits(tmp_path):
         for r in rows:
             w.writerow({k: r.get(k, "") for k in REVIEW_COLUMNS})
     assert evalset.pending_questions(path) == {"a": "Q a?", "c": "Q c2?", "h2": "Mine?"}
+
+
+def test_review_audit_samples_llm_decisions_and_scores_agreement(tmp_path):
+    from hyde_rag.eval import review_audit
+
+    path = tmp_path / "review.csv"
+    rows = [
+        {
+            "id": f"k{i}",
+            "type": "factual",
+            "question": f"Q{i}?",
+            "decision": "accept",
+            "notes": "[llm-review] ok",
+        }
+        for i in range(5)
+    ]
+    rows += [
+        {
+            "id": "r0",
+            "type": "factual",
+            "question": "Vague?",
+            "decision": "reject",
+            "notes": "[llm-review] vague",
+        },
+        {
+            "id": "e0",
+            "type": "numeric",
+            "question": "Old?",
+            "decision": "edit",
+            "edited_question": "New?",
+            "notes": "[llm-review] named the doc",
+        },
+        {
+            "id": "p0",
+            "type": "factual",
+            "question": "Mine?",
+            "decision": "accept",
+            "notes": "person",
+        },  # not LLM
+    ]
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=REVIEW_COLUMNS)
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in REVIEW_COLUMNS})
+
+    out = review_audit.export(n_kept=3, n_rejected=5, review_csv=path)
+    with out.open(encoding="utf-8-sig", newline="") as f:
+        sheet = list(csv.DictReader(f))
+    ids = {r["id"] for r in sheet}
+    assert len(sheet) == 4 and "r0" in ids and "p0" not in ids  # 3 kept + the only reject
+    by_id = {r["id"]: r for r in sheet}
+    if "e0" in by_id:
+        assert by_id["e0"]["question"] == "New?"  # the auditor sees the edited text
+
+    for r in sheet:
+        r["human_verdict"] = "disagree" if r["id"] == "r0" else "agree"
+    with out.open("w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=review_audit.AUDIT_COLUMNS)
+        w.writeheader()
+        w.writerows(sheet)
+    # Re-exporting keeps the verdicts already filled.
+    review_audit.export(n_kept=3, n_rejected=5, review_csv=path)
+    res = review_audit.agreement(out)
+    assert res["n_labelled"] == 4 and res["agreement"] == 0.75
+    assert res["agreement_kept"] == 1.0 and res["agreement_rejected"] == 0.0
+    assert res["disagreements"] == ["r0"]
