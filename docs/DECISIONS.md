@@ -383,3 +383,34 @@ Corrective-action and recall questions are answered from guidance instead:
 **D-DATA-5 FSSAI Schedule 4 is amended.** The 2021 compendium's Schedule 4 is partly
 superseded by Amendment No. 5 (23 June 2026), so both are included and eval questions cite the
 amended text where they differ.
+
+## Domain adaptation
+
+**D-FT-1 F2 = bge-base fine-tuned on synthetic queries, on a free Colab GPU.**
+- Training data comes from corpus chunks only. Each chunk gets 3 sampled queries from
+  `doc2query/msmarco-t5-base-v1` (Apache-2.0). That is a different model and prompt from the
+  eval-set drafts (gpt-oss-20b), and no eval question or gold span is ever used, so F2 cannot
+  memorise the test set.
+- Hard negatives: one random chunk ranked 10-50 by base bge-base for each query, skipping the
+  positive's own page (likely false negatives). Loss: MultipleNegativesRankingLoss with in-batch
+  negatives; 1 epoch, lr 2e-5, batch 64, no-duplicates sampler; the BGE query instruction goes on
+  anchors only, matching inference.
+- The training code is one tested module (`src/hyde_rag/train/finetune_core.py`), embedded
+  verbatim in `notebooks/finetune_food_embedder_colab.ipynb`, so the notebook cannot drift from
+  the repo. The notebook also encodes the corpus with base and tuned models; `verify-index`
+  re-encodes a sample locally and checks it against the Colab vectors.
+- The tuned model and the synthetic queries are gitignored (derived from documents that are not all
+  public domain); the notebook regenerates them.
+
+**D-FT-2 F1 design: generic vs domain instruction at N=1, domain at N=4 as the ablation.**
+On BEIR, HyDE-bge at N=1 matched N=4 (SciFact 78.6 vs 78.5), so the instruction comparison
+(`paper.web_search` vs `domain.food_quality_v1`) runs at N=1, and only the domain instruction
+gets N=4 (query weight 0.5, D-HYDE-8). This halves the gpt-oss-120b quota versus N=4 for both
+(about 4.7 free-tier days instead of 7 for 329 questions). Systems: `configs/experiments/food-test.yaml`;
+`food-dev.yaml` is used only to calibrate τ and pick the answer pipeline's mode.
+
+**D-FT-3 HyDE passages are generated during the human review.** `generate --pending-review`
+uses every non-rejected question in `review.csv`, with edits applied. Cached outputs are found by
+request key (the question text is part of the request), so an edited question is simply regenerated
+and never picks up passages for its old wording (regression test in `tests/test_experiment.py`).
+The cost of generating for questions that are later rejected is free-tier quota, not money.

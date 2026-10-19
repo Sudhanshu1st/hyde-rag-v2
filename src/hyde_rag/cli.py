@@ -73,7 +73,8 @@ def cmd_generate(args: argparse.Namespace) -> int:
     import yaml
 
     from hyde_rag import paths
-    from hyde_rag.ingest.datasets import collection, load_dataset
+    from hyde_rag.eval.evalset import pending_questions
+    from hyde_rag.ingest.datasets import FOOD, collection, load_dataset
     from hyde_rag.llm.cache import JsonlCache
     from hyde_rag.llm.client import OpenAICompatClient
     from hyde_rag.llm.quota import Limits, load_limits
@@ -87,8 +88,12 @@ def cmd_generate(args: argparse.Namespace) -> int:
     # so one process uses each free-tier quota exactly once.
     for experiment in args.experiment:
         cfg = yaml.safe_load(Path(experiment).read_text(encoding="utf-8"))
-        ds = load_dataset(cfg["dataset"], split=cfg.get("split", "test"))
-        queries = {q: ds.queries[q] for q in sorted(ds.queries)}
+        if args.pending_review and cfg["dataset"] == FOOD:
+            # Every non-rejected question in review.csv (all splits), before build-evalset.
+            name, queries = FOOD, pending_questions()
+        else:
+            ds = load_dataset(cfg["dataset"], split=cfg.get("split", "test"))
+            name, queries = ds.name, {q: ds.queries[q] for q in sorted(ds.queries)}
         jobs = _llm_jobs(cfg, set(args.system) if args.system else None)
         if args.generator:
             jobs = {k: v for k, v in jobs.items() if k[2] in args.generator}
@@ -99,7 +104,7 @@ def cmd_generate(args: argparse.Namespace) -> int:
                 items = hyde_items(queries, load_instruction(instruction), generator, n)
             else:
                 items = multi_query_items(queries, generator)
-            path = cache_path(ds.name, kind, instruction, generator, collection(ds.name))
+            path = cache_path(name, kind, instruction, generator, collection(name))
             by_model.setdefault(generator, []).append((path, items))
             rel = path.relative_to(paths.cache_dir())
             print(f"- {kind:11s} {instruction:18s} {generator:22s} {len(items):5d} calls -> {rel}")
@@ -292,6 +297,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
     p.add_argument(
         "--pilot-only", action="store_true", help="run 20 calls per job, report measured cost, stop"
+    )
+    p.add_argument(
+        "--pending-review",
+        action="store_true",
+        help="food: all non-rejected questions in review.csv (before build-evalset)",
     )
     p.set_defaults(func=cmd_generate)
 

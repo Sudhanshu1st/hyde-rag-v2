@@ -233,3 +233,20 @@ def test_food_eval_qrels_come_from_span_overlap(tmp_path, monkeypatch):
     assert ds.qrels["q1"] == {"fc:1:0": 1, "fc:1:1": 1} and ds.qrels["q2"] == {}
     assert ds.corpus["fc:1:0"].title == "Food Code | Cooling"
     assert datasets.collection("food") == "food" and datasets.collection("scifact") == "beir"
+
+
+def test_pending_questions_skip_rejected_and_use_edits(tmp_path):
+    path = tmp_path / "review.csv"
+    rows = [
+        {"id": "a", "type": "procedural", "question": "Q a?", "decision": ""},
+        {"id": "b", "type": "procedural", "question": "Q b?", "decision": "reject"},
+        {"id": "c", "type": "factoid", "question": "Q c?", "decision": "edit", "edited_question": "Q c2?"},
+        {"id": "h1", "type": "human", "question": "", "decision": ""},  # unused blank row
+        {"id": "h2", "type": "human", "question": "Mine?", "decision": ""},
+    ]
+    with path.open("w", encoding="utf-8-sig", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=REVIEW_COLUMNS)
+        w.writeheader()
+        for r in rows:
+            w.writerow({k: r.get(k, "") for k in REVIEW_COLUMNS})
+    assert evalset.pending_questions(path) == {"a": "Q a?", "c": "Q c2?", "h2": "Mine?"}

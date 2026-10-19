@@ -1,0 +1,24 @@
+# Food dev split (30% of the reviewed questions): used for decisions only, never reported as the
+# result. It calibrates the abstention gate tau (dense-bge, cross-encoder) and picks the answer
+# pipeline's retrieval mode, as scifact-dev did for SciFact (D-GEN-1, D-GEN-2).
+name: food-dev
+dataset: food
+split: dev
+depth: 100
+metrics: [ndcg@10, recall@10, recall@100, mrr@10]
+
+baselines:
+  bge-base: dense-bge
+  bge-base-food: dense-bge-food
+
+systems:
+  - {name: bm25, type: bm25, baseline: dense-bge}
+  - {name: dense-bge, type: dense, encoder: bge-base}
+  - {name: hybrid-bge, type: rrf, inputs: [bm25, dense-bge], baseline: dense-bge}
+  - {name: hyde-bge-web-n1, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.web_search, n: 1}
+  - {name: hyde-bge-domain-n1, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: domain.food_quality_v1, n: 1}
+  - {name: hybrid-hyde-bge-domain, type: rrf, inputs: [bm25, hyde-bge-domain-n1], baseline: dense-bge}
+  - {name: dense-bge-food, type: dense, encoder: bge-base-food, baseline: dense-bge}
+  - {name: hyde-bge-food-domain-n1, type: hyde, encoder: bge-base-food, generator: openai/gpt-oss-120b, instruction: domain.food_quality_v1, n: 1}
+  - {name: rerank-dense-bge, type: rerank, input: dense-bge, depth: 100, baseline: dense-bge}
+  - {name: rerank-hyde-bge-domain-n1, type: rerank, input: hyde-bge-domain-n1, depth: 100, baseline: dense-bge}

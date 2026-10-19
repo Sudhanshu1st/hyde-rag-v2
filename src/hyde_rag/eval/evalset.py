@@ -64,6 +64,24 @@ def _locate_in_doc(quote: str, doc_id: str, chunks: list[DocChunk], text: str) -
     return None
 
 
+def pending_questions(review_csv: Path | None = None) -> dict[str, str]:
+    """id -> question for every row that is not rejected (reviewed or not), using the edited text.
+
+    Lets LLM outputs (e.g. HyDE passages) be generated while the review is still in progress:
+    outputs are cached by request text, so later edits are simply regenerated.
+    """
+    review_csv = review_csv or EVALSET_DIR / "review.csv"
+    out: dict[str, str] = {}
+    with review_csv.open(encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            if (row.get("decision") or "").strip().lower() == "reject":
+                continue
+            question = (row.get("edited_question") or "").strip() or row["question"].strip()
+            if question:
+                out[row["id"]] = question
+    return dict(sorted(out.items()))
+
+
 def build(review_csv: Path | None = None) -> BuildReport:
     review_csv = review_csv or EVALSET_DIR / "review.csv"
     candidates = {}

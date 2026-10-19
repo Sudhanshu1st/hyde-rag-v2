@@ -1,0 +1,44 @@
+# Food-safety benchmark (eval_sets/food_quality/test.jsonl, 70% of the reviewed questions).
+# Corpus = section-bounded chunks of 41 public documents; qrels = chunks overlapping the gold
+# evidence spans. Unanswerable questions have no qrels: retrieval metrics skip them, the
+# generation eval scores them as abstentions.
+#
+# F1 = domain-instructed HyDE vs the paper's generic instruction (paper.web_search).
+# F2 = bge-base fine-tuned on synthetic queries (notebooks/finetune_food_embedder_colab.ipynb).
+# LLM outputs: uv run hyde-rag generate --experiment configs/experiments/food-test.yaml
+#   (add --pending-review to generate for every non-rejected question before build-evalset).
+name: food-test
+dataset: food
+split: test
+depth: 100
+metrics: [ndcg@10, recall@10, recall@100, mrr@10]
+
+baselines:
+  bge-base: dense-bge
+  bge-base-food: dense-bge-food  # HyDE on the tuned model is compared with the tuned model
+
+systems:
+  # ---- no LLM ----
+  - {name: bm25, type: bm25, baseline: dense-bge}
+  - {name: dense-bge, type: dense, encoder: bge-base}
+  - {name: hybrid-bge, type: rrf, inputs: [bm25, dense-bge], baseline: dense-bge}
+
+  # ---- F1: generic vs domain instruction (N=1 carried nearly all of HyDE's gain on BEIR) ----
+  - {name: hyde-bge-web-n1, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.web_search, n: 1}
+  - {name: hyde-bge-domain-n1, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: domain.food_quality_v1, n: 1}
+  - {name: hyde-bge-domain-n4-qw50, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: domain.food_quality_v1, n: 4, query_weight: 0.5}
+  - {name: hybrid-hyde-bge-domain, type: rrf, inputs: [bm25, hyde-bge-domain-n1], baseline: dense-bge}
+  - {name: bm25-q2d-domain, type: bm25_q2d, generator: openai/gpt-oss-120b, instruction: domain.food_quality_v1, n: 1, baseline: dense-bge}
+  - {name: mq-hybrid-bge, type: multi_query, generator: openai/gpt-oss-120b, legs: [bm25, "dense:bge-base"], baseline: dense-bge}
+
+  # ---- F2: fine-tuned embedder, and F1 + F2 ----
+  - {name: dense-bge-food, type: dense, encoder: bge-base-food, baseline: dense-bge}
+  - {name: hyde-bge-food-domain-n1, type: hyde, encoder: bge-base-food, generator: openai/gpt-oss-120b, instruction: domain.food_quality_v1, n: 1}
+  - {name: hybrid-bge-food, type: rrf, inputs: [bm25, dense-bge-food], baseline: dense-bge}
+
+  # ---- each of the above +/- cross-encoder rerank of the top-100 ----
+  - {name: rerank-dense-bge, type: rerank, input: dense-bge, depth: 100, baseline: dense-bge}
+  - {name: rerank-hybrid-bge, type: rerank, input: hybrid-bge, depth: 100, baseline: dense-bge}
+  - {name: rerank-hyde-bge-domain-n1, type: rerank, input: hyde-bge-domain-n1, depth: 100, baseline: dense-bge}
+  - {name: rerank-dense-bge-food, type: rerank, input: dense-bge-food, depth: 100, baseline: dense-bge}
+  - {name: rerank-hyde-bge-food-domain-n1, type: rerank, input: hyde-bge-food-domain-n1, depth: 100, baseline: dense-bge}
