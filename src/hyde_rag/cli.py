@@ -215,6 +215,24 @@ def cmd_judge_agreement(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_index_food(args: argparse.Namespace) -> int:
+    from hyde_rag.pipeline import build_food_index
+
+    for enc in args.encoders:
+        print(f"[{enc}] index -> {build_food_index(enc, threads=args.threads)}")
+    return 0
+
+
+def cmd_ask(args: argparse.Namespace) -> int:
+    from hyde_rag.pipeline import PipelineConfig, RAGPipeline, load_pipeline_config, result_json
+
+    base = load_pipeline_config()
+    overrides = {k: v for k, v in {"mode": args.mode, "n_passages": args.n_passages}.items() if v is not None}
+    pipe = RAGPipeline(PipelineConfig(**{**base.__dict__, **overrides}))
+    print(result_json(pipe.query(args.question)))
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -289,6 +307,17 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("judge-agreement", help="agreement of the LLM judge with your labels")
     p.add_argument("--experiment", default="scifact-generation")
     p.set_defaults(func=cmd_judge_agreement)
+
+    p = sub.add_parser("index-food", help="encode the food-safety chunks for retrieval")
+    p.add_argument("--encoders", nargs="+", default=["bge-base"])
+    p.add_argument("--threads", type=int, default=4)
+    p.set_defaults(func=cmd_index_food)
+
+    p = sub.add_parser("ask", help="ask one question over the food corpus (prints the full trace)")
+    p.add_argument("question")
+    p.add_argument("--mode", choices=["dense", "hyde", "hybrid", "hybrid-hyde"])
+    p.add_argument("--n-passages", type=int)
+    p.set_defaults(func=cmd_ask)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)

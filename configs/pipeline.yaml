@@ -1,0 +1,10 @@
+# Defaults for the API / demo pipeline over the food-safety corpus.
+# Chosen from BEIR evidence (docs/DECISIONS.md); the food benchmark (Phase 5) will revisit them.
+encoder: bge-base          # MIT-licensed; Contriever is CC BY-NC and benchmark-only
+mode: hyde                 # dense | hyde | hybrid | hybrid-hyde
+n_passages: 1              # one passage gave nearly all of HyDE's gain on BEIR
+query_weight: 0.5          # D-HYDE-8: keep the query at 50% of the HyDE vector
+instruction: domain.food_quality_v1
+top_k: 5
+depth: 100
+tau: null                  # abstention gate; set after calibration on the food dev split
