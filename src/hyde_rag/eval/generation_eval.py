@@ -151,6 +151,7 @@ class GenerationEval:
             "label_mix": dict(Counter(self.labels[q] for q in self.sample)),
             "systems": {},
         }
+        item_records: list[dict] = []
         for system in self.cfg["systems"]:
             try:
                 run = _load_run(self.cfg["retrieval_experiment"], system)
@@ -225,6 +226,7 @@ class GenerationEval:
                 )
                 if q in usage:
                     r.tokens, r.latency_s = usage[q]
+                claims: list[dict] = []
                 if q in judged:
                     wi = next(w for w in judge_items if w.item_id == q)
                     rec = judge_cache.get(cache_key(base_url, wi.request, 0))
@@ -236,9 +238,24 @@ class GenerationEval:
                                 f.citation_precision,
                                 f.n_claims,
                             )
+                            claims = json.loads(rec.text).get("claims", [])
                         except (json.JSONDecodeError, KeyError, TypeError, ValueError):
                             pass
                 results.append(r)
+                # Per-item record for transparency and judge validation. Holds the model's own
+                # text and chunk IDs only, never corpus text (SciFact is CC BY-NC).
+                item_records.append(
+                    {
+                        "system": system,
+                        **asdict(r),
+                        "answer": a.text,
+                        "retrieved": [c.chunk_id for c in a.chunks],
+                        "sentences": [
+                            {"text": s.text, "cited_ids": s.cited_ids} for s in a.citations.sentences
+                        ],
+                        "judge_claims": claims,
+                    }
+                )
             summary["systems"][system] = self._metrics(results)
             m = summary["systems"][system]
             log(
@@ -247,6 +264,10 @@ class GenerationEval:
 
         self.out_dir.mkdir(parents=True, exist_ok=True)
         (self.out_dir / "metrics.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        with (self.out_dir / "items.jsonl").open("w", encoding="utf-8") as f:
+            for rec in item_records:
+                f.write(json.dumps(rec, ensure_ascii=False))
+                f.write("\n")
         return summary
 
     def _metrics(self, results: list[ItemResult]) -> dict:

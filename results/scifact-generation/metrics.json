@@ -1,0 +1,48 @@
+{
+  "experiment": "scifact-generation",
+  "n_claims": 100,
+  "top_k": 3,
+  "answerer": "openai/gpt-oss-20b",
+  "judge": "qwen/qwen3.8-27b",
+  "gate": {
+    "tau": -0.4567181318998337,
+    "f1": 0.46341463414634143,
+    "precision": 0.8085106382978723,
+    "recall": 0.3247863247863248,
+    "false_refusal": 0.04918032786885246,
+    "dev_answerable": 183,
+    "dev_unanswerable": 117,
+    "scorer": "cross-encoder"
+  },
+  "label_mix": {
+    "SUPPORT": 41,
+    "NONE": 38,
+    "CONTRADICT": 21
+  },
+  "systems": {
+    "dense-bge": {
+      "n_answered": 100,
+      "complete": true,
+      "verdict_accuracy": 0.83,
+      "verdict_accuracy_ci95": [
+        0.75,
+        0.9
+      ],
+      "verdict_macro_f1": 0.8260992020028164,
+      "abstention_precision": 0.7333333333333333,
+      "abstention_recall": 0.868421052631579,
+      "false_refusal_rate": 0.1935483870967742,
+      "gated": 17,
+      "citation_validity": 0.8909090909090909,
+      "faithfulness": 0.8702020202020203,
+      "faithfulness_ci95": [
+        0.7969570707070707,
+        0.9348484848484848
+      ],
+      "n_judged": 55,
+      "citation_precision": 0.9696969696969696,
+      "tokens_per_answer": 1472.4727272727273,
+      "latency_s": 0.646
+    }
+  }
+}

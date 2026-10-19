@@ -200,6 +200,21 @@ def cmd_verify_index(args: argparse.Namespace) -> int:
     return 0 if report["ok"] else 1
 
 
+def cmd_judge_sheet(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.judge_validation import export
+
+    print(f"Labelling sheet: {export(args.experiment, n=args.n)}")
+    print("Fill human_label with supported / not_supported for each claim, then run judge-agreement.")
+    return 0
+
+
+def cmd_judge_agreement(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.judge_validation import agreement
+
+    print(json.dumps(agreement(args.experiment), indent=2))
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -265,6 +280,15 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--encoder", required=True)
     p.add_argument("--n", type=int, default=32)
     p.set_defaults(func=cmd_verify_index)
+
+    p = sub.add_parser("judge-sheet", help="blind sheet of judged claims for human labelling")
+    p.add_argument("--experiment", default="scifact-generation")
+    p.add_argument("--n", type=int, default=50)
+    p.set_defaults(func=cmd_judge_sheet)
+
+    p = sub.add_parser("judge-agreement", help="agreement of the LLM judge with your labels")
+    p.add_argument("--experiment", default="scifact-generation")
+    p.set_defaults(func=cmd_judge_agreement)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)
