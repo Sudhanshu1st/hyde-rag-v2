@@ -20,6 +20,7 @@ systems:
   - {name: hyde-contriever-120b-n1, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 1}
   - {name: hyde-contriever-120b-n4, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 4}
   - {name: hyde-contriever-120b-n8, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 8}
+  - {name: hyde-bge-120b-n1, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 1}
   - {name: hyde-bge-120b-n4, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 4}
   - {name: hyde-bge-120b-n8, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 8}
   - {name: hyde-contriever-20b-n1, type: hyde, encoder: contriever, generator: openai/gpt-oss-20b, instruction: paper.trec-covid, n: 1}
@@ -28,6 +29,7 @@ systems:
   # Ablation D-HYDE-8: out-of-sample check of the fixed 50% query weight found on SciFact.
   - {name: hyde-contriever-qwen-n4-qw50, type: hyde, encoder: contriever, generator: qwen/qwen3.8-27b, instruction: paper.trec-covid, n: 4, query_weight: 0.5, baseline: dense-contriever}
   - {name: hyde-contriever-120b-n4-qw50, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 4, query_weight: 0.5, baseline: dense-contriever}
+  - {name: hyde-bge-120b-n4-qw50, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.trec-covid, n: 4, query_weight: 0.5, baseline: dense-bge}
 
   - {name: hybrid-contriever, type: rrf, inputs: [bm25, dense-contriever], baseline: dense-contriever}
   - {name: hybrid-bge, type: rrf, inputs: [bm25, dense-bge], baseline: dense-bge}

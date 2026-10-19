@@ -12,6 +12,10 @@ def _fmt(x: float | None, digits: int = 1, scale: float = 100.0) -> str:
 
 def render_table(metrics_path: Path) -> str:
     data = json.loads(Path(metrics_path).read_text(encoding="utf-8"))
+    # Recall columns; BEIR's capped recall is added when computed (TREC-COVID, D-EVAL-2).
+    recall = [("recall@10", "R@10"), ("recall@100", "R@100")]
+    if any("rcap@100" in s["metrics"] for s in data["systems"].values()):
+        recall.append(("rcap@100", "R_cap@100"))
     lines = [
         f"### {data['experiment']} ({data['dataset']} {data['split']}, {data['n_queries']} queries)",
         "",
@@ -19,8 +23,10 @@ def render_table(metrics_path: Path) -> str:
         "(Holm-adjusted randomisation-test p). CPU ms = single-query retrieval on the dev laptop "
         "(no LLM); LLM s and tokens are per query (N samples in parallel).",
         "",
-        "| System | nDCG@10 [95% CI] | Δ nDCG@10 (p) | R@10 | R@100 | MRR@10 | CPU ms | LLM s | LLM tokens |",
-        "|---|---|---|---:|---:|---:|---:|---:|---:|",
+        "| System | nDCG@10 [95% CI] | Δ nDCG@10 (p) | "
+        + " | ".join(label for _, label in recall)
+        + " | MRR@10 | CPU ms | LLM s | LLM tokens |",
+        "|---|---|---|" + "---:|" * (len(recall) + 4),
     ]
     for name, s in data["systems"].items():
         m = s["metrics"]
@@ -39,9 +45,9 @@ def render_table(metrics_path: Path) -> str:
         llm_s = "-" if s["llm_latency_s"] is None else f"{s['llm_latency_s']:.1f}"
         llm_t = "-" if s["llm_tokens_per_query"] is None else f"{s['llm_tokens_per_query']:,.0f}"
         cpu = "-" if s["retrieval_ms"] is None else f"{s['retrieval_ms']:,.0f}"
+        recalls = " | ".join(_fmt(m.get(key, {}).get("mean")) for key, _ in recall)
         lines.append(
-            f"| {name} | {ci} | {delta} | {_fmt(m.get('recall@10', {}).get('mean'))} | "
-            f"{_fmt(m.get('recall@100', {}).get('mean'))} | {_fmt(m.get('mrr@10', {}).get('mean'))} | "
+            f"| {name} | {ci} | {delta} | {recalls} | {_fmt(m.get('mrr@10', {}).get('mean'))} | "
             f"{cpu} | {llm_s} | {llm_t} |"
         )
     lines += ["", "\\* p < 0.05, \\*\\* p < 0.01 after Holm correction."]
