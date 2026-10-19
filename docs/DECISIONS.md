@@ -273,6 +273,17 @@ No-evidence claims usually still retrieve on-topic abstracts, so the gate alone 
 them. The prompt-level abstention rule (layer b) has to do most of that work, and Phase 3
 measures the two layers together.
 
+**D-GEN-3 Finding: HyDE's retrieval gain does not reach the answers on SciFact.** 100 claims,
+same answerer (gpt-oss-20b), judge (Qwen3) and top-3 context:
+- **Retrieval:** dense bge 74.0 vs HyDE + bge (gpt-oss-120b, N=4) 78.5 nDCG@10.
+- **Verdict accuracy:** 0.83 vs 0.80, paired Δ −0.03 [−0.08, +0.02], p = 0.45. Only 7 claims
+  get a different verdict.
+- **Faithfulness:** 0.87 for both (judge, pending human validation).
+- **Why:** on the 62 claims with evidence, the gold abstract is already in the top-3 for 92%
+  (bge) vs 95% (HyDE). Retrieval is near ceiling at the context depth the answerer uses; the
+  remaining errors are the answerer's verdicts and refusals.
+- **Cost:** HyDE adds ~2,100 LLM tokens and ~1.5 s per query here, for no answer-level gain.
+
 ## Compute
 
 **D-COMP-1 Measured CPU throughput on the dev laptop.** Intel i5-1235U (2 performance + 8

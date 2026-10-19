@@ -43,6 +43,30 @@
       "citation_precision": 0.9696969696969696,
       "tokens_per_answer": 1472.4727272727273,
       "latency_s": 0.646
+    },
+    "hyde-bge-120b-n4": {
+      "n_answered": 100,
+      "complete": true,
+      "verdict_accuracy": 0.8,
+      "verdict_accuracy_ci95": [
+        0.72,
+        0.88
+      ],
+      "verdict_macro_f1": 0.7805732279416491,
+      "abstention_precision": 0.717391304347826,
+      "abstention_recall": 0.868421052631579,
+      "false_refusal_rate": 0.20967741935483872,
+      "gated": 19,
+      "citation_validity": 0.9259259259259259,
+      "faithfulness": 0.869701646090535,
+      "faithfulness_ci95": [
+        0.8126530349794239,
+        0.9228395061728394
+      ],
+      "n_judged": 54,
+      "citation_precision": 0.9629629629629629,
+      "tokens_per_answer": 1533.1851851851852,
+      "latency_s": 0.694
     }
   }
 }
