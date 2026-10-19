@@ -234,6 +234,13 @@ def cmd_ask(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_results(args: argparse.Namespace) -> int:
+    from hyde_rag.eval.results_doc import build
+
+    print(f"wrote {build()}")
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -319,6 +326,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--mode", choices=["dense", "hyde", "hybrid", "hybrid-hyde"])
     p.add_argument("--n-passages", type=int)
     p.set_defaults(func=cmd_ask)
+
+    p = sub.add_parser("results", help="regenerate docs/RESULTS.md and the README table from results/")
+    p.set_defaults(func=cmd_results)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)

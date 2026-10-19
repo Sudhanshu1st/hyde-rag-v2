@@ -1,0 +1,17 @@
+# Rows of the README headline table. Values come from results/<dataset>/metrics.json;
+# only the "paper" column is typed by hand (Gao et al. 2023, Table 2, nDCG@10).
+datasets: [scifact, trec-covid]
+rows:
+  - {label: "BM25 (bm25s, Pyserini-flat settings)", system: bm25, paper: {scifact: 67.9, trec-covid: 59.5}}
+  - {label: "Contriever (paper's encoder)", system: dense-contriever, paper: {scifact: 64.9, trec-covid: 27.3}}
+  - {label: "HyDE + Contriever, gpt-oss-120b, N=1", system: hyde-contriever-120b-n1, paper: {scifact: 69.1, trec-covid: 59.3}}
+  - {label: "HyDE + Contriever, gpt-oss-120b, N=4 (Eq. 8)", system: hyde-contriever-120b-n4}
+  - {label: "HyDE + Contriever, N=4, query weight 0.5 (ours)", system: hyde-contriever-120b-n4-qw50}
+  - {label: "bge-base-en-v1.5 (modern supervised)", system: dense-bge}
+  - {label: "HyDE + bge, gpt-oss-120b, N=1", system: hyde-bge-120b-n1}
+  - {label: "HyDE + bge, gpt-oss-120b, N=4", system: hyde-bge-120b-n4}
+  - {label: "Hybrid BM25 + bge (RRF)", system: hybrid-bge}
+  - {label: "Hybrid BM25 + HyDE-bge", system: hybrid-hyde-bge}
+  - {label: "BM25 + Query2doc expansion", system: bm25-q2d}
+  - {label: "Multi-query (RAG-Fusion) BM25 + bge", system: mq-hybrid-bge}
+  - {label: "Rerank (MiniLM-L6) of bge top-100", system: rerank-dense-bge}

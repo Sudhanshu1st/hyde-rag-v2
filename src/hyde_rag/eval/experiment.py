@@ -281,6 +281,17 @@ class Experiment:
         """Mean CPU milliseconds per query in single-query mode, caches bypassed (no LLM time)."""
         probe = self.qids[:LATENCY_PROBE_QUERIES]
         kind = spec["type"]
+        # Warm up lazily loaded components (BM25 index, encoder weights) so loading time is
+        # never counted as query time.
+        if kind in ("bm25", "bm25_q2d", "multi_query"):
+            self.bm25().search({"warmup": self.ds.queries[probe[0]]}, k=10)
+        if kind in ("dense", "hyde"):
+            self.encoder(spec["encoder"]).encode([self.ds.queries[probe[0]]], is_query=True)
+            self.index(spec["encoder"])
+        if kind == "multi_query":
+            for leg in spec.get("legs", ["bm25"]):
+                if leg != "bm25":
+                    self.encoder(leg.split(":", 1)[1]).encode([self.ds.queries[probe[0]]], is_query=True)
         start = time.perf_counter()
         if kind in ("bm25", "bm25_q2d"):
             for q in probe:
