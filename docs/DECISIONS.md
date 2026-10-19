@@ -113,6 +113,28 @@ repo's `promptor.py`, e.g. "support or refute" vs "support/refute" and a trailin
 which would leak into the embedding. A one-line system prompt asks for the passage only. This
 is a deviation from the paper's raw completion prompt.
 
+**D-HYDE-7 Markdown stripped from passages before encoding.** gpt-oss-20b wraps passages in
+markdown such as `**Abstract**`. `clean_passage()` removes headings, bold and code ticks, and
+collapses whitespace, identically for every generator. The cache keeps the raw text.
+
+**D-HYDE-8 Query dilution in Eq. 8 (finding + ablation).** On SciFact with Contriever, HyDE
+got *worse* as N grew: gpt-oss-120b scored 0.674 at N=1 and 0.610 at N=4, below Contriever
+alone at 0.649. Diagnosis (scratch analysis, reproducible from the cached vectors):
+- **Not a bug.** Every individual sample behaves the same way: N=1 with any of samples 0–3
+  scores 0.66–0.67.
+- **The passages are weaker queries than the claim.** One gpt-oss-120b passage used on its own
+  as a Contriever query scores 0.50–0.53, versus 0.649 for the claim. Under bge, passages beat
+  the claim (0.76–0.78 vs 0.740).
+- **Eq. 8 weights the query 1/(N+1)**, so at N=4 the claim is only 20% of the vector, and
+  passage vectors are ~35% longer (|p| 1.85 vs |q| 1.37, since Contriever is unnormalised).
+  Normalising alone recovers little (0.610 → 0.625).
+
+Ablation `query_weight: 0.5` keeps the query at 50% and averages the passages. It was found on
+the SciFact test set, so it was confirmed out-of-sample on TREC-COVID before being reported:
+Qwen3, N=4, Contriever, 54.1 → 60.9 nDCG@10, paired Δ +6.9 [+3.0, +10.8], p = 0.0014. That is
+above both the paper's HyDE (59.3) and BM25 (59.3) on that dataset. The paper-parity numbers
+(Eq. 8) remain the headline; the ablation is reported separately.
+
 ## LLM layer
 
 **D-LLM-0 Zero spend (owner decision, 2026-10-14).** The project must not cost anything to

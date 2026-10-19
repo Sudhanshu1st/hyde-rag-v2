@@ -33,6 +33,12 @@ systems:
   - {name: hyde-bge-20b-n1, type: hyde, encoder: bge-base, generator: openai/gpt-oss-20b, instruction: paper.scifact, n: 1}
   - {name: hyde-bge-qwen-n4, type: hyde, encoder: bge-base, generator: qwen/qwen3.8-27b, instruction: paper.scifact, n: 4}
 
+  # ---- Ablation D-HYDE-8 (exploratory, found on this test set; checked on TREC-COVID) ----
+  # Eq. 8 gives the query weight 1/(N+1); here the query keeps 50% however large N is.
+  - {name: hyde-contriever-120b-n4-qw50, type: hyde, encoder: contriever, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 4, query_weight: 0.5, baseline: dense-contriever}
+  - {name: hyde-contriever-qwen-n4-qw50, type: hyde, encoder: contriever, generator: qwen/qwen3.8-27b, instruction: paper.scifact, n: 4, query_weight: 0.5, baseline: dense-contriever}
+  - {name: hyde-bge-120b-n4-qw50, type: hyde, encoder: bge-base, generator: openai/gpt-oss-120b, instruction: paper.scifact, n: 4, query_weight: 0.5, baseline: dense-bge}
+
   # ---- S4: hybrid BM25 + dense (RRF) ----
   - {name: hybrid-contriever, type: rrf, inputs: [bm25, dense-contriever], baseline: dense-contriever}
   - {name: hybrid-bge, type: rrf, inputs: [bm25, dense-bge], baseline: dense-bge}

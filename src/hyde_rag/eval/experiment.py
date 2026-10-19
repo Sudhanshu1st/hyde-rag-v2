@@ -199,7 +199,8 @@ class Experiment:
             enc = spec["encoder"]
             pvecs = self.passage_vecs(enc, spec, self.hyde_passages(spec))
             qv = self.query_vecs(enc)
-            vecs = np.stack([hyde_vector(qv[i], pvecs[q]) for i, q in enumerate(self.qids)])
+            qw = spec.get("query_weight")  # None = paper Eq. 8
+            vecs = np.stack([hyde_vector(qv[i], pvecs[q], qw) for i, q in enumerate(self.qids)])
             res.run = self._dense_run(enc, vecs)
             res.llm_latency_s, res.llm_tokens = self._llm_stats(
                 "hyde", spec["instruction"], spec["generator"], spec["n"]
@@ -291,7 +292,7 @@ class Experiment:
                 texts = [self.ds.queries[q]]
                 qv = enc.encode(texts, is_query=True)[0]
                 if kind == "hyde":
-                    qv = hyde_vector(qv, enc.encode(passages[q], is_query=False))
+                    qv = hyde_vector(qv, enc.encode(passages[q], is_query=False), spec.get("query_weight"))
                 self.index(spec["encoder"]).search(qv[None, :], k=self.depth)
         elif kind == "rrf":
             return sum(self.results[i].retrieval_ms or 0 for i in spec["inputs"])

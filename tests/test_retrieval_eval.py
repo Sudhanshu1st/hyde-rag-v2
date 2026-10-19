@@ -92,3 +92,11 @@ fifth"""
 def test_clean_passage_and_rewrites():
     assert clean_passage(MARKDOWN_PASSAGE) == "Abstract The claim that 0-D materials induce growth."
     assert parse_rewrites(NUMBERED_REWRITES) == ["first query", "second", "third", "fourth"]
+
+
+def test_hyde_vector_fixed_query_weight():
+    q = np.array([1.0, 0.0])
+    docs = np.array([[0.0, 1.0], [0.0, 3.0], [0.0, 2.0]])
+    # Eq. 8 with N=3: the query gets 1/4; fixed weight keeps it at 1/2 regardless of N.
+    assert hyde_vector(q, docs).tolist() == pytest.approx([0.25, 1.5])
+    assert hyde_vector(q, docs, query_weight=0.5).tolist() == pytest.approx([0.5, 1.0])
