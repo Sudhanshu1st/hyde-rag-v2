@@ -129,11 +129,22 @@ alone at 0.649. Diagnosis (scratch analysis, reproducible from the cached vector
   passage vectors are ~35% longer (|p| 1.85 vs |q| 1.37, since Contriever is unnormalised).
   Normalising alone recovers little (0.610 → 0.625).
 
-Ablation `query_weight: 0.5` keeps the query at 50% and averages the passages. It was found on
-the SciFact test set, so it was confirmed out-of-sample on TREC-COVID before being reported:
-Qwen3, N=4, Contriever, 54.1 → 60.9 nDCG@10, paired Δ +6.9 [+3.0, +10.8], p = 0.0014. That is
-above both the paper's HyDE (59.3) and BM25 (59.3) on that dataset. The paper-parity numbers
-(Eq. 8) remain the headline; the ablation is reported separately.
+Ablation `query_weight: 0.5`: v = 0.5·f(q) + 0.5·mean_k f(d_k), unnormalised like Eq. 8. It was
+found on the SciFact test set, so it was confirmed out-of-sample on TREC-COVID before being
+reported. Paired Δ vs Eq. 8 at N=4 (from `results/`):
+
+| Dataset | Encoder | Generator | Δ nDCG@10 [95% CI] | p |
+|---|---|---|---|---|
+| SciFact | Contriever | gpt-oss-120b | 61.0 → 67.7, +6.7 [+4.6, +8.9] | 0.0001 |
+| SciFact | Contriever | Qwen3 | 65.2 → 68.4, +3.2 [+1.6, +4.9] | 0.0002 |
+| SciFact | bge | gpt-oss-120b | 78.5 → 77.8, −0.7 [−1.9, +0.5] | 0.24 (no effect) |
+| TREC-COVID | Contriever | Qwen3 | 54.1 → 60.9, +6.9 [+3.0, +10.8] | 0.0014 |
+
+The fixed weight helps when passages are weaker queries than the question (Contriever) and is
+neutral when they are stronger (bge). The TREC-COVID result exceeds the paper's HyDE (59.3) and
+BM25 (59.3). (A scratch variant that also L2-normalised the vectors reached 68.6 on SciFact;
+it is not part of the pipeline and not reported.) The paper-parity numbers (Eq. 8) remain the
+headline; the ablation is reported separately.
 
 ## LLM layer
 
