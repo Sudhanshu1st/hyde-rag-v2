@@ -184,3 +184,52 @@ def test_sampler_v2_spreads_questions_across_documents():
     docs_v1 = {c.doc_id for c in v1["factual"] + v1["jargon"]}
     assert len(docs_v2) >= 4  # fixed: non-numeric documents still get questions
     assert docs_v1 <= {"d0", "d1"}  # the original bug, kept only to rebuild batch "main"
+
+
+def test_food_eval_qrels_come_from_span_overlap(tmp_path, monkeypatch):
+    from hyde_rag.ingest import datasets
+
+    monkeypatch.setenv("HYDE_RAG_HOME", str(tmp_path))
+    monkeypatch.setattr(datasets.paths, "REPO_ROOT", tmp_path)
+    proc = tmp_path / "data" / "food" / "processed"
+    proc.mkdir(parents=True)
+    text = "Cooling. Cooked food shall be cooled within 2 hours. Shellstock within 4 hours."
+    chunks = [("fc:1:0", 0, 40), ("fc:1:1", 40, len(text))]
+    (proc / "chunks.jsonl").write_text(
+        "".join(
+            json.dumps(
+                {
+                    "chunk_id": cid,
+                    "doc_id": "fc",
+                    "page": 1,
+                    "chunk": i,
+                    "section": "Cooling",
+                    "text": text[s:e],
+                    "char_start": s,
+                    "char_end": e,
+                }
+            )
+            + "\n"
+            for i, (cid, s, e) in enumerate(chunks)
+        ),
+        encoding="utf-8",
+    )
+    (proc / "docs.jsonl").write_text(
+        json.dumps({"doc_id": "fc", "title": "Food Code"}) + "\n", encoding="utf-8"
+    )
+    ev = tmp_path / "eval_sets" / "food_quality"
+    ev.mkdir(parents=True)
+    items = [
+        {
+            "id": "q1",
+            "question": "Cooling time?",
+            "answerable": True,
+            "gold_evidence": [{"doc_id": "fc", "char_start": 9, "char_end": 52}],
+        },  # spans both chunks
+        {"id": "q2", "question": "Pizza?", "answerable": False, "gold_evidence": []},
+    ]
+    (ev / "test.jsonl").write_text("".join(json.dumps(i) + "\n" for i in items), encoding="utf-8")
+    ds = datasets.load_dataset("food", "test")
+    assert ds.qrels["q1"] == {"fc:1:0": 1, "fc:1:1": 1} and ds.qrels["q2"] == {}
+    assert ds.corpus["fc:1:0"].title == "Food Code | Cooling"
+    assert datasets.collection("food") == "food" and datasets.collection("scifact") == "beir"

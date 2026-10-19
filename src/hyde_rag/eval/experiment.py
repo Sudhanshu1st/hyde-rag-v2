@@ -28,7 +28,7 @@ import yaml
 from hyde_rag import paths
 from hyde_rag.eval.metrics import evaluate, remove_self_hits
 from hyde_rag.eval.stats import bootstrap_ci, compare_paired, holm
-from hyde_rag.ingest.beir import load_beir
+from hyde_rag.ingest.datasets import collection, load_dataset
 from hyde_rag.llm.cache import JsonlCache
 from hyde_rag.retrieval.bm25 import BM25Retriever, doc_text_flat
 from hyde_rag.retrieval.dense import (
@@ -68,7 +68,7 @@ class Experiment:
         self.config_path = Path(config_path)
         self.cfg = yaml.safe_load(self.config_path.read_text(encoding="utf-8"))
         self.name = self.cfg.get("name", self.config_path.stem)
-        self.ds = load_beir(self.cfg["dataset"], split=self.cfg.get("split", "test"))
+        self.ds = load_dataset(self.cfg["dataset"], split=self.cfg.get("split", "test"))
         self.depth = int(self.cfg.get("depth", 1000))
         self.metrics = tuple(self.cfg.get("metrics", ["ndcg@10", "recall@10", "recall@100", "mrr@10"]))
         self.qids = sorted(self.ds.queries)
@@ -133,14 +133,14 @@ class Experiment:
 
     def generations(self, kind: str, instruction: str, generator: str) -> dict[str, list[str]]:
         """Cached LLM outputs per query, ordered by sample index."""
-        path = cache_path(self.ds.name, kind, instruction, generator)
+        path = cache_path(self.ds.name, kind, instruction, generator, collection(self.ds.name))
         by_q: dict[str, list[tuple[int, str]]] = defaultdict(list)
         for rec in JsonlCache(path).records():
             by_q[rec.item_id].append((rec.sample, rec.text))
         return {q: [t for _, t in sorted(v)] for q, v in by_q.items()}
 
     def _llm_stats(self, kind: str, instruction: str, generator: str, n: int) -> tuple[float, float]:
-        path = cache_path(self.ds.name, kind, instruction, generator)
+        path = cache_path(self.ds.name, kind, instruction, generator, collection(self.ds.name))
         by_q: dict[str, list] = defaultdict(list)
         for rec in JsonlCache(path).records():
             if rec.sample < n:

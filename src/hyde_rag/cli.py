@@ -20,10 +20,10 @@ DEFAULT_THREADS = 8
 
 
 def cmd_encode(args: argparse.Namespace) -> int:
-    from hyde_rag.ingest.beir import load_beir
+    from hyde_rag.ingest.datasets import load_dataset
     from hyde_rag.retrieval.dense import ENCODERS, Encoder, doc_text_dense, encode_corpus, index_path
 
-    ds = load_beir(args.dataset, split=args.split)
+    ds = load_dataset(args.dataset, split=args.split)
     doc_ids = list(ds.corpus)
     texts = [doc_text_dense(ds.corpus[d].title, ds.corpus[d].text) for d in doc_ids]
     for name in args.encoders:
@@ -72,7 +72,8 @@ def cmd_generate(args: argparse.Namespace) -> int:
 
     import yaml
 
-    from hyde_rag.ingest.beir import load_beir
+    from hyde_rag import paths
+    from hyde_rag.ingest.datasets import collection, load_dataset
     from hyde_rag.llm.cache import JsonlCache
     from hyde_rag.llm.client import OpenAICompatClient
     from hyde_rag.llm.quota import Limits, load_limits
@@ -86,7 +87,7 @@ def cmd_generate(args: argparse.Namespace) -> int:
     # so one process uses each free-tier quota exactly once.
     for experiment in args.experiment:
         cfg = yaml.safe_load(Path(experiment).read_text(encoding="utf-8"))
-        ds = load_beir(cfg["dataset"], split=cfg.get("split", "test"))
+        ds = load_dataset(cfg["dataset"], split=cfg.get("split", "test"))
         queries = {q: ds.queries[q] for q in sorted(ds.queries)}
         jobs = _llm_jobs(cfg, set(args.system) if args.system else None)
         if args.generator:
@@ -98,9 +99,9 @@ def cmd_generate(args: argparse.Namespace) -> int:
                 items = hyde_items(queries, load_instruction(instruction), generator, n)
             else:
                 items = multi_query_items(queries, generator)
-            path = cache_path(ds.name, kind, instruction, generator)
+            path = cache_path(ds.name, kind, instruction, generator, collection(ds.name))
             by_model.setdefault(generator, []).append((path, items))
-            rel = path.relative_to(path.parents[4])
+            rel = path.relative_to(paths.cache_dir())
             print(f"- {kind:11s} {instruction:18s} {generator:22s} {len(items):5d} calls -> {rel}")
     if not by_model:
         print("No LLM systems selected.")
