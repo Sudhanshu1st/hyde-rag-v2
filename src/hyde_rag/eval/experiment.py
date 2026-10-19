@@ -29,7 +29,8 @@ from hyde_rag import paths
 from hyde_rag.eval.metrics import evaluate, remove_self_hits
 from hyde_rag.eval.stats import bootstrap_ci, compare_paired, holm
 from hyde_rag.ingest.datasets import collection, load_dataset
-from hyde_rag.llm.cache import JsonlCache
+from hyde_rag.llm.cache import CachedOutput, JsonlCache, cache_key
+from hyde_rag.llm.client import default_base_url
 from hyde_rag.retrieval.bm25 import BM25Retriever, doc_text_flat
 from hyde_rag.retrieval.dense import (
     ENCODERS,
@@ -40,7 +41,14 @@ from hyde_rag.retrieval.dense import (
     load_index,
 )
 from hyde_rag.retrieval.fusion import hyde_vector, rrf, rrf_runs
-from hyde_rag.retrieval.hyde import cache_path, clean_passage, parse_rewrites
+from hyde_rag.retrieval.hyde import (
+    cache_path,
+    clean_passage,
+    hyde_items,
+    load_instruction,
+    multi_query_items,
+    parse_rewrites,
+)
 
 Run = dict[str, dict[str, float]]
 
@@ -131,27 +139,41 @@ class Experiment:
         hits = self.index(enc).search(vecs, k=self.depth)
         return {q: dict(h) for q, h in zip(qids, hits, strict=True)}
 
-    def generations(self, kind: str, instruction: str, generator: str) -> dict[str, list[str]]:
-        """Cached LLM outputs per query, ordered by sample index."""
+    def _cached(
+        self, kind: str, instruction: str, generator: str, n: int = 1
+    ) -> dict[str, list[CachedOutput]]:
+        """Cached outputs per query (samples 0..n-1, in order), looked up by request key, so a query
+        whose wording changed (e.g. an edited food question) never gets outputs for its old text."""
         path = cache_path(self.ds.name, kind, instruction, generator, collection(self.ds.name))
-        by_q: dict[str, list[tuple[int, str]]] = defaultdict(list)
-        for rec in JsonlCache(path).records():
-            by_q[rec.item_id].append((rec.sample, rec.text))
-        return {q: [t for _, t in sorted(v)] for q, v in by_q.items()}
+        cache = JsonlCache(path)
+        queries = {q: self.ds.queries[q] for q in self.qids}
+        if kind == "hyde":
+            items = hyde_items(queries, load_instruction(instruction), generator, n)
+        else:
+            items = multi_query_items(queries, generator)
+        base = default_base_url()
+        out: dict[str, list[CachedOutput]] = defaultdict(list)
+        for it in items:  # per query, samples ascending; stop at the first gap
+            rec = cache.get(cache_key(base, it.request, it.sample))
+            if rec is not None and len(out[it.item_id]) == it.sample:
+                out[it.item_id].append(rec)
+        return {q: recs for q, recs in out.items() if recs}
+
+    def generations(self, kind: str, instruction: str, generator: str, n: int = 1) -> dict[str, list[str]]:
+        """Cached LLM outputs per query, ordered by sample index."""
+        return {
+            q: [r.text for r in recs] for q, recs in self._cached(kind, instruction, generator, n).items()
+        }
 
     def _llm_stats(self, kind: str, instruction: str, generator: str, n: int) -> tuple[float, float]:
-        path = cache_path(self.ds.name, kind, instruction, generator, collection(self.ds.name))
-        by_q: dict[str, list] = defaultdict(list)
-        for rec in JsonlCache(path).records():
-            if rec.sample < n:
-                by_q[rec.item_id].append(rec)
+        by_q = self._cached(kind, instruction, generator, n)
         lat = [max(r.latency_s for r in recs) for recs in by_q.values()]  # N calls in parallel
         tok = [sum(r.prompt_tokens + r.completion_tokens for r in recs) for recs in by_q.values()]
         return float(np.mean(lat)), float(np.mean(tok))
 
     def hyde_passages(self, spec: dict) -> dict[str, list[str]]:
         n = int(spec["n"])
-        gens = self.generations("hyde", spec["instruction"], spec["generator"])
+        gens = self.generations("hyde", spec["instruction"], spec["generator"], n)
         short = [q for q in self.qids if len(gens.get(q, [])) < n]
         if short:
             raise MissingGenerations(

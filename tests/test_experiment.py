@@ -9,10 +9,10 @@ import yaml
 
 from hyde_rag.eval.experiment import Experiment
 from hyde_rag.eval.report import render_table
-from hyde_rag.llm.cache import JsonlCache
-from hyde_rag.llm.client import LLMResponse
+from hyde_rag.llm.cache import JsonlCache, cache_key
+from hyde_rag.llm.client import LLMResponse, default_base_url
 from hyde_rag.retrieval.dense import EncoderSpec, encode_corpus, index_path
-from hyde_rag.retrieval.hyde import cache_path
+from hyde_rag.retrieval.hyde import cache_path, hyde_items, load_instruction, multi_query_items
 
 DOCS = {
     "d1": ("Vitamin D", "vitamin d supplementation reduces fracture risk in older adults"),
@@ -73,12 +73,14 @@ def home(tmp_path, monkeypatch):
     }
     hyde = JsonlCache(cache_path("tiny", "hyde", "paper.scifact", "fake/gen"))
     mq = JsonlCache(cache_path("tiny", "multi_query", "rewrite_k4", "fake/gen"))
-    for q, p in passages.items():
-        for s in range(2):
-            hyde.put(f"{q}{s}", q, s, LLMResponse(p, "stop", "fake/gen", 40, 60, 0.5 + s))
-        mq.put(
-            f"mq{q}", q, 0, LLMResponse(f"1. {p}\n2. {QUERIES[q]} evidence", "stop", "fake/gen", 30, 20, 0.3)
-        )
+    base = default_base_url()  # records are found by request key, as the runner wrote them
+    for it in hyde_items(QUERIES, load_instruction("paper.scifact"), "fake/gen", 2):
+        resp = LLMResponse(passages[it.item_id], "stop", "fake/gen", 40, 60, 0.5 + it.sample)
+        hyde.put(cache_key(base, it.request, it.sample), it.item_id, it.sample, resp)
+    for it in multi_query_items(QUERIES, "fake/gen"):
+        q = it.item_id
+        resp = LLMResponse(f"1. {passages[q]}\n2. {QUERIES[q]} evidence", "stop", "fake/gen", 30, 20, 0.3)
+        mq.put(cache_key(base, it.request, it.sample), q, 0, resp)
     return tmp_path
 
 
@@ -165,3 +167,17 @@ def test_full_experiment_pipeline(home, monkeypatch):
     assert (exp.out_dir / "runs" / "hybrid-hyde.json.gz").exists()
     table = render_table(exp.out_dir / "metrics.json")
     assert "| hyde-bge-n2 |" in table and "baseline" in table
+
+
+def test_generations_follow_the_query_text(home):
+    """An edited query (same id, new wording) must not reuse outputs cached for its old text."""
+    cfg_path = home / "tiny.yaml"
+    cfg_path.write_text(yaml.safe_dump({"name": "tiny", "dataset": "tiny", "systems": []}), encoding="utf-8")
+    exp = Experiment(cfg_path)
+    gens = exp.generations("hyde", "paper.scifact", "fake/gen", 2)
+    assert {q: len(v) for q, v in gens.items()} == {"q1": 2, "q2": 2, "q3": 2}
+    assert len(exp.generations("hyde", "paper.scifact", "fake/gen", 3)["q1"]) == 2  # stops at the gap
+
+    exp.ds.queries["q2"] = "how quickly should cooked food be cooled"
+    assert set(exp.generations("hyde", "paper.scifact", "fake/gen", 2)) == {"q1", "q3"}
+    assert set(exp.generations("multi_query", "rewrite_k4", "fake/gen")) == {"q1", "q3"}
