@@ -41,6 +41,14 @@ ENCODERS: dict[str, EncoderSpec] = {
     "bge-small": EncoderSpec(
         "bge-small", "BAAI/bge-small-en-v1.5", pooling="cls", normalize=True, query_prefix=BGE_QUERY_PREFIX
     ),
+    # F2: bge-base fine-tuned on synthetic food queries (notebooks/finetune_food_embedder_colab.ipynb).
+    "bge-base-food": EncoderSpec(
+        "bge-base-food",
+        str(paths.home() / "models" / "bge-base-food"),
+        pooling="cls",
+        normalize=True,
+        query_prefix=BGE_QUERY_PREFIX,
+    ),
 }
 
 
@@ -162,23 +170,30 @@ def verify_index(dataset: str, encoder: str, n: int = 32, seed: int = 0, threads
     * n random documents re-encoded here on CPU must match their stored vectors
       (fp32 GPU vs CPU differences are ~1e-6; cosine below 0.9999 means a real mismatch).
     """
-    from hyde_rag.ingest.beir import load_beir
-
     path = index_path(dataset, encoder)
-    ds = load_beir(dataset)
-    corpus_ids = list(ds.corpus)
+    if dataset == "food":  # chunks, encoded as in the pipeline (title | section header + text)
+        from hyde_rag.ingest.food import load_chunks, load_docs
+
+        titles = {d: v["title"] for d, v in load_docs().items()}
+        chunks = load_chunks()
+        corpus_ids = [c.chunk_id for c in chunks]
+        texts = {c.chunk_id: c.index_text(titles[c.doc_id]) for c in chunks}
+    else:
+        from hyde_rag.ingest.beir import load_beir
+
+        ds = load_beir(dataset)
+        corpus_ids = list(ds.corpus)
+        texts = {d: doc_text_dense(ds.corpus[d].title, ds.corpus[d].text) for d in corpus_ids}
     stored_ids = json.loads((path / "doc_ids.json").read_text(encoding="utf-8"))
     meta = json.loads((path / "meta.json").read_text(encoding="utf-8"))
     spec = ENCODERS[encoder]
-    meta_ok = all(meta.get(k) == v for k, v in asdict(spec).items())
+    # model_id may be a machine-specific path for fine-tuned models, so it isn't compared.
+    meta_ok = all(meta.get(k) == v for k, v in asdict(spec).items() if k != "model_id")
     emb = np.load(path / "embeddings.npy", mmap_mode="r")
     rng = np.random.default_rng(seed)
     sample = sorted(rng.choice(len(corpus_ids), size=min(n, len(corpus_ids)), replace=False).tolist())
     enc = Encoder(spec, threads=threads)
-    fresh = enc.encode(
-        [doc_text_dense(ds.corpus[corpus_ids[i]].title, ds.corpus[corpus_ids[i]].text) for i in sample],
-        is_query=False,
-    )
+    fresh = enc.encode([texts[corpus_ids[i]] for i in sample], is_query=False)
     stored = np.asarray(emb[sample], dtype=np.float32)
     cos = (fresh * stored).sum(1) / (np.linalg.norm(fresh, axis=1) * np.linalg.norm(stored, axis=1))
     return {

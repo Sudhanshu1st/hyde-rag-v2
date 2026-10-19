@@ -21,6 +21,8 @@ htmlcov/
 data/beir/
 data/food/raw_restricted/
 data/food/processed/
+data/food/colab_upload/
+data/food/synthetic/
 data/indexes/
 data/scifact_labels/
 data/judge_validation/

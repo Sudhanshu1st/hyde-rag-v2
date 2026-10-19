@@ -241,6 +241,21 @@ def cmd_results(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_export_food_colab(args: argparse.Namespace) -> int:
+    """Zip the processed food chunks for the Colab fine-tuning notebook (your own Colab only)."""
+    import zipfile
+
+    from hyde_rag.ingest.food import processed_dir
+
+    out = processed_dir().parent / "colab_upload" / "food_chunks.zip"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
+        for name in ("chunks.jsonl", "docs.jsonl"):
+            zf.write(processed_dir() / name, name)
+    print(f"Upload this file in the notebook: {out}")
+    return 0
+
+
 def cmd_quota(args: argparse.Namespace) -> int:
     import runpy
 
@@ -329,6 +344,9 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("results", help="regenerate docs/RESULTS.md and the README table from results/")
     p.set_defaults(func=cmd_results)
+
+    p = sub.add_parser("export-food-colab", help="zip food chunks for the Colab fine-tuning notebook")
+    p.set_defaults(func=cmd_export_food_colab)
 
     p = sub.add_parser("quota", help="free-quota plan for all planned LLM runs")
     p.set_defaults(func=cmd_quota)
