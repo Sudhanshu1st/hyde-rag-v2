@@ -10,7 +10,7 @@
         "type": "bm25",
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 0.43306000297889113,
+      "retrieval_ms": 0.41286000050604343,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -82,7 +82,7 @@
         "type": "dense",
         "encoder": "bge-base"
       },
-      "retrieval_ms": 45.82885999698192,
+      "retrieval_ms": 82.07925000460818,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -126,7 +126,7 @@
         ],
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 46.26191999996081,
+      "retrieval_ms": 82.49211000511423,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -200,7 +200,7 @@
         "depth": 100,
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 7893.715620005969,
+      "retrieval_ms": 11198.168229998555,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {

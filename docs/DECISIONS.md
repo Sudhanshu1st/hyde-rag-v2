@@ -139,10 +139,16 @@ reported. Paired Δ vs Eq. 8 at N=4 (from `results/`):
 | SciFact | Contriever | Qwen3 | 65.2 → 68.4, +3.2 [+1.6, +4.9] | 0.0002 |
 | SciFact | bge | gpt-oss-120b | 78.5 → 77.8, −0.7 [−1.9, +0.5] | 0.24 (no effect) |
 | TREC-COVID | Contriever | Qwen3 | 54.1 → 60.9, +6.9 [+3.0, +10.8] | 0.0014 |
+| TREC-COVID | Contriever | gpt-oss-120b | 46.9 → 58.9, +12.0 [+7.9, +16.3] | 0.0001 |
+| TREC-COVID | bge | gpt-oss-120b | 77.2 → 84.8, +7.6 [+4.1, +11.7] | 0.0001 |
 
 The fixed weight helps when passages are weaker queries than the question (Contriever) and is
-neutral when they are stronger (bge). The TREC-COVID result exceeds the paper's HyDE (59.3) and
-BM25 (59.3). (A scratch variant that also L2-normalised the vectors reached 68.6 on SciFact;
+neutral when they are stronger (bge on SciFact). On TREC-COVID it also rescues bge: with Eq. 8
+at N=4, HyDE-bge loses to bge alone (77.2 vs 78.1), but with w=0.5 it gains +6.7 (p=0.002,
+Holm). The TREC-COVID bge rows were added after the weight was fixed, so this is out-of-sample
+too (2026-10-19). N=1 needs no fix (Eq. 8 already gives the query 50%): on TREC-COVID HyDE-bge
+N=1 scores 83.4, within noise of N=4 at w=0.5 (+1.4 [−0.3, +3.6], p=0.17), at a quarter of the
+tokens. Contriever + Qwen3 at w=0.5 (60.9) beats the paper's HyDE (59.3) and BM25 (59.3). (A scratch variant that also L2-normalised the vectors reached 68.6 on SciFact;
 it is not part of the pipeline and not reported.) The paper-parity numbers (Eq. 8) remain the
 headline; the ablation is reported separately.
 

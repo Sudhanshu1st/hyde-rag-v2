@@ -10,7 +10,7 @@
         "type": "bm25",
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 0.4990499932318926,
+      "retrieval_ms": 0.39844000712037086,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -82,7 +82,7 @@
         "type": "dense",
         "encoder": "contriever"
       },
-      "retrieval_ms": 4206.401810003445,
+      "retrieval_ms": 71.6249099932611,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -122,7 +122,7 @@
         "type": "dense",
         "encoder": "bge-base"
       },
-      "retrieval_ms": 261.3892500055954,
+      "retrieval_ms": 77.87302000215277,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -165,7 +165,7 @@
         "instruction": "paper.scifact",
         "n": 1
       },
-      "retrieval_ms": 945.9804899990559,
+      "retrieval_ms": 763.6396799935028,
       "llm_latency_s": 1.2522533333333334,
       "llm_tokens_per_query": 521.1333333333333,
       "metrics": {
@@ -240,7 +240,7 @@
         "instruction": "paper.scifact",
         "n": 4
       },
-      "retrieval_ms": 3001.0538499918766,
+      "retrieval_ms": 3072.9127899976447,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -315,7 +315,7 @@
         "instruction": "paper.scifact",
         "n": 1
       },
-      "retrieval_ms": 733.822259993758,
+      "retrieval_ms": 754.1339399991557,
       "llm_latency_s": 1.2522533333333334,
       "llm_tokens_per_query": 521.1333333333333,
       "metrics": {
@@ -390,7 +390,7 @@
         "instruction": "paper.scifact",
         "n": 4
       },
-      "retrieval_ms": 3060.133700002916,
+      "retrieval_ms": 3082.9167300020345,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -465,7 +465,7 @@
         "instruction": "paper.scifact",
         "n": 1
       },
-      "retrieval_ms": 790.8944700029679,
+      "retrieval_ms": 816.9562900089659,
       "llm_latency_s": 0.9692666666666666,
       "llm_tokens_per_query": 614.6666666666666,
       "metrics": {
@@ -540,7 +540,7 @@
         "instruction": "paper.scifact",
         "n": 4
       },
-      "retrieval_ms": 2171.9117400003597,
+      "retrieval_ms": 2226.851369999349,
       "llm_latency_s": 0.9595766666666666,
       "llm_tokens_per_query": 1308.5366666666666,
       "metrics": {
@@ -615,7 +615,7 @@
         "instruction": "paper.scifact",
         "n": 1
       },
-      "retrieval_ms": 861.5136499982327,
+      "retrieval_ms": 827.4895099923015,
       "llm_latency_s": 0.9692666666666666,
       "llm_tokens_per_query": 614.6666666666666,
       "metrics": {
@@ -690,7 +690,7 @@
         "instruction": "paper.scifact",
         "n": 4
       },
-      "retrieval_ms": 2183.016640006099,
+      "retrieval_ms": 2223.133640002925,
       "llm_latency_s": 0.9595766666666666,
       "llm_tokens_per_query": 1308.5366666666666,
       "metrics": {
@@ -767,7 +767,7 @@
         "query_weight": 0.5,
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 2986.6977000026964,
+      "retrieval_ms": 3061.8882399983704,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -844,7 +844,7 @@
         "query_weight": 0.5,
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 2211.736140004359,
+      "retrieval_ms": 2210.7548899948597,
       "llm_latency_s": 0.9595766666666666,
       "llm_tokens_per_query": 1308.5366666666666,
       "metrics": {
@@ -921,7 +921,7 @@
         "query_weight": 0.5,
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 2991.9516600086354,
+      "retrieval_ms": 3075.3310299944133,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -997,7 +997,7 @@
         ],
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 4206.900859996676,
+      "retrieval_ms": 72.02335000038147,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -1073,7 +1073,7 @@
         ],
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 261.8882999988273,
+      "retrieval_ms": 78.27146000927314,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -1149,7 +1149,7 @@
         ],
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 3001.5528999851085,
+      "retrieval_ms": 3073.311230004765,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -1225,7 +1225,7 @@
         ],
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 3060.632749996148,
+      "retrieval_ms": 3083.315170009155,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -1300,7 +1300,7 @@
         "n": 4,
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 1.031189993955195,
+      "retrieval_ms": 0.9940400021150708,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -1376,7 +1376,7 @@
         ],
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 3061.1648899968714,
+      "retrieval_ms": 3083.9107700041495,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 4198.34,
       "metrics": {
@@ -1452,7 +1452,7 @@
         ],
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 9.754720004275441,
+      "retrieval_ms": 10.56644000345841,
       "llm_latency_s": 0.5571233333333333,
       "llm_tokens_per_query": 207.48666666666668,
       "metrics": {
@@ -1529,7 +1529,7 @@
         ],
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 291.5083199972287,
+      "retrieval_ms": 307.84328000154346,
       "llm_latency_s": 0.5571233333333333,
       "llm_tokens_per_query": 207.48666666666668,
       "metrics": {
@@ -1603,7 +1603,7 @@
         "depth": 100,
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 11875.515710003674,
+      "retrieval_ms": 12266.410359996371,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -1677,7 +1677,7 @@
         "depth": 100,
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 15117.525410000235,
+      "retrieval_ms": 11198.464190005325,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -1751,7 +1751,7 @@
         "depth": 100,
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 11913.526790007018,
+      "retrieval_ms": 11930.713220022153,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -1825,7 +1825,7 @@
         "depth": 100,
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 11929.379440005869,
+      "retrieval_ms": 11891.314059996512,
       "llm_latency_s": null,
       "llm_tokens_per_query": null,
       "metrics": {
@@ -1899,7 +1899,7 @@
         "depth": 100,
         "baseline": "dense-contriever"
       },
-      "retrieval_ms": 16869.41760998452,
+      "retrieval_ms": 16576.533069997095,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -1973,7 +1973,7 @@
         "depth": 100,
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 15365.418000007048,
+      "retrieval_ms": 15086.280810006429,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -2047,7 +2047,7 @@
         "depth": 100,
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 15604.49246999342,
+      "retrieval_ms": 15363.034350017551,
       "llm_latency_s": 1.5019133333333334,
       "llm_tokens_per_query": 2099.17,
       "metrics": {
@@ -2121,7 +2121,7 @@
         "depth": 100,
         "baseline": "dense-bge"
       },
-      "retrieval_ms": 12425.097139994614,
+      "retrieval_ms": 12263.088820013218,
       "llm_latency_s": 0.5571233333333333,
       "llm_tokens_per_query": 207.48666666666668,
       "metrics": {

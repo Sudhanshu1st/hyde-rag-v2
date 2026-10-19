@@ -9,7 +9,8 @@ rows:
   - {label: "HyDE + Contriever, N=4, query weight 0.5 (ours)", system: hyde-contriever-120b-n4-qw50}
   - {label: "bge-base-en-v1.5 (modern supervised)", system: dense-bge}
   - {label: "HyDE + bge, gpt-oss-120b, N=1", system: hyde-bge-120b-n1}
-  - {label: "HyDE + bge, gpt-oss-120b, N=4", system: hyde-bge-120b-n4}
+  - {label: "HyDE + bge, gpt-oss-120b, N=4 (Eq. 8)", system: hyde-bge-120b-n4}
+  - {label: "HyDE + bge, N=4, query weight 0.5 (ours)", system: hyde-bge-120b-n4-qw50}
   - {label: "Hybrid BM25 + bge (RRF)", system: hybrid-bge}
   - {label: "Hybrid BM25 + HyDE-bge", system: hybrid-hyde-bge}
   - {label: "BM25 + Query2doc expansion", system: bm25-q2d}

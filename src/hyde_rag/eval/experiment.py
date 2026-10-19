@@ -395,8 +395,9 @@ class Experiment:
                 q: dict(sorted(d.items(), key=lambda kv: (-kv[1], kv[0]))[:SAVED_RUN_DEPTH])
                 for q, d in res.run.items()
             }
-            with gzip.open(self.out_dir / "runs" / f"{name}.json.gz", "wt", encoding="utf-8") as f:
-                json.dump(top, f)
+            # mtime=0: identical runs give identical bytes, so re-running doesn't churn git.
+            blob = gzip.compress(json.dumps(top).encode("utf-8"), mtime=0)
+            (self.out_dir / "runs" / f"{name}.json.gz").write_bytes(blob)
             entry: dict = {
                 "spec": res.spec,
                 "retrieval_ms": res.retrieval_ms,
