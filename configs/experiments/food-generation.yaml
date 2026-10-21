@@ -1,0 +1,12 @@
+# Grounded answers on the food-safety test split: 100 questions (all 11 unanswerable test
+# questions plus answerable ones stratified by type; seed 13).
+# systems: the best non-HyDE retriever on the food dev split and its HyDE counterpart, chosen on
+# dev only (results/food-dev). Answers are graded against the reviewed reference answers and
+# judged for faithfulness; the abstention gate tau is calibrated on the dev split.
+name: food-generation
+dataset: food
+retrieval_experiment: food-test
+systems: [dense-bge, hyde-bge-domain-n1]
+top_k: 3
+sample: {n: 100, seed: 13}
+gate: {experiment: food-dev, system: dense-bge, scorer: cross-encoder, max_false_refusal: 0.05}

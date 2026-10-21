@@ -148,9 +148,13 @@ def cmd_generate(args: argparse.Namespace) -> int:
 
 
 def cmd_gen_eval(args: argparse.Namespace) -> int:
+    import yaml
+
+    from hyde_rag.eval.food_generation_eval import FoodGenerationEval
     from hyde_rag.eval.generation_eval import GenerationEval
 
-    ev = GenerationEval(args.config)
+    dataset = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))["dataset"]
+    ev = FoodGenerationEval(args.config) if dataset == "food" else GenerationEval(args.config)
     summary = ev.run(llm=not args.no_llm, approved=args.yes, log=lambda m: print(m, flush=True))
     print(json.dumps(summary["systems"], indent=2))
     return 0
