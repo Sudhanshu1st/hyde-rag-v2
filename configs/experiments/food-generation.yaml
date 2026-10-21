@@ -1,12 +1,14 @@
 # Grounded answers on the food-safety test split: 100 questions (all 11 unanswerable test
 # questions plus answerable ones stratified by type; seed 13).
-# systems: the best non-HyDE retriever on the food dev split and its HyDE counterpart, chosen on
-# dev only (results/food-dev). Answers are graded against the reviewed reference answers and
-# judged for faithfulness; the abstention gate tau is calibrated on the dev split.
+# systems (chosen on the dev split only, D-GEN-4): plain bge and bge + cross-encoder rerank, the
+# best system on food dev (+19.9 nDCG@10). HyDE is not compared here: on food dev it changed
+# nDCG@10 by +0.6 (n.s.), so answers would differ only by noise. Answers are graded against the
+# reviewed reference answers and judged for faithfulness; each system's abstention gate tau is
+# calibrated on its own dev run.
 name: food-generation
 dataset: food
 retrieval_experiment: food-test
-systems: [dense-bge, hyde-bge-domain-n1]
+systems: [dense-bge, rerank-dense-bge]
 top_k: 3
 sample: {n: 100, seed: 13}
-gate: {experiment: food-dev, system: dense-bge, scorer: cross-encoder, max_false_refusal: 0.05}
+gate: {experiment: food-dev, system: same, scorer: cross-encoder, max_false_refusal: 0.05}

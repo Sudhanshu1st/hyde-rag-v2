@@ -152,9 +152,11 @@ class FoodGenerationEval:
             for c, s in zip(raw, scores, strict=True)
         ]
 
-    def calibrate(self) -> dict:
+    def calibrate(self, system: str) -> dict:
+        """tau from the dev split. gate.system "same" uses each evaluated system's own dev run
+        (a reranked list has systematically higher top scores than a dense one)."""
         g = self.cfg["gate"]
-        dev_run = _load_run(g["experiment"], g["system"])
+        dev_run = _load_run(g["experiment"], system if g["system"] == "same" else g["system"])
         dev = load_items("dev")
         best = {it.id: max(c.score for c in self.chunks(dev_run, it.id, it.question)) for it in dev}
         ans = [best[it.id] for it in dev if it.answerable]
@@ -165,6 +167,7 @@ class FoodGenerationEval:
             "dev_answerable": len(ans),
             "dev_unanswerable": len(una),
             "scorer": "cross-encoder",
+            "dev_system": system if g["system"] == "same" else g["system"],
         }
 
     def _reasoning(self, model: str) -> str | None:
@@ -172,9 +175,6 @@ class FoodGenerationEval:
 
     # ---- the evaluation ----
     def run(self, *, llm: bool = True, approved: bool = False, log=print) -> dict:
-        gate_info = self.calibrate()
-        tau = gate_info["tau"]
-        log(f"gate: tau={tau} (dev F1={gate_info['f1']:.2f}, false refusal={gate_info['false_refusal']:.2f})")
         client = None
         if llm:
             from hyde_rag.llm.client import OpenAICompatClient
@@ -194,7 +194,7 @@ class FoodGenerationEval:
             "top_k": self.top_k,
             "answerer": self.answerer,
             "judge": self.judge,
-            "gate": gate_info,
+            "gates": {},
             "type_mix": dict(Counter(it.type for it in self.sample)),
             "systems": {},
         }
@@ -208,6 +208,9 @@ class FoodGenerationEval:
             if any(it.id not in run for it in self.sample):
                 log(f"- {system}: skipped (run lacks some sampled questions)")
                 continue
+            summary["gates"][system] = g = self.calibrate(system)
+            tau, f1, fr = g["tau"], g["f1"], g["false_refusal"]
+            log(f"- {system}: gate tau={tau:.3f}, dev F1={f1:.2f}, false refusals={fr:.2f}")
 
             # 1. Answers (gated items need no call).
             answers: dict[str, Answer] = {}

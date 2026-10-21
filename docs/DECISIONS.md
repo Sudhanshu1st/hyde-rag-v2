@@ -451,3 +451,23 @@ The cost of generating for questions that are later rejected is free-tier quota,
 4 in `fda_retail_haccp_manual`) contain unmapped font glyphs (`(cid:NNNN)`) from Hindi/bilingual
 PDF pages. They stay in the index; questions drafted from them were rejected in review. Fixing it
 needs OCR or a different extractor for those pages.
+
+**D-GEN-4 The food answer evaluation compares plain bge with bge + rerank (decided on food dev,
+2026-10-21).** Food dev split (62 questions, 58 answerable), nDCG@10:
+
+| System | nDCG@10 | vs plain bge |
+|---|---:|---|
+| BM25 | 75.1 | +16.2 (p = 0.04) |
+| bge | 58.8 | baseline |
+| HyDE-bge, domain or generic instruction, N=1 | 59.4–59.5 | +0.6 (n.s.) |
+| fine-tuned bge (F2) | 65.2 | +6.4 (n.s.) |
+| bge + MiniLM rerank of the top 100 | 78.7 | +19.9 (p = 0.004) |
+
+- Unlike SciFact (D-GEN-1), reranking helps a lot on food.
+- HyDE leaves food retrieval unchanged, so comparing answers with and without HyDE would only
+  measure noise. The answer quota instead goes to the question SciFact raised (D-GEN-3): does a
+  large retrieval gain reach the answers?
+- Each system's gate τ is calibrated on its own dev run (`gate.system: same`), because a reranked
+  top 3 has systematically higher cross-encoder scores.
+- Dev has only 4 unanswerable questions, so τ mostly reflects the 5% false-refusal cap.
+- These are dev-split choices. The test-split numbers are reported as measured.

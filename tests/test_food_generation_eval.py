@@ -68,7 +68,7 @@ def ev(tmp_path, monkeypatch):
     e.cfg = {
         "retrieval_experiment": "food-test",
         "systems": ["dense-bge"],
-        "gate": {"experiment": "food-dev", "system": "dense-bge", "max_false_refusal": 0.0},
+        "gate": {"experiment": "food-dev", "system": "same", "max_false_refusal": 0.0},
     }
     e.name, e.top_k, e.settings = "food-generation", 2, {}
     e.out_dir = tmp_path / "results" / "food-generation"
@@ -120,7 +120,7 @@ def test_food_eval_scores_answers_abstention_and_grades(ev):
 
     summary = ev.run(llm=False, log=lambda m: None)
     m = summary["systems"]["dense-bge"]
-    assert summary["gate"]["dev_unanswerable"] == 1
+    assert summary["gates"]["dense-bge"]["dev_unanswerable"] == 1
     assert m["complete"] and m["n_answered"] == 3
     assert m["gated"] == 1  # q3: plumbing chunks fall below tau, no LLM call
     assert m["abstention_recall"] == 1.0 and m["abstention_precision"] == 0.5  # q2 abstained wrongly
