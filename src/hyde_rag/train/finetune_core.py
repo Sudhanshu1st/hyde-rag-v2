@@ -127,8 +127,14 @@ def train(
     query_prefix: str = BGE_QUERY_PREFIX,
     fp16: bool = True,
     seed: int = 13,
+    mini_batch_size: int = 16,
 ) -> str:
-    """MultipleNegativesRankingLoss on (anchor, positive, hard negative) triplets."""
+    """Cached MultipleNegativesRankingLoss (GradCache) on (anchor, positive, hard negative) triplets.
+
+    Same loss and in-batch negatives as MNRL at batch_size, but embeddings are computed
+    mini_batch_size examples at a time, so 64 triplets of 512-token chunks fit on a free 15 GB T4
+    (plain MNRL ran out of memory there).
+    """
     from datasets import Dataset
     from sentence_transformers import (
         SentenceTransformer,
@@ -136,7 +142,7 @@ def train(
         SentenceTransformerTrainingArguments,
     )
     from sentence_transformers.base.sampler import BatchSamplers
-    from sentence_transformers.sentence_transformer.losses import MultipleNegativesRankingLoss
+    from sentence_transformers.sentence_transformer.losses import CachedMultipleNegativesRankingLoss
 
     model = SentenceTransformer(base_model)
     data = Dataset.from_dict({"anchor": anchors, "positive": positives, "negative": negatives})
@@ -154,9 +160,8 @@ def train(
         logging_steps=50,
         report_to="none",
     )
-    trainer = SentenceTransformerTrainer(
-        model=model, args=args, train_dataset=data, loss=MultipleNegativesRankingLoss(model)
-    )
+    loss = CachedMultipleNegativesRankingLoss(model, mini_batch_size=mini_batch_size)
+    trainer = SentenceTransformerTrainer(model=model, args=args, train_dataset=data, loss=loss)
     trainer.train()
     model.save(out_dir)
     return out_dir
