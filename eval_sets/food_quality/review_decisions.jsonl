@@ -1,0 +1,329 @@
+{"id": "pro-3a58b16c-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] asked 'steps' but the answer is one record; reworded"}
+{"id": "pro-2cf974fc-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] 'the guidance' named; answer focused on the response steps"}
+{"id": "mul-43d7a81e-0", "type": "multi_doc", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "pro-93b7bf96-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] garbled table text; answer invented"}
+{"id": "jar-0462ad25-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] about the chapter's purpose, not the program's"}
+{"id": "fac-9cbe5583-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] 'the guide' named"}
+{"id": "num-883496da-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] removed the bare table reference"}
+{"id": "num-f5411968-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] bibliography title"}
+{"id": "pro-20e0cfcc-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer was cut off mid-sentence; completed from the text (original quote kept)"}
+{"id": "jar-139b0040-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] boilerplate about website addresses"}
+{"id": "fac-26444871-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] bibliography citation"}
+{"id": "fac-4354e64d-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote not in the extracted text (garbled table); pH 4.6 covered by num-cb891064-0"}
+{"id": "fac-72c52148-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear; section headings list the evaluation steps"}
+{"id": "fac-407c5d98-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-ee155370-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied from the table text"}
+{"id": "num-783a7b56-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-b3dc5750-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] table row gives organism, range and time"}
+{"id": "num-9fa61437-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-f4a59d63-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] bibliography citation"}
+{"id": "una-5c2fed3a-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no team-size requirement in the corpus"}
+{"id": "una-5c2fed3a-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: codex_cxc1_1969 (prerequisite programmes/GHPs) and FDA seafood HACCP guide"}
+{"id": "pro-42fc65d5-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote supports"}
+{"id": "jar-c5b74ec0-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": true, "notes": "[llm-review] duplicate of pro-2cf974fc-0 (response to a pathogen contamination event)"}
+{"id": "jar-7280fca7-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quotes support"}
+{"id": "num-8956dce8-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-e98f051c-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no sampling-point minimum in the corpus"}
+{"id": "una-e98f051c-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague ('this guidance')"}
+{"id": "jar-7b70608f-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "pro-2b312d9c-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-6b4c4db3-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "pro-9ae165c6-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer just restates the question"}
+{"id": "fac-a3199fe2-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-1ed3c4f6-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus answers: fda_pchf_ch15 (annual onsite audit for SAHCODHA hazards)"}
+{"id": "una-1ed3c4f6-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague"}
+{"id": "fac-976edc6f-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied (hyphen mismatch); named the guidance"}
+{"id": "mul-065b28e5-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived combination"}
+{"id": "pro-37c65e96-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote supports"}
+{"id": "fac-92437174-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "mul-eae2eb2d-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived combination"}
+{"id": "num-b4e0b498-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of num-783a7b56-0 (165°F for 15 s)"}
+{"id": "pro-990f13b7-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] medical-device recall (806), off-domain for food QA"}
+{"id": "fac-2d1c5854-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-e3b09a37-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "mul-a94c59d0-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] nonsensical combination of two examples"}
+{"id": "una-a3b9bfb6-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] part 106 retention period not stated in the corpus (checked fda_lmrte_sanitation_2025)"}
+{"id": "una-a3b9bfb6-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] implausible premise (daily review)"}
+{"id": "una-71d4388c-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: Food Code/retail HACCP manual receiving temperatures for finfish"}
+{"id": "una-71d4388c-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague; FSIS Appendix B covers cooling monitoring"}
+{"id": "fac-5af6d60e-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] source FSSAI page extracted as garbled Hindi; no usable evidence"}
+{"id": "jar-74b616ba-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quotes support"}
+{"id": "num-cb891064-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-085db20e-0", "type": "jargon", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied from running text; answer completed"}
+{"id": "fac-1297ace3-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] boilerplate about the guidance document itself"}
+{"id": "mul-8c5c614c-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] copyright boilerplate"}
+{"id": "jar-1ed8d928-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] circular definition"}
+{"id": "num-3fd4abf3-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of num-783a7b56-0 (165°F for 15 s)"}
+{"id": "num-c065613e-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] 2,080 hours is the FTE basis, not an exemption maximum; reworded"}
+{"id": "pro-993f00d7-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] drafted from the source chunk; quotes support the core"}
+{"id": "pro-85b226dd-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "num-280e98cc-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named the guidance"}
+{"id": "mul-afa4761d-0", "type": "multi_doc", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named the test (generic E. coli) so the question is self-contained"}
+{"id": "num-fd470854-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] table row supports"}
+{"id": "fac-2d505c4d-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer is wrong and the quote doesn't support it"}
+{"id": "pro-32ef9978-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSIS SPS; quote starts mid-sentence but is located"}
+{"id": "num-32ca0fcb-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-519d49ca-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quotes support"}
+{"id": "jar-03057c96-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "mul-0c8745dd-0", "type": "multi_doc", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] scenario matches the quote"}
+{"id": "num-807675ff-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied from the text (hyphen mismatch)"}
+{"id": "fac-a7b7c075-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer invented from a checklist question"}
+{"id": "fac-bcce59c0-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] drafted from the source chunk; quotes support the core"}
+{"id": "fac-42f38870-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "pro-25cfd3f4-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote fixed (spacing glitch in PDF text); answer trimmed"}
+{"id": "num-12c3c4f3-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] misreads a garbled table line"}
+{"id": "fac-7df807a3-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-ca2028e6-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] checklist question; trivial answer"}
+{"id": "num-1b4c0ae8-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote supports"}
+{"id": "pro-27d3b777-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote supports"}
+{"id": "jar-2c123d5f-0", "type": "jargon", "decision": "edit", "edited": false, "evidence_fixed": true, "notes": "[llm-review] quote re-copied from the table text"}
+{"id": "una-2c4a2556-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] confused premise"}
+{"id": "una-2c4a2556-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague ('SHI labeling' undefined)"}
+{"id": "pro-87ffb2d3-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] checklist text garbled; rewrote to the monitored parameters"}
+{"id": "fac-e61293e8-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "jar-ed0b74be-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quotes support"}
+{"id": "pro-1d40e6d1-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-e4fe06c1-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer was circular; asked what the text answers"}
+{"id": "num-c8a0a731-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] near-duplicate of num-1b4c0ae8-0 (90 days of validation data)"}
+{"id": "num-57a57829-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] table structure can't be conveyed by the quote"}
+{"id": "pro-62a8f8da-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-859907df-0", "type": "jargon", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] FDA and FSIS define recall differently; specified FSIS"}
+{"id": "pro-044eb37b-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "fac-168480b0-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "mul-4a91d9ee-0", "type": "multi_doc", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quotes support"}
+{"id": "jar-7506f3fe-0", "type": "jargon", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added FSIS context"}
+{"id": "fac-ddde2c92-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-cbe0a52f-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "mul-d1a40cce-0", "type": "multi_doc", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] removed 'Passages 1 and 2'; answer matched to the FSIS text"}
+{"id": "una-ce60bfec-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] implausible premise (monthly re-validation)"}
+{"id": "una-ce60bfec-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] Appendix B may give model ranges; can't confirm it's unanswerable"}
+{"id": "fac-ba1e7439-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "num-c9970dab-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-db8bfd86-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague"}
+{"id": "una-db8bfd86-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague"}
+{"id": "fac-f33d4837-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "mul-1bcd4256-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer wrongly says seafood limits 'align' with FSIS brine levels; not fixable within one evidence doc"}
+{"id": "una-83e817c5-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no microwave time/temperature parameters in the corpus"}
+{"id": "una-83e817c5-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] FSIS validation guide describes the outbreak testing; likely answered"}
+{"id": "num-43dab179-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] question misdescribed the pH's role"}
+{"id": "num-4335408d-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-a838fd5f-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added context"}
+{"id": "pro-430febc0-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-f69a26f9-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] the salsa example's verification section may give calibration; can't confirm unanswerable"}
+{"id": "una-f69a26f9-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] about a fictional example processor; can't confirm the corpus lacks it"}
+{"id": "una-bb84a862-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: Food Code shellstock receiving temperatures"}
+{"id": "una-bb84a862-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: Food Code 7-day date marking at 41°F"}
+{"id": "pro-ddc811ce-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer only points to another section"}
+{"id": "jar-a231cc45-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "fac-6f75f346-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-f889bf7b-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] implausible premise"}
+{"id": "una-f889bf7b-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague ('these regulations')"}
+{"id": "pro-b69ed0dd-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied (hyphen mismatch); answer aligned with the text"}
+{"id": "fac-e73d55a6-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-152fbd0e-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-2d397abb-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] internal FDA assignment trivia"}
+{"id": "fac-7f1aae1a-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied (bullet artifacts in PDF text); named the guidance"}
+{"id": "jar-fbce4729-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague"}
+{"id": "fac-c06e248b-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] confused regulatory-date trivia"}
+{"id": "pro-4a94fea3-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-5efe62d3-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] 'the manual' is ambiguous; named FDA recall audit checks"}
+{"id": "fac-6f486a5f-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] trivia about a fictional example firm"}
+{"id": "num-9f02a472-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] question inverts what the quote says"}
+{"id": "fac-2cd6a533-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-cec6fae2-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer added content not in the headings; trimmed"}
+{"id": "fac-a9e5f189-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-7637261e-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-381c79b7-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer not in the quote; pH 4.6 covered by num-cb891064-0"}
+{"id": "una-86a61312-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] implausible premise (shipping Listeria-contaminated food)"}
+{"id": "una-86a61312-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague ('this guidance')"}
+{"id": "una-d6f66f27-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] Food Code chapter 8 may set hearing timelines; can't confirm unanswerable"}
+{"id": "una-d6f66f27-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] Food Code 8-906.20 lists hearing officer qualifications; partly answered"}
+{"id": "una-7130c370-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no RH limit for dry processing in the corpus (grep checked)"}
+{"id": "una-7130c370-1", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no inspection frequency for moisture in the corpus"}
+{"id": "fac-a9257b76-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] administrative enforcement procedure; low value for QA"}
+{"id": "una-da29deb2-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] FSSAI meat shop rules cover worker certificates; partly answered"}
+{"id": "una-da29deb2-1", "type": "unanswerable", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named the regulation; corpus has pesticide record rules but no inspection frequency"}
+{"id": "num-cbab4c66-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named the example; added the time"}
+{"id": "fac-57f37bff-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] tobacco, off-domain"}
+{"id": "num-e004f8e9-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of num-b69404eb-0"}
+{"id": "mul-8e97a35e-0", "type": "multi_doc", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer did not match the quote; aligned to what procedures should identify"}
+{"id": "fac-cdf040e4-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] about the chapter's purpose (metadata)"}
+{"id": "fac-c6ef36c6-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "una-956c81c0-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: FSIS day-by-day hold-and-test scenario"}
+{"id": "una-956c81c0-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: fsis_lm_rte_2014 4.4 reprocessing, fda_lm_rte_2017"}
+{"id": "num-eee1a4df-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of num-3f2573a2-0 (sulfites 10 ppm)"}
+{"id": "jar-83392df2-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "pro-ac0a7e7f-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named the example"}
+{"id": "fac-b59b9c89-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] awkward wording; named FSSAI"}
+{"id": "pro-faa3eb26-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] wrongly called voluntary; answer trimmed to the quotes"}
+{"id": "num-d3ab5c52-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named the example; added the critical limit"}
+{"id": "jar-38681e22-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "una-7c244c58-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: fda_food_code_2026 gives 4.5/7.0 kGy limits for meat"}
+{"id": "una-7c244c58-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague"}
+{"id": "fac-4b634816-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] bibliography citation"}
+{"id": "fac-48668e15-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] website pointer, not content"}
+{"id": "num-0a1cb755-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-fdfe03b8-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] internal FDA administrative procedure; answer adds unsupported detail"}
+{"id": "num-5fb3be67-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-24c78bce-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "num-892af70f-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added context for 'filter'"}
+{"id": "num-3b70ca67-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] near-duplicate of num-b69404eb-0 (24-hour order)"}
+{"id": "pro-a07d01f7-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied (asterisks in Food Code text)"}
+{"id": "pro-8ecfdd0a-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-located; named the guidance"}
+{"id": "jar-1408287e-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "jar-590dedb6-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] trivial"}
+{"id": "fac-cee368a8-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer gives no value"}
+{"id": "jar-2520244b-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "num-83fe2674-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-1cd04a7d-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote didn't support the answer; replaced"}
+{"id": "pro-81957b3e-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] answer mixed in pH meter steps; rewritten to the device checks"}
+{"id": "fac-2be55b42-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named the guidance"}
+{"id": "fac-1a7659c1-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] 'according to the passage' removed"}
+{"id": "fac-c1f63ca7-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-6dcbbfa4-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer added unsupported testing steps; trimmed"}
+{"id": "mul-1915cd89-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] near-duplicate of pro-335b46ef-0 (sulfiting agents to declare)"}
+{"id": "pro-51fea2ef-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quotes support"}
+{"id": "pro-05069824-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer added unsupported steps; trimmed"}
+{"id": "jar-b61e55a0-0", "type": "jargon", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added FSSAI context"}
+{"id": "num-2f39610e-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "pro-3e0ca462-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quotes support"}
+{"id": "mul-a6ed1f1a-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived combination; answer invents steps"}
+{"id": "fac-0c57b8ff-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] question mis-scoped; quote re-copied"}
+{"id": "num-51e4c0d9-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-bcd04be2-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] boilerplate about the guidance document"}
+{"id": "fac-ad9bdca8-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-ff7a7509-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quotes support"}
+{"id": "una-632e5144-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no allergen test methods for imported seafood in the corpus"}
+{"id": "una-632e5144-1", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no per-batch allergen testing frequency in the corpus"}
+{"id": "fac-293ec3d3-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-f0d194a2-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague; recall orders require immediate action"}
+{"id": "una-f0d194a2-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague; recall status reporting is described"}
+{"id": "fac-95bfa3cf-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI; answer notes the amended period"}
+{"id": "fac-604b58a4-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-b0f134fe-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-790342e6-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer doesn't give a level; covered by num-ccbfaba3-0"}
+{"id": "jar-73f1e951-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] about a table label, not content"}
+{"id": "fac-2d77b16a-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-7cf781f2-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] memo template, not content"}
+{"id": "pro-a7a27b27-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "mul-faf222a9-0", "type": "multi_doc", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support both parts"}
+{"id": "fac-e9193624-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] document metadata (address of references)"}
+{"id": "num-5b3f4e5b-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-f001b29e-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added the cold-smoking context"}
+{"id": "una-c1ac24f6-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: Enforcement Report is weekly, recalls posted on classification (fda_rpm_ch07)"}
+{"id": "una-c1ac24f6-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: fda_rpm_ch07 describes 'not yet classified'"}
+{"id": "num-8235e604-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "mul-38d07092-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived; generic answer"}
+{"id": "num-b69404eb-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] expanded 'PO'"}
+{"id": "pro-01274d68-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "fac-97a29b72-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] removed 'according to the table'"}
+{"id": "num-d62200a5-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of num-5e9bc7cd-0 (asymptomatic 24 hours)"}
+{"id": "jar-1afbab12-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer is self-contradictory"}
+{"id": "mul-304cd10d-0", "type": "multi_doc", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support doses and labeling"}
+{"id": "mul-d463f72a-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived combination; answer invents"}
+{"id": "jar-3b5814fa-0", "type": "jargon", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer turned alternatives into requirements"}
+{"id": "num-71252c01-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-df8aa6d1-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-32df123b-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] licence form field, not food-safety content"}
+{"id": "pro-9a39608f-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "num-5e9bc7cd-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-ca9c5567-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "una-c3b1c644-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no carrot lead limit in the corpus"}
+{"id": "una-c3b1c644-1", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no soil assessment frequency in the corpus"}
+{"id": "num-fad2aafc-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-74775112-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "mul-f247bfcf-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived combination"}
+{"id": "fac-52962a45-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] 'twice a year' was invented; rewritten to what the quote says"}
+{"id": "una-bb9e517c-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] Food Code thermometer accuracy limits partly answer it"}
+{"id": "una-bb9e517c-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] implausible premise (calibrating several times a day)"}
+{"id": "num-40065a5b-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-fbc9c643-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added context"}
+{"id": "pro-335b46ef-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer included claims beyond the quotes; trimmed"}
+{"id": "num-ccbfaba3-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer dropped the nitrite condition"}
+{"id": "pro-4be21c00-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "pro-b016ccc3-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "mul-f18eba37-0", "type": "multi_doc", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support both frequencies"}
+{"id": "fac-c214c0d5-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] internal FDA org trivia"}
+{"id": "pro-07aa922b-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-8e1e2fab-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-3f2573a2-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-e5fedce9-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer invents a plan not in the text"}
+{"id": "jar-ff3d0691-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] near-duplicate of fac-c1f63ca7-0 (C. botulinum minimum growth temperature)"}
+{"id": "mul-45e92354-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer invents steps beyond the quotes"}
+{"id": "jar-bb51658b-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "jar-bf177466-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quotes support"}
+{"id": "fac-8bb8ae76-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] internal FDA procedure trivia"}
+{"id": "pro-fd9707a2-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote supports"}
+{"id": "num-201d8c97-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-ad601b4d-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer is only definitions"}
+{"id": "mul-485de353-0", "type": "multi_doc", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer invented example steps; trimmed to the stated goals"}
+{"id": "pro-69e481ab-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] internal FDA procedure; answer conflates scenarios"}
+{"id": "num-6540d1a8-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] answer misreads the exclusion table"}
+{"id": "jar-494c6e1b-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quotes support"}
+{"id": "pro-24cfc907-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "num-2e88db52-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-e7ea4bf0-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-8589e40d-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers via the PCHF cookie example"}
+{"id": "una-8589e40d-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] the PCHF cookie example may specify calibration; can't confirm unanswerable"}
+{"id": "pro-53adf506-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied (bullet glyphs); named the guidance"}
+{"id": "jar-b4d2e7e4-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "num-3ebb0724-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "una-75f7e7ed-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] corpus partly answers: new edition every four years incorporates supplements"}
+{"id": "una-75f7e7ed-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] Food Code describes the revision process; partly answered"}
+{"id": "fac-218653bb-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote supports"}
+{"id": "pro-f4e8182e-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of fac-2d77b16a-0 (process log contents)"}
+{"id": "pro-b181a3fa-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "pro-3e102fb0-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-1a09173c-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-f703b0c2-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] too broad; answer oversimplified"}
+{"id": "jar-0ae28f14-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] section heading, not content"}
+{"id": "pro-450d2db0-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "una-bd778803-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] implausible question"}
+{"id": "una-bd778803-1", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no training frequency for the glove exception in the corpus"}
+{"id": "jar-6d991c35-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] reference list entry"}
+{"id": "fac-0fff486e-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-045fcc0b-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "jar-f33ddc31-0", "type": "jargon", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added FSSAI context"}
+{"id": "mul-caa5b616-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] near-duplicate of mul-304cd10d-0 (irradiation doses and labeling)"}
+{"id": "num-6512fd06-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-d56bad4c-0", "type": "procedural", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of num-e7ea4bf0-0"}
+{"id": "jar-a9fbbb91-0", "type": "jargon", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied from the table text; added context"}
+{"id": "jar-1cd25a75-0", "type": "jargon", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] keyword query, quote supports"}
+{"id": "pro-d9879ec2-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] named FSSAI"}
+{"id": "mul-12afef04-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived mix of unrelated rules"}
+{"id": "num-d95aea99-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "num-441f6cc3-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] duplicate of num-3f2573a2-0 (sulfites 10 ppm)"}
+{"id": "fac-5c659ee7-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "pro-54e5c765-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] question asked 'how' but the text gives the purpose"}
+{"id": "pro-c901077a-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] quote re-copied (bullet artifact); named the example"}
+{"id": "num-139aa183-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-b605b597-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "mul-eeeba382-0", "type": "multi_doc", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] answer invented documentation requirements; trimmed to the quote"}
+{"id": "num-9dca62fb-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-b98485d3-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-0b85da9f-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] near-duplicate of num-b0f134fe-0 (cookie oven 350°F)"}
+{"id": "mul-59bf1844-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived combination; generic answer"}
+{"id": "fac-6d62eb98-0", "type": "factual", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] internal FDA office trivia"}
+{"id": "pro-793d4b43-0", "type": "procedural", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] added context"}
+{"id": "fac-a6e6ae6a-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "num-ea205f72-0", "type": "numeric", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] second quote was invented; rewrote to the actual rule"}
+{"id": "mul-a83ca2a8-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived combination; answer invents steps"}
+{"id": "num-2e54a461-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "pro-36c5a251-0", "type": "procedural", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "fac-57debb7c-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] answer did not name the agencies"}
+{"id": "fac-00d505d3-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quote supports"}
+{"id": "mul-090cd843-0", "type": "multi_doc", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] contrived; first quote is from a different example"}
+{"id": "una-18d79ff2-0", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] Food Code 4-602.11 sets cleaning frequency for food-contact surfaces"}
+{"id": "una-18d79ff2-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] vague ('the guidance')"}
+{"id": "jar-6c3bec21-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] reference list entry, not content"}
+{"id": "num-1c9239af-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "fac-9a59f98c-0", "type": "factual", "decision": "edit", "edited": true, "evidence_fixed": false, "notes": "[llm-review] 'the chapter' named"}
+{"id": "una-d376ff31-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] Food Code cites the Risk Factor Studies but gives no percentages"}
+{"id": "una-d376ff31-1", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no training duration in the corpus"}
+{"id": "num-5d3d2223-0", "type": "numeric", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] clear, quote supports"}
+{"id": "jar-f934f83b-0", "type": "jargon", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] near-duplicate of num-b0f134fe-0 (cookie oven 350°F)"}
+{"id": "fac-4644dfc1-0", "type": "factual", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] quotes support"}
+{"id": "mul-56ff55aa-0", "type": "multi_doc", "decision": "edit", "edited": true, "evidence_fixed": true, "notes": "[llm-review] 'the guidance' named; quote re-located in PCHF chapter 16"}
+{"id": "una-e5a01681-0", "type": "unanswerable", "decision": "accept", "edited": false, "evidence_fixed": false, "notes": "[llm-review] no pickled-fish shelf life in the corpus"}
+{"id": "una-e5a01681-1", "type": "unanswerable", "decision": "reject", "edited": false, "evidence_fixed": false, "notes": "[llm-review] seafood guide pickling monitoring likely gives frequency"}
+{"id": "num-aad67557-0", "type": "numeric", "decision": "reject", "edited": false, "evidence_fixed": true, "notes": "[llm-review] duplicate: annual calibration is covered by pro-81957b3e-0"}

@@ -5,8 +5,8 @@ food-safety quality documents?** An open-source RAG system and benchmark, built 
 on free tiers. Every number below is generated from `results/` by `uv run hyde-rag results`.
 
 > **Status:** the BEIR reproduction and the SciFact generation study are complete. The food-safety
-> benchmark (F1: domain-instructed HyDE; F2: a fine-tuned embedder) is waiting on the human review
-> of its question set; see [Roadmap](#roadmap).
+> benchmark (F1: domain-instructed HyDE; F2: a fine-tuned embedder) has its 205-question eval set;
+> HyDE passages are being generated on the free tier. See [Roadmap](#roadmap).
 
 ## Headline (BEIR, nDCG@10)
 
@@ -76,8 +76,8 @@ TREC-COVID 50.
      by retrieval.
    - Judge faithfulness is pending validation against human labels.
 
-**Food-safety documents:** pending. The question set is in human review; HyDE passages are being
-generated in the meantime.
+**Food-safety documents:** pending. The 205-question eval set is built; HyDE passages are being
+generated on the free tier.
 
 ## How it works
 
@@ -179,7 +179,8 @@ docker build -t hyde-rag . && docker run -p 8000:8000 --env-file .env hyde-rag
 - [x] HyDE on a modern embedder, N sweep, hybrid, Query2doc, multi-query, rerank
 - [x] SciFact grounded generation, abstention gate, LLM judge
 - [ ] Human validation of the judge (50 labelled claims)
-- [ ] Food eval set: human review of 329 drafted questions plus hand-written ones
+- [x] Food eval set: 205 questions (62 dev / 143 test), LLM-reviewed from 329 drafts
+      ([D-EVAL-7](docs/DECISIONS.md)); human audit of 40 decisions pending
 - [ ] F1: generic vs domain-instructed HyDE on food documents
 - [ ] F2: bge-base fine-tuned on synthetic food queries
       ([`notebooks/finetune_food_embedder_colab.ipynb`](notebooks/finetune_food_embedder_colab.ipynb))

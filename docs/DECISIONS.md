@@ -420,3 +420,34 @@ uses every non-rejected question in `review.csv`, with edits applied. Cached out
 request key (the question text is part of the request), so an edited question is simply regenerated
 and never picks up passages for its old wording (regression test in `tests/test_experiment.py`).
 The cost of generating for questions that are later rejected is free-tier quota, not money.
+
+**D-EVAL-7 The food eval set is LLM-reviewed and human-audited, not human-reviewed (owner decision,
+2026-10-21).** The owner asked Claude (Opus 5.5, the coding assistant on this project) to review the
+329 drafted questions instead of doing it by hand.
+- Every drafted row got accept / edit / reject with a written reason. These are logged without
+  document text in `eval_sets/food_quality/review_decisions.jsonl`, and the notes are tagged
+  `[llm-review]` in `review.csv`.
+- Rules were applied as in `REVIEW_GUIDE.md`:
+  - reject bibliography, boilerplate and metadata questions, contrived multi-document combinations,
+    near-duplicates, and answers that misread tables;
+  - reject an "unanswerable" row whenever any document partly answers it (checked with corpus
+    search);
+  - name the source ("FDA's PCHF guidance", "FSSAI Schedule 4") wherever "the guidance" was
+    ambiguous in a 41-document corpus.
+- Every replaced evidence quote was machine-checked with the same matcher `build-evalset` uses.
+  Cross-batch near-duplicates were found with bge-base cosine > 0.88 and resolved by hand.
+- Result: 131 accepted, 74 edited, 124 rejected, giving 205 items (62 dev / 143 test, 15
+  unanswerable). No answerable item was excluded for missing evidence.
+- A person audits a random sample of 30 kept and 10 rejected decisions (`review-audit-sheet`,
+  `review-audit-agreement`). The agreement rate is reported with the food results, and the eval
+  set is described as "LLM-reviewed, human-audited". If the audit disagrees often, the review is
+  redone by hand.
+- Commit policy: `dev.jsonl` / `test.jsonl` (questions, short reference answers, evidence as
+  character spans) and `review_decisions.jsonl` are committed. `review.csv`, `candidates.jsonl` and
+  `audit.csv` hold longer verbatim excerpts, some from non-US-federal documents (Codex, FSSAI), so
+  they stay local (D-DATA-1). 262 of 289 gold evidence spans are in FDA/FSIS documents.
+
+**D-DATA-6 Known corpus defect: garbled glyphs.** 20 of 3,890 chunks (16 in `fssai_recall_reg_2017`,
+4 in `fda_retail_haccp_manual`) contain unmapped font glyphs (`(cid:NNNN)`) from Hindi/bilingual
+PDF pages. They stay in the index; questions drafted from them were rejected in review. Fixing it
+needs OCR or a different extractor for those pages.
