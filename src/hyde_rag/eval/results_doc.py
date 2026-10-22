@@ -106,6 +106,55 @@ def generation_table() -> str:
     return "\n".join(lines)
 
 
+def food_generation_table() -> str:
+    m = _load("food-generation")
+    if not m:
+        return "_Not run yet._"
+    systems = list(m["systems"])
+    keys = [
+        ("correctness", "Correctness (1 / 0.5 / 0)"),
+        ("correct_rate", "Fully correct"),
+        ("faithfulness", "Faithfulness (judge)"),
+        ("citation_precision", "Citation precision"),
+        ("citation_validity", "Valid citations"),
+        ("abstention_recall", "Abstention recall"),
+        ("abstention_precision", "Abstention precision"),
+        ("false_refusal_rate", "False refusals"),
+        ("tokens_per_answer", "Tokens / answer"),
+    ]
+    lines = ["| Metric | " + " | ".join(systems) + " |", "|---|" + "---:|" * len(systems)]
+    for k, label in keys:
+        vals = []
+        for s in systems:
+            v = m["systems"][s].get(k)
+            vals.append("-" if v is None else (f"{v:,.0f}" if k == "tokens_per_answer" else f"{v:.2f}"))
+        lines.append(f"| {label} | " + " | ".join(vals) + " |")
+    types = sorted({t for s in systems for t in (m["systems"][s].get("correctness_by_type") or {})})
+    if types:
+        lines += ["", "Correctness by question type:", ""]
+        lines += ["| Type | " + " | ".join(systems) + " |", "|---|" + "---:|" * len(systems)]
+        for t in types:
+            vals = [m["systems"][s].get("correctness_by_type", {}).get(t) for s in systems]
+            lines.append(f"| {t} | " + " | ".join("-" if v is None else f"{v:.2f}" for v in vals) + " |")
+    gates = ", ".join(f"{s} τ = {g['tau']:.3f}" for s, g in m.get("gates", {}).items())
+    lines += [
+        "",
+        f"{m['n_questions']} test questions (every unanswerable one plus answerable ones stratified by "
+        f"type), answerer `{m['answerer']}`, judge `{m['judge']}`, top-{m['top_k']} context; abstention "
+        f"gates calibrated on the dev split: {gates}.",
+    ]
+    audit = paths.REPO_ROOT / "eval_sets" / "food_quality" / "audit.json"
+    if audit.exists():
+        a = json.loads(audit.read_text(encoding="utf-8"))
+        lines.append(
+            f"The eval set is LLM-reviewed; a human audit of {a['n_labelled']} review decisions agreed "
+            f"with {a['agreement']:.0%} of them (D-EVAL-7)."
+        )
+    else:
+        lines.append("The eval set is LLM-reviewed; the human audit of the review is pending (D-EVAL-7).")
+    return "\n".join(lines)
+
+
 def build(write_readme: bool = True) -> Path:
     parts = [
         "# Results",
@@ -119,8 +168,12 @@ def build(write_readme: bool = True) -> Path:
         "## Grounded generation (SciFact)",
         "",
         generation_table(),
+        "",
+        "## Grounded answers (food safety)",
+        "",
+        food_generation_table(),
     ]
-    for exp in ("scifact", "trec-covid", "scifact-dev", "food-test"):
+    for exp in ("scifact", "trec-covid", "scifact-dev", "food-test", "food-dev"):
         table = paths.results_dir() / exp / "metrics.json"
         if table.exists():
             parts += ["", f"## {exp}: all systems", "", render_table(table)]

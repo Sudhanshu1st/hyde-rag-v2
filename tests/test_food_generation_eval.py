@@ -133,6 +133,12 @@ def test_food_eval_scores_answers_abstention_and_grades(ev):
     ]
     assert {r["qid"]: r["grade"] for r in items} == {"q1": "correct", "q2": "incorrect", "q3": None}
 
+    from hyde_rag.eval.results_doc import food_generation_table
+
+    table = food_generation_table()
+    assert "| Correctness (1 / 0.5 / 0) | 0.50 |" in table and "| numeric | 1.00 |" in table
+    assert "dense-bge τ =" in table and "audit of the review is pending" in table
+
 
 def test_stage_runs_write_nothing(ev):
     ev.run(llm=False, log=lambda m: None, stage="judge")
