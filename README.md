@@ -89,11 +89,12 @@ flowchart LR
     G --> E
     E --> V["query vector<br/>w·f(q) + (1−w)·mean f(d̂)"]
     V --> D[(dense index<br/>chunks)]
-    M -->|hybrid| B[(BM25)]
+    M -->|"hybrid (default)"| B[(BM25)]
     D --> F[RRF fusion]
     B --> F
-    F --> K[top-k chunks]
-    D --> K
+    F --> RR["cross-encoder rerank<br/>(top 20; default)"]
+    D --> RR
+    RR --> K[top-3 chunks]
     K --> X{cross-encoder<br/>score ≥ τ?}
     X -->|no| N["Not found in the documents"]
     X -->|yes| A["Answerer LLM<br/>cites doc_id:page:chunk"]
@@ -107,6 +108,9 @@ flowchart LR
   - HyDE (paper Eq. 8, N ∈ {1, 4, 8}) plus a query-weight variant;
   - hybrid RRF, hybrid + HyDE, Query2doc, multi-query (RAG-Fusion);
   - cross-encoder rerank (MiniLM-L6).
+- **Default answer pipeline** (API and demo, chosen on the food dev split, [D-GEN-5](docs/DECISIONS.md)):
+  hybrid BM25 + bge, cross-encoder rerank of the top 20 (about 3 s per query on a laptop CPU),
+  top-3 context. HyDE modes stay available per request.
 - **Grounded generation:**
   - inline citations, validated after generation;
   - a two-layer "not found" fallback: a cross-encoder gate τ calibrated on a dev split with a
