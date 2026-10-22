@@ -184,11 +184,12 @@ docker build -t hyde-rag . && docker run -p 8000:8000 --env-file .env hyde-rag
 - [ ] F1: generic vs domain-instructed HyDE on food documents
 - [ ] F2: bge-base fine-tuned on synthetic food queries
       ([`notebooks/finetune_food_embedder_colab.ipynb`](notebooks/finetune_food_embedder_colab.ipynb))
-- [ ] Blog post: "Does HyDE still help in 2026? I measured it."
+- [ ] Blog post: "Does HyDE still help in 2026? I measured it." (draft in `docs/blog/`; food numbers pending)
 
 ## Docs
 
 - [`docs/RESULTS.md`](docs/RESULTS.md): every system, every metric, with CIs
+- [`docs/blog/does-hyde-still-help-in-2026.md`](docs/blog/does-hyde-still-help-in-2026.md): the write-up (draft)
 - [`docs/DECISIONS.md`](docs/DECISIONS.md): every design decision, with its evidence
 - [`docs/PLAN.md`](docs/PLAN.md) and [`docs/QUOTA_PLAN.md`](docs/QUOTA_PLAN.md): the experiment
   plan and the free-tier budget
