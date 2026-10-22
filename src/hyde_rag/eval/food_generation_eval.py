@@ -174,7 +174,10 @@ class FoodGenerationEval:
         return self.settings.get(model, {}).get("reasoning_effort")
 
     # ---- the evaluation ----
-    def run(self, *, llm: bool = True, approved: bool = False, log=print) -> dict:
+    def run(self, *, llm: bool = True, approved: bool = False, log=print, stage: str | None = None) -> dict:
+        """stage None: answer, judge and write results. stage "answers" / "judge": only make that
+        stage's LLM calls (each model has its own free-tier quota, so the two can run as parallel
+        processes) and write nothing; a final run without a stage writes the results."""
         client = None
         if llm:
             from hyde_rag.llm.client import OpenAICompatClient
@@ -225,7 +228,8 @@ class FoodGenerationEval:
                 )
                 work.append((WorkItem(it.id, 0, req), chunks))
             ans_cache = JsonlCache(cache_path("food", "answers", system, self.answerer, "food"))
-            bulk(ans_cache, [w for w, _ in work], self.answerer)
+            if stage in (None, "answers"):
+                bulk(ans_cache, [w for w, _ in work], self.answerer)
             usage: dict[str, tuple[int, float]] = {}
             for w, chunks in work:
                 rec = ans_cache.get(cache_key(base_url, w.request, 0))
@@ -256,8 +260,9 @@ class FoodGenerationEval:
             }
             faith_cache = JsonlCache(cache_path("food", "judge", system, self.judge, "food"))
             corr_cache = JsonlCache(cache_path("food", "correctness", system, self.judge, "food"))
-            bulk(faith_cache, list(faith_work.values()), self.judge)
-            bulk(corr_cache, list(corr_work.values()), self.judge)
+            if stage in (None, "judge"):
+                bulk(faith_cache, list(faith_work.values()), self.judge)
+                bulk(corr_cache, list(corr_work.values()), self.judge)
 
             # 3. Score.
             results: list[ItemResult] = []
@@ -314,6 +319,8 @@ class FoodGenerationEval:
             summary["systems"][system] = m = self._metrics(results)
             log(f"- {system}: {m['n_answered']}/{len(self.sample)} done; correctness={m['correctness']}")
 
+        if stage is not None:
+            return summary
         self.out_dir.mkdir(parents=True, exist_ok=True)
         (self.out_dir / "metrics.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
         with (self.out_dir / "items.jsonl").open("w", encoding="utf-8") as f:

@@ -155,7 +155,8 @@ def cmd_gen_eval(args: argparse.Namespace) -> int:
 
     dataset = yaml.safe_load(Path(args.config).read_text(encoding="utf-8"))["dataset"]
     ev = FoodGenerationEval(args.config) if dataset == "food" else GenerationEval(args.config)
-    summary = ev.run(llm=not args.no_llm, approved=args.yes, log=lambda m: print(m, flush=True))
+    kwargs = {"stage": args.stage} if args.stage else {}
+    summary = ev.run(llm=not args.no_llm, approved=args.yes, log=lambda m: print(m, flush=True), **kwargs)
     print(json.dumps(summary["systems"], indent=2))
     return 0
 
@@ -328,6 +329,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("config")
     p.add_argument("--no-llm", action="store_true", help="score cached outputs only (no API calls)")
     p.add_argument("--yes", action="store_true", help="allow runs longer than HYDE_RAG_MAX_QUOTA_DAYS")
+    p.add_argument(
+        "--stage",
+        choices=["answers", "judge"],
+        help="food only: make just this stage's LLM calls and write nothing (run the two in parallel)",
+    )
     p.set_defaults(func=cmd_gen_eval)
 
     p = sub.add_parser("ingest-food", help="parse downloaded food PDFs into canonical text and chunks")

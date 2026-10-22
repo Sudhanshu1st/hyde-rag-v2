@@ -132,3 +132,8 @@ def test_food_eval_scores_answers_abstention_and_grades(ev):
         json.loads(line) for line in (ev.out_dir / "items.jsonl").read_text(encoding="utf-8").splitlines()
     ]
     assert {r["qid"]: r["grade"] for r in items} == {"q1": "correct", "q2": "incorrect", "q3": None}
+
+
+def test_stage_runs_write_nothing(ev):
+    ev.run(llm=False, log=lambda m: None, stage="judge")
+    assert not (ev.out_dir / "metrics.json").exists()
