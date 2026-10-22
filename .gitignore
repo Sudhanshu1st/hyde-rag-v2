@@ -50,3 +50,6 @@ eval_sets/food_quality/review.csv
 eval_sets/food_quality/review.pending.csv
 eval_sets/food_quality/candidates.jsonl
 eval_sets/food_quality/audit.csv
+
+# Machine-specific job runners (absolute paths); not part of the project.
+.local/
