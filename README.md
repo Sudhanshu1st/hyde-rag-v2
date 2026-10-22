@@ -74,7 +74,9 @@ TREC-COVID 50.
      0.87 for both.
    - Gold evidence was already in the top 3 for 92–95% of claims, so the answerer wasn't limited
      by retrieval.
-   - Judge faithfulness is pending validation against human labels.
+   - Human labels show the judge is too strict (agreement 0.55, κ = 0.12): people overturned 22 of
+     its 25 sampled "not supported" verdicts. So 0.87 is a lower bound; re-weighted by the human
+     labels, faithfulness is about 0.98 for both ([D-EVAL-8](docs/DECISIONS.md)).
 
 **Food-safety documents:** pending. The 205-question eval set is built; HyDE passages are being
 generated on the free tier.
@@ -182,9 +184,10 @@ docker build -t hyde-rag . && docker run -p 8000:8000 --env-file .env hyde-rag
 - [x] BEIR reproduction: BM25, Contriever and BM25 + CE within 0.2 nDCG of the paper
 - [x] HyDE on a modern embedder, N sweep, hybrid, Query2doc, multi-query, rerank
 - [x] SciFact grounded generation, abstention gate, LLM judge
-- [ ] Human validation of the judge (50 labelled claims)
+- [x] Human validation of the judge: 49 labelled claims, κ = 0.12; the judge is too strict, so
+      faithfulness is reported as a lower bound plus a human-re-weighted estimate (D-EVAL-8)
 - [x] Food eval set: 205 questions (62 dev / 143 test), LLM-reviewed from 329 drafts
-      ([D-EVAL-7](docs/DECISIONS.md)); human audit of 40 decisions pending
+      ([D-EVAL-7](docs/DECISIONS.md)); a human audit agreed with 40 of 40 sampled decisions
 - [ ] F1: generic vs domain-instructed HyDE on food documents
 - [ ] F2: bge-base fine-tuned on synthetic food queries
       ([`notebooks/finetune_food_embedder_colab.ipynb`](notebooks/finetune_food_embedder_colab.ipynb))

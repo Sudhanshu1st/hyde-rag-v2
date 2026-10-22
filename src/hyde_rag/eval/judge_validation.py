@@ -115,8 +115,28 @@ def agreement(experiment: str = "scifact-generation") -> dict:
         "agreement": sum(a == b for a, b in pairs) / len(pairs) if pairs else None,
         "cohen_kappa": cohen_kappa(pairs),
         "confusion": confusion,
+        # Share of claims a person calls supported, given the judge's verdict. The sample is balanced
+        # between verdicts, so these rates (not raw agreement) carry over to the full population.
+        "human_supported_rate_given_judge": {
+            j: (
+                sum(1 for a, b in pairs if b == j and a == "supported") / n
+                if (n := sum(1 for _, b in pairs if b == j))
+                else None
+            )
+            for j in LABELS
+        },
         "note": "Sample balanced between judge verdicts (not population-weighted).",
     }
     dest = paths.results_dir() / experiment / "judge_validation.json"
     dest.write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result
+
+
+def corrected_faithfulness(judge_faithfulness: float, validation: dict) -> float | None:
+    """Judge faithfulness re-weighted by how often people agree with each judge verdict:
+    P(supported) = P(J=sup)·P(H=sup|J=sup) + P(J=not)·P(H=sup|J=not)."""
+    rates = validation.get("human_supported_rate_given_judge") or {}
+    a, b = rates.get("supported"), rates.get("not_supported")
+    if a is None or b is None:
+        return None
+    return judge_faithfulness * a + (1.0 - judge_faithfulness) * b

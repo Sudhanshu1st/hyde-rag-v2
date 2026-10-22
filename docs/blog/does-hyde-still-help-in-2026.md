@@ -151,16 +151,20 @@ reference answers): ⟨pending⟩.
 3. **Start with BM25 + dense hybrid, then try a cross-encoder.** Check the reranker on your data;
    it was the best and worst idea here, depending on the corpus.
 4. **Retrieval gains don't automatically reach the answers.** Evaluate the answers, not just
-   nDCG.
+   nDCG, and check your LLM judge against a few dozen human labels before trusting it.
 5. **None of this needs a budget.** Every LLM call here ran on free tiers, and the GPU work (a
    171K-document encoding and an embedder fine-tune) ran on free Colab T4s.
 
 ## Caveats
 
 - TREC-COVID has 50 queries and the food dev split 62, so the confidence intervals are wide.
-- The food question set was drafted by an LLM and reviewed by an LLM (Claude); a human audit of
-  that review is reported in the repo.
-- The answer judge is an LLM; it is checked against 50 human labels.
+- The food question set was drafted by an LLM and reviewed by an LLM (Claude). A human audit of
+  40 random review decisions agreed with all 40.
+- The answer judge is an LLM, and it is too strict. On 49 human-labelled claims it agreed with the
+  person only 55% of the time (κ = 0.12), because people overturned almost all of its "not
+  supported" verdicts. Its faithfulness scores are lower bounds; re-weighted by the human labels,
+  SciFact faithfulness is about 0.98, not 0.87. Validate your judge before trusting its numbers:
+  that alone changed my conclusion about how faithful the answers were.
 - I tested one modern embedder family (bge). Results for others may differ.
 
 Code, data scripts, cached generations and every number:

@@ -70,6 +70,10 @@ class ItemResult:
     latency_s: float | None = None
 
 
+def _fmt_tau(tau: float | None) -> str:
+    return "off (no threshold within the false-refusal cap)" if tau is None else f"{tau:.3f}"
+
+
 def load_items(split: str) -> list[FoodItem]:
     path = EVALSET_DIR / f"{split}.jsonl"
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -212,8 +216,8 @@ class FoodGenerationEval:
                 log(f"- {system}: skipped (run lacks some sampled questions)")
                 continue
             summary["gates"][system] = g = self.calibrate(system)
-            tau, f1, fr = g["tau"], g["f1"], g["false_refusal"]
-            log(f"- {system}: gate tau={tau:.3f}, dev F1={f1:.2f}, false refusals={fr:.2f}")
+            tau = g["tau"]  # None: no threshold meets the false-refusal cap, so the gate stays off
+            log(f"- {system}: gate tau={_fmt_tau(tau)}, dev F1={g['f1']:.2f}")
 
             # 1. Answers (gated items need no call).
             answers: dict[str, Answer] = {}

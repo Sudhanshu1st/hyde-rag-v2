@@ -66,6 +66,27 @@ def headline_table() -> str:
     return "\n".join(lines)
 
 
+def judge_note(j: dict, faithfulness: dict[str, float | None]) -> str:
+    """How far to trust the faithfulness judge, from the human labels (D-EVAL-8)."""
+    from hyde_rag.eval.judge_validation import corrected_faithfulness
+
+    rates = j.get("human_supported_rate_given_judge", {})
+    note = (
+        f"Judge vs human labels: agreement {j['agreement']:.2f}, Cohen's kappa {j['cohen_kappa']:.2f} on "
+        f"{j['n_labelled']} claims (balanced sample)."
+    )
+    if rates.get("supported") is not None and rates.get("not_supported") is not None:
+        fixed = {s: corrected_faithfulness(f, j) for s, f in faithfulness.items() if f is not None}
+        note += (
+            f" People agreed with {rates['supported']:.0%} of the judge's 'supported' verdicts but only "
+            f"{1 - rates['not_supported']:.0%} of its 'not supported' ones, so judge faithfulness is a lower "
+            "bound; re-weighted by the human labels it is "
+            + ", ".join(f"{v:.2f} ({s})" for s, v in fixed.items())
+            + " (D-EVAL-8)."
+        )
+    return note
+
+
 def generation_table() -> str:
     m = _load("scifact-generation")
     if not m:
@@ -91,11 +112,7 @@ def generation_table() -> str:
     judge = paths.results_dir() / "scifact-generation" / "judge_validation.json"
     if judge.exists():
         j = json.loads(judge.read_text(encoding="utf-8"))
-        lines += [
-            "",
-            f"Judge vs human labels: agreement {j['agreement']:.2f}, Cohen's kappa "
-            f"{j['cohen_kappa']:.2f} on {j['n_labelled']} claims.",
-        ]
+        lines += ["", judge_note(j, {s: m["systems"][s].get("faithfulness") for s in systems})]
     else:
         lines += ["", "_Faithfulness is the LLM judge's score; human validation pending._"]
     lines += [
@@ -136,13 +153,25 @@ def food_generation_table() -> str:
         for t in types:
             vals = [m["systems"][s].get("correctness_by_type", {}).get(t) for s in systems]
             lines.append(f"| {t} | " + " | ".join("-" if v is None else f"{v:.2f}" for v in vals) + " |")
-    gates = ", ".join(f"{s} τ = {g['tau']:.3f}" for s, g in m.get("gates", {}).items())
+    gates = ", ".join(
+        f"{s} τ = {g['tau']:.3f}"
+        if g["tau"] is not None
+        else f"{s}: gate off (no τ within the false-refusal cap)"
+        for s, g in m.get("gates", {}).items()
+    )
     lines += [
         "",
         f"{m['n_questions']} test questions (every unanswerable one plus answerable ones stratified by "
         f"type), answerer `{m['answerer']}`, judge `{m['judge']}`, top-{m['top_k']} context; abstention "
         f"gates calibrated on the dev split: {gates}.",
     ]
+    judge = paths.results_dir() / "scifact-generation" / "judge_validation.json"
+    if judge.exists():
+        j = json.loads(judge.read_text(encoding="utf-8"))
+        lines.append(
+            judge_note(j, {s: m["systems"][s].get("faithfulness") for s in systems})
+            + " Same judge model and prompt as SciFact; the correctness grading is not human-validated."
+        )
     audit = paths.REPO_ROOT / "eval_sets" / "food_quality" / "audit.json"
     if audit.exists():
         a = json.loads(audit.read_text(encoding="utf-8"))

@@ -53,3 +53,11 @@ def test_export_is_blind_and_agreement_round_trips(tmp_path, monkeypatch):
     result = jv.agreement("gen")
     assert result["agreement"] == 1.0 and result["cohen_kappa"] == 1.0 and result["n_labelled"] == 6
     assert (res / "judge_validation.json").exists()
+
+
+def test_corrected_faithfulness_reweights_by_human_agreement():
+    from hyde_rag.eval.judge_validation import corrected_faithfulness
+
+    v = {"human_supported_rate_given_judge": {"supported": 1.0, "not_supported": 0.8}}
+    assert corrected_faithfulness(0.9, v) == pytest.approx(0.9 * 1.0 + 0.1 * 0.8)
+    assert corrected_faithfulness(0.9, {}) is None

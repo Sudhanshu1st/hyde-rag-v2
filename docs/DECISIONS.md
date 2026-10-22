@@ -502,3 +502,27 @@ needs OCR or a different extractor for those pages.
   The gate stays off (`tau: null`), and abstention rests on the prompt rule. On SciFact the gate
   caught 33% of unanswerable claims (D-GEN-2). This is a finding about in-domain unanswerable
   questions, not a defect: score gating catches off-topic questions, not missing facts.
+
+**D-EVAL-8 Human validation of the faithfulness judge (2026-10-22).** The owner labelled 50 claims
+sampled from SciFact answers, balanced between the judge's verdicts, without seeing them. One label
+was not a valid value, so 49 count.
+- Agreement with the judge (qwen3.8-27b, reasoning off): 0.55, Cohen's kappa 0.12. The errors go
+  one way:
+
+  | Judge verdict | Owner agreed |
+  |---|---|
+  | supported | 24 of 24 |
+  | not supported | 3 of 25 |
+
+  Spot checks confirm real judge errors. One claim copied almost word for word from the cited
+  abstract was marked "not supported", and its verdict was attached to the right claim, so this
+  is not a pipeline bug. A few owner labels look generous (e.g. a GNB1 fact credited to GNB2).
+- Consequence: the judge's faithfulness score is a lower bound. Results also report it re-weighted
+  by the human labels: P(supported) = f·P(H=sup|J=sup) + (1−f)·P(H=sup|J=not). SciFact goes from
+  0.87 to 0.98 for both systems.
+- Comparisons between systems still use the same judge, so their direction holds.
+- The food evaluation keeps the same judge, for consistency with SciFact and to avoid re-spending
+  quota. Its faithfulness is reported with the same correction. The correctness grading (answer
+  vs reference) is a different task and has no human validation; that is stated with the results.
+- A stronger judge (reasoning on, or a larger model) is future work, and would need fresh labels
+  to validate it.

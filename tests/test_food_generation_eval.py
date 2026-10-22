@@ -137,9 +137,23 @@ def test_food_eval_scores_answers_abstention_and_grades(ev):
 
     table = food_generation_table()
     assert "| Correctness (1 / 0.5 / 0) | 0.50 |" in table and "| numeric | 1.00 |" in table
-    assert "dense-bge τ =" in table and "audit of the review is pending" in table
+    assert "dense-bge τ =" in table and (
+        "audit of the review is pending" in table or "human audit of" in table
+    )
 
 
 def test_stage_runs_write_nothing(ev):
     ev.run(llm=False, log=lambda m: None, stage="judge")
     assert not (ev.out_dir / "metrics.json").exists()
+
+
+def test_uncalibratable_gate_stays_off(ev, monkeypatch):
+    """No tau within the false-refusal cap (scores overlap): the gate stays off, no crash."""
+    ev._gate_scores = lambda qid, q, chunks: [3.0 for _ in chunks]  # every question scores the same
+    summary = ev.run(llm=False, log=lambda m: None)
+    assert summary["gates"]["dense-bge"]["tau"] is None
+    assert summary["systems"]["dense-bge"]["gated"] == 0
+
+    from hyde_rag.eval.results_doc import food_generation_table
+
+    assert "gate off" in food_generation_table()

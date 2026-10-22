@@ -1,0 +1,17 @@
+{
+  "n_labelled": 49,
+  "unlabelled": 1,
+  "agreement": 0.5510204081632653,
+  "cohen_kappa": 0.11783960720130916,
+  "confusion": {
+    "human_supported/judge_supported": 24,
+    "human_supported/judge_not_supported": 22,
+    "human_not_supported/judge_supported": 0,
+    "human_not_supported/judge_not_supported": 3
+  },
+  "human_supported_rate_given_judge": {
+    "supported": 1.0,
+    "not_supported": 0.88
+  },
+  "note": "Sample balanced between judge verdicts (not population-weighted)."
+}

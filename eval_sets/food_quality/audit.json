@@ -1,0 +1,9 @@
+{
+  "n_labelled": 40,
+  "agreement": 1.0,
+  "agreement_kept": 1.0,
+  "agreement_rejected": 1.0,
+  "n_kept": 30,
+  "n_rejected": 10,
+  "disagreements": []
+}
