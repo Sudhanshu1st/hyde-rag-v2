@@ -42,3 +42,5 @@ systems:
   - {name: rerank-hyde-bge-domain-n1, type: rerank, input: hyde-bge-domain-n1, depth: 100, baseline: dense-bge}
   - {name: rerank-dense-bge-food, type: rerank, input: dense-bge-food, depth: 100, baseline: dense-bge}
   - {name: rerank-hyde-bge-food-domain-n1, type: rerank, input: hyde-bge-food-domain-n1, depth: 100, baseline: dense-bge}
+  # The shipped pipeline's retrieval (D-GEN-5): hybrid top 20, reranked.
+  - {name: rerank-hybrid-bge-d20, type: rerank, input: hybrid-bge, depth: 20, baseline: dense-bge}

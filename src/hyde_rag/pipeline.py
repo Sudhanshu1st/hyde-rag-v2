@@ -25,7 +25,7 @@ from hyde_rag.ingest.chunking import DocChunk
 from hyde_rag.ingest.food import load_chunks, load_docs
 from hyde_rag.llm.client import LLMClient
 from hyde_rag.retrieval.bm25 import BM25Retriever
-from hyde_rag.retrieval.dense import ENCODERS, DenseIndex, Encoder, encode_corpus, load_index
+from hyde_rag.retrieval.dense import ENCODERS, DenseIndex, Encoder, doc_text_dense, encode_corpus, load_index
 from hyde_rag.retrieval.fusion import hyde_vector, rrf
 from hyde_rag.retrieval.hyde import clean_passage, hyde_items, load_instruction
 
@@ -42,6 +42,7 @@ class PipelineConfig:
     instruction: str = "domain.food_quality_v1"
     top_k: int = 5
     depth: int = 100
+    rerank_depth: int | None = None  # cross-encoder rerank of the top N retrieved (D-GEN-5); None = off
     tau: float | None = None  # abstention gate (cross-encoder logit), calibrated on the dev split
     hyde_model: str | None = None  # default: configs/llm.yaml roles.hyde_main
     answer_model: str | None = None  # default: roles.answerer
@@ -128,14 +129,29 @@ class RAGPipeline:
             responses = list(pool.map(lambda it: self.llm.complete(it.request), items))
         return [clean_passage(r.text) for r in responses], sum(r.total_tokens for r in responses)
 
-    def _gate_scores(self, question: str, chunks: list[Chunk]) -> list[float]:
+    def _cross_encoder(self):
         if self._gate_model is None:
             from sentence_transformers import CrossEncoder
 
             from hyde_rag.retrieval.rerank import DEFAULT_RERANKER
 
             self._gate_model = CrossEncoder(DEFAULT_RERANKER, device="cpu")
-        return [float(s) for s in self._gate_model.predict([(question, c.text) for c in chunks[:3]])]
+        return self._gate_model
+
+    def _gate_scores(self, question: str, chunks: list[Chunk]) -> list[float]:
+        return [float(s) for s in self._cross_encoder().predict([(question, c.text) for c in chunks[:3]])]
+
+    def _rerank(self, question: str, ranked: list[str]) -> list[str]:
+        """Cross-encoder order for the top rerank_depth chunks, scored on the same text as the
+        evaluated rerank systems (doc title | section, then the chunk)."""
+        head = ranked[: self.cfg.rerank_depth]
+        texts = []
+        for cid in head:
+            c = self.by_id[cid]
+            texts.append(doc_text_dense(f"{self.titles[c.doc_id]} | {c.section}".rstrip(" |"), c.text))
+        scores = self._cross_encoder().predict([(question, t) for t in texts])
+        order = sorted(range(len(head)), key=lambda i: (-float(scores[i]), head[i]))
+        return [head[i] for i in order] + ranked[len(head) :]
 
     def query(self, question: str) -> PipelineResult:
         cfg, t = self.cfg, {}
@@ -163,6 +179,10 @@ class RAGPipeline:
             t["bm25_rrf"] = (time.perf_counter() - s) * 1000
         else:
             ranked = dense
+        if cfg.rerank_depth:
+            s = time.perf_counter()
+            ranked = self._rerank(question, ranked)
+            t["rerank"] = (time.perf_counter() - s) * 1000
 
         top = [self.by_id[cid] for cid in ranked[: cfg.top_k]]
         chunks = [

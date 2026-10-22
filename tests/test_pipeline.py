@@ -132,3 +132,16 @@ def test_api_query_endpoint(pipe, monkeypatch):
     body = r.json()
     assert body["citations"][0]["cited_ids"] == ["fc:87:0"] and body["hypothetical_documents"]
     assert client.post("/query", json={"question": "x?", "mode": "bogus"}).status_code == 422
+
+
+def test_pipeline_reranks_the_top_n_with_the_cross_encoder(pipe):
+    p, _ = pipe
+
+    class FakeCE:
+        def predict(self, pairs):  # prefers the Listeria guidance, whatever the retriever said
+            return [5.0 if t.startswith("Listeria guidance") else 0.0 for _, t in pairs]
+
+    p._gate_model = FakeCE()
+    p.cfg.mode, p.cfg.rerank_depth = "dense", 3
+    res = p.query("How fast must cooked food be cooled?")
+    assert res.retrieved[0]["chunk_id"].startswith("lm:") and "rerank" in res.timings_ms

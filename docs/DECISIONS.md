@@ -471,3 +471,34 @@ needs OCR or a different extractor for those pages.
   top 3 has systematically higher cross-encoder scores.
 - Dev has only 4 unanswerable questions, so τ mostly reflects the 5% false-refusal cap.
 - These are dev-split choices. The test-split numbers are reported as measured.
+
+**D-GEN-5 The API/demo pipeline uses hybrid retrieval + reranking of the top 20, with no score gate
+(decided on food dev, 2026-10-22).**
+- Rerank depth vs CPU time per query on food dev (nDCG@10):
+
+  | Setup | nDCG@10 | CPU per query |
+  |---|---:|---:|
+  | bge top 20, reranked | 72.4 | 2.5 s |
+  | bge top 50, reranked | 77.7 | 6 s |
+  | bge top 100, reranked | 78.7 | 13 s |
+  | hybrid (BM25 + bge) top 20, reranked | **78.7** | **2.9 s** |
+  | hybrid top 50, reranked | 80.5 | 6.8 s |
+
+  The hybrid list already holds the gold chunk in its top 10 for 90.5% of questions (bge alone:
+  75.9%), so a shallow rerank is enough. `configs/pipeline.yaml` now uses `mode: hybrid`,
+  `rerank_depth: 20`, `top_k: 3`. On food dev, hybrid top-20 reranking and bge top-100 reranking
+  give the same top-10 metrics, so the answer evaluation's `rerank-dense-bge` stands in for the
+  shipped configuration. Its test numbers are in `results/food-test` as `rerank-hybrid-bge-d20`.
+- Abstention gate: no τ meets the 5% false-refusal cap on food dev, for any of the three systems.
+  The 4 unanswerable dev questions are in-domain (e.g. inspection frequencies the corpus does not
+  give), so their retrieved chunks are on-topic and score like answerable ones. Best cross-encoder
+  score for the hybrid+rerank setup:
+
+  | Dev questions | Best score |
+  |---|---|
+  | Unanswerable | 1.4 – 2.7 |
+  | Answerable | 5th percentile 0.06, median 5.2 |
+
+  The gate stays off (`tau: null`), and abstention rests on the prompt rule. On SciFact the gate
+  caught 33% of unanswerable claims (D-GEN-2). This is a finding about in-domain unanswerable
+  questions, not a defect: score gating catches off-topic questions, not missing facts.

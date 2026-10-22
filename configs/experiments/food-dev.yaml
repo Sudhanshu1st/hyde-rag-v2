@@ -22,3 +22,8 @@ systems:
   - {name: hyde-bge-food-domain-n1, type: hyde, encoder: bge-base-food, generator: openai/gpt-oss-120b, instruction: domain.food_quality_v1, n: 1}
   - {name: rerank-dense-bge, type: rerank, input: dense-bge, depth: 100, baseline: dense-bge}
   - {name: rerank-hyde-bge-domain-n1, type: rerank, input: hyde-bge-domain-n1, depth: 100, baseline: dense-bge}
+  # Rerank depth for the interactive pipeline (CPU latency grows with depth; D-GEN-5).
+  - {name: rerank-dense-bge-d20, type: rerank, input: dense-bge, depth: 20, baseline: dense-bge}
+  - {name: rerank-dense-bge-d50, type: rerank, input: dense-bge, depth: 50, baseline: dense-bge}
+  - {name: rerank-hybrid-bge-d20, type: rerank, input: hybrid-bge, depth: 20, baseline: dense-bge}
+  - {name: rerank-hybrid-bge-d50, type: rerank, input: hybrid-bge, depth: 50, baseline: dense-bge}

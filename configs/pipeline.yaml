@@ -1,10 +1,13 @@
-# Defaults for the API / demo pipeline over the food-safety corpus.
-# Chosen from BEIR evidence (docs/DECISIONS.md); the food benchmark (Phase 5) will revisit them.
+# Defaults for the API / demo pipeline over the food-safety corpus, chosen on the food dev split
+# (D-GEN-5). The API's `mode` field can still select dense | hyde | hybrid | hybrid-hyde.
 encoder: bge-base          # MIT-licensed; Contriever is CC BY-NC and benchmark-only
-mode: hyde                 # dense | hyde | hybrid | hybrid-hyde
-n_passages: 1              # one passage gave nearly all of HyDE's gain on BEIR
+mode: hybrid               # BM25 + bge (RRF): on food dev BM25 beat bge, and HyDE added nothing (+0.6)
+rerank_depth: 20           # cross-encoder over the hybrid top 20: 78.7 nDCG@10 on dev, ~3 s CPU/query
+                           # (bge top 100 reranked: also 78.7, ~13 s; no rerank: 58.8)
+n_passages: 1              # used only when a request asks for a HyDE mode
 query_weight: 0.5          # D-HYDE-8: keep the query at 50% of the HyDE vector
 instruction: domain.food_quality_v1
-top_k: 5
+top_k: 3                   # context passages, as in the evaluated answer pipeline
 depth: 100
-tau: null                  # abstention gate; set after calibration on the food dev split
+tau: null                  # dev calibration found no gate threshold within the 5% false-refusal cap
+                           # (unanswerable food questions are in-domain); abstention is the prompt rule
