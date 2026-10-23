@@ -1,0 +1,107 @@
+{
+  "experiment": "food-generation",
+  "n_questions": 100,
+  "top_k": 3,
+  "answerer": "openai/gpt-oss-20b",
+  "judge": "qwen/qwen3.8-27b",
+  "gates": {
+    "dense-bge": {
+      "tau": null,
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "false_refusal": 0.0,
+      "dev_answerable": 58,
+      "dev_unanswerable": 4,
+      "scorer": "cross-encoder",
+      "dev_system": "dense-bge"
+    },
+    "rerank-dense-bge": {
+      "tau": null,
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "false_refusal": 0.0,
+      "dev_answerable": 58,
+      "dev_unanswerable": 4,
+      "scorer": "cross-encoder",
+      "dev_system": "rerank-dense-bge"
+    }
+  },
+  "type_mix": {
+    "factual": 26,
+    "jargon": 11,
+    "multi_doc": 5,
+    "numeric": 24,
+    "procedural": 23,
+    "unanswerable": 11
+  },
+  "systems": {
+    "dense-bge": {
+      "n_answered": 100,
+      "complete": true,
+      "correctness": 0.8258426966292135,
+      "correctness_ci95": [
+        0.7528089887640449,
+        0.8932584269662921
+      ],
+      "correct_rate": 0.7528089887640449,
+      "n_graded": 89,
+      "correctness_by_type": {
+        "factual": 0.9038461538461539,
+        "jargon": 0.7727272727272727,
+        "multi_doc": 1.0,
+        "numeric": 0.7083333333333334,
+        "procedural": 0.8478260869565217
+      },
+      "abstention_precision": 0.6875,
+      "abstention_recall": 1.0,
+      "false_refusal_rate": 0.056179775280898875,
+      "gated": 0,
+      "citation_grounded": 0.9523809523809523,
+      "citation_validity": 0.6309523809523809,
+      "faithfulness": 0.6941636676576436,
+      "faithfulness_ci95": [
+        0.610564074479737,
+        0.7745398477024983
+      ],
+      "n_judged": 83,
+      "citation_precision": 0.857429718875502,
+      "tokens_per_answer": 1589.654761904762,
+      "latency_s": 0.691
+    },
+    "rerank-dense-bge": {
+      "n_answered": 100,
+      "complete": true,
+      "correctness": 0.8314606741573034,
+      "correctness_ci95": [
+        0.7584269662921348,
+        0.8932584269662921
+      ],
+      "correct_rate": 0.7640449438202247,
+      "n_graded": 89,
+      "correctness_by_type": {
+        "factual": 0.8846153846153846,
+        "jargon": 0.6818181818181818,
+        "multi_doc": 0.7,
+        "numeric": 0.8333333333333334,
+        "procedural": 0.8695652173913043
+      },
+      "abstention_precision": 0.7142857142857143,
+      "abstention_recall": 0.9090909090909091,
+      "false_refusal_rate": 0.0449438202247191,
+      "gated": 0,
+      "citation_grounded": 0.9767441860465116,
+      "citation_validity": 0.6744186046511628,
+      "faithfulness": 0.7710270774976657,
+      "faithfulness_ci95": [
+        0.6965527544351074,
+        0.8400378151260502
+      ],
+      "n_judged": 85,
+      "citation_precision": 0.8650980392156863,
+      "tokens_per_answer": 1584.6511627906978,
+      "latency_s": 0.7215
+    }
+  }
+}

@@ -4,9 +4,9 @@
 food-safety quality documents?** An open-source RAG system and benchmark, built and run entirely
 on free tiers. Every number below is generated from `results/` by `uv run hyde-rag results`.
 
-> **Status:** the BEIR reproduction and the SciFact generation study are complete. The food-safety
-> benchmark (F1: domain-instructed HyDE; F2: a fine-tuned embedder) has its 205-question eval set;
-> HyDE passages are being generated on the free tier. See [Roadmap](#roadmap).
+> **Status:** complete. BEIR reproduction, SciFact answers, and the food-safety benchmark (retrieval
+> and answers) are done. Both human checks are done too: an audit of the question review and a
+> validation of the AI judge. See [Roadmap](#roadmap).
 
 ## Headline (BEIR, nDCG@10)
 
@@ -37,8 +37,14 @@ includes encoding the hypothetical documents; LLM time is on top of it (about 1.
 
 ## Findings
 
-Differences are paired over the same queries, with 95% bootstrap CIs. SciFact has 300 queries and
-TREC-COVID 50.
+Differences are paired over the same queries, with 95% bootstrap CIs. Query counts:
+
+| Benchmark | Queries |
+|---|---:|
+| SciFact | 300 |
+| TREC-COVID | 50 |
+| Food-safety test split, retrieval | 143 |
+| Food-safety test split, answers | 100 |
 
 1. **The paper reproduces.**
    - BM25 and Contriever land within 0.2 nDCG of the paper on both datasets, and Contriever's
@@ -68,7 +74,8 @@ TREC-COVID 50.
 6. **A small cross-encoder hurts strong retrievers.**
    - Reranking bge's top 100 with MiniLM-L6 lowers SciFact from 74.0 to 69.3 (p = 0.03).
    - It helps BM25 (TREC-COVID 59.3 → 73.7) and costs about 10 s per query on a laptop CPU.
-   - So the answer pipeline doesn't rerank (decided on the SciFact dev split).
+   - So on SciFact the answer pipeline wouldn't rerank. Food-safety documents reverse this
+     (finding 9).
 7. **Better retrieval didn't give better answers on SciFact.**
    - Over 100 claims, HyDE-bge vs bge: verdict accuracy 0.80 vs 0.83 (n.s.), faithfulness
      0.87 for both.
@@ -78,8 +85,36 @@ TREC-COVID 50.
      its 25 sampled "not supported" verdicts. So 0.87 is a lower bound; re-weighted by the human
      labels, faithfulness is about 0.98 for both ([D-EVAL-8](docs/DECISIONS.md)).
 
-**Food-safety documents:** pending. The 205-question eval set is built; HyDE passages are being
-generated on the free tier.
+**Food-safety documents** (41 public FDA, USDA FSIS, Codex and FSSAI documents; 205 reviewed
+questions):
+
+8. **HyDE does nothing here.**
+   - On the test split, HyDE + bge scores 67.1 with the food-domain instruction and 65.1 with the
+     paper's generic one, against 66.5 for bge alone. Neither difference is significant.
+   - Four passages with the question kept at 50% scores 67.3, also n.s.
+   - The domain-specific instruction is no better than the generic one.
+9. **Keyword matching and reranking carry food retrieval** (the reverse of SciFact).
+   - BM25 alone: 74.6. Hybrid BM25 + bge: 78.1 (+11.6, p = 0.002). Cross-encoder rerank of bge's
+     top 100: 80.1 (+13.7, p = 0.002).
+   - The shipped pipeline, chosen on the dev split, reranks the hybrid top 20. It is the best
+     test system at **81.7** (+15.2, p = 0.002), at about a quarter of the rerank cost
+     ([D-GEN-5](docs/DECISIONS.md)).
+10. **Fine-tuning the embedder on 11,563 synthetic queries didn't help.** It scored 66.0 vs 66.5 on
+    test; the +6.4 seen on dev didn't replicate.
+11. **Again, better retrieval didn't change the answers.**
+    - Setup: 100 test questions, gpt-oss-20b, top-3 context.
+    - Correctness is 0.83 for both bge and bge + rerank (+0.006, p = 1.0); fully correct 0.75 vs
+      0.76.
+    - Reranking gets the gold passage into the context more often (83% vs 71%). But answers are
+      still right 37–46% of the time without it, because guidance documents repeat facts in places
+      the single gold span doesn't credit.
+    - The prompt rule alone declined 11/11 and 10/11 of the unanswerable questions, with 4–6% false
+      refusals. No score gate could be calibrated on food (D-GEN-5).
+    - Answers cite real retrieved passages 95–98% of the time, but often once per paragraph
+      (strict per-sentence validity 63–67%; [D-GEN-6](docs/DECISIONS.md)).
+    - Judge faithfulness is 0.69 vs 0.77 (n.s.); as a lower bound re-weighted by the human labels,
+      about 0.96–0.97.
+    - The correctness grading (answer vs reviewed reference) is LLM-judged and not human-validated.
 
 ## How it works
 
@@ -188,10 +223,10 @@ docker build -t hyde-rag . && docker run -p 8000:8000 --env-file .env hyde-rag
       faithfulness is reported as a lower bound plus a human-re-weighted estimate (D-EVAL-8)
 - [x] Food eval set: 205 questions (62 dev / 143 test), LLM-reviewed from 329 drafts
       ([D-EVAL-7](docs/DECISIONS.md)); a human audit agreed with 40 of 40 sampled decisions
-- [ ] F1: generic vs domain-instructed HyDE on food documents
-- [ ] F2: bge-base fine-tuned on synthetic food queries
+- [x] F1: generic vs domain-instructed HyDE on food documents (no effect; finding 8)
+- [x] F2: bge-base fine-tuned on synthetic food queries (no effect on test; finding 10)
       ([`notebooks/finetune_food_embedder_colab.ipynb`](notebooks/finetune_food_embedder_colab.ipynb))
-- [ ] Blog post: "Does HyDE still help in 2026? I measured it." (draft in `docs/blog/`; food numbers pending)
+- [x] Blog draft: "Does HyDE still help in 2026? I measured it." (`docs/blog/`)
 
 ## Docs
 

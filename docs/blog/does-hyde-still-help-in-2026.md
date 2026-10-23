@@ -1,7 +1,7 @@
 # Does HyDE still help in 2026? I measured it.
 
 *Draft. Every number is from [`docs/RESULTS.md`](../RESULTS.md), which is generated from the
-committed runs. Food-safety numbers marked ⟨pending⟩ are still being computed.*
+committed runs.*
 
 HyDE (Hypothetical Document Embeddings, Gao et al., ACL 2023) is one of those RAG tricks that
 shows up in every tutorial:
@@ -116,41 +116,67 @@ This is the part I cared about most. Quality managers ask questions like "Under 
 guidance, if food contact surfaces test positive on day 7, which lots must be held?" and want an
 answer with a citation they can check.
 
-On the food dev split (62 questions):
+I chose every setting on a 62-question dev split, then ran the 143-question test split once.
+Test results (nDCG@10, paired against bge):
 
 | System | nDCG@10 |
 |---|---:|
-| BM25 | 75.1 |
-| bge | 58.8 |
-| HyDE + bge (domain or generic instruction) | 59.4–59.5 (+0.6, n.s.) |
-| bge fine-tuned on synthetic queries (F2) | 65.2 |
-| HyDE + fine-tuned bge | 58.5 (−6.8 vs fine-tuned alone) |
-| bge + cross-encoder rerank | **78.7** (+19.9, p = 0.004) |
-
-Test split (143 questions): ⟨pending⟩.
+| bge | 66.5 |
+| HyDE + bge, food-domain instruction | 67.1 (+0.7, n.s.) |
+| HyDE + bge, the paper's generic instruction | 65.1 (−1.4, n.s.) |
+| HyDE + bge, 4 passages, question at 50% | 67.3 (+0.8, n.s.) |
+| bge fine-tuned on 11.6K synthetic queries | 66.0 (n.s.) |
+| BM25 | 74.6 |
+| Hybrid BM25 + bge | 78.1 (+11.6, p = 0.002) |
+| bge top 100, cross-encoder reranked | 80.1 (+13.7, p = 0.002) |
+| **Hybrid top 20, reranked (picked on dev)** | **81.7** (+15.2, p = 0.002) |
 
 Every lesson from the scientific benchmarks flips:
-- HyDE does nothing.
+- HyDE does nothing, whichever instruction it gets.
 - Keyword search beats the dense embedder.
 - Reranking, which hurt on SciFact, is the biggest win.
+- Fine-tuning the embedder on synthetic queries didn't help either. Its +6.4 on dev was noise.
 
 Why this happens is a hypothesis, not a result. Regulatory questions turn on exact terms (part
 numbers, named programs, temperatures and times). A hypothetical passage invents plausible
 specifics, and an embedding of plausible specifics isn't much closer to the *right* specifics than
 the question was. BM25 and the cross-encoder both reward exact overlap.
 
-Answers on the food set (plain bge vs bge + rerank, 100 test questions, graded against reviewed
-reference answers): ⟨pending⟩.
+Then the answers: 100 test questions, gpt-oss-20b, top-3 context, graded against reviewed
+reference answers.
+
+| | bge | bge + rerank |
+|---|---:|---:|
+| Gold passage in the context | 71% | 83% |
+| Correctness (1 / 0.5 / 0) | 0.83 | 0.83 |
+| Fully correct | 75% | 76% |
+| Unanswerable questions declined | 11/11 | 10/11 |
+| Answerable questions wrongly refused | 6% | 4% |
+
+A 13.7-point retrieval gain, and the answers didn't move (+0.006, p = 1.0). The reranker gets the
+gold passage into the context more often, but the model answers correctly 37–46% of the time
+*without* it. Guidance documents repeat themselves: the same holding temperature appears in the
+Food Code, the retail HACCP manual and a seafood chapter. The single gold span credits only one of
+them, so nDCG overstates how much the retriever matters to the final answer.
+
+Two smaller findings:
+- **Abstention came entirely from the prompt rule.** The unanswerable food questions are on-topic,
+  so their retrieved passages score as high as real answers, and no cross-encoder threshold could
+  separate them without refusing too many good questions.
+- **The model often cited once per paragraph,** not once per sentence. Answers cited real
+  retrieved passages 95–98% of the time, but only 63–67% cited every sentence.
 
 ## What I'd tell a team building RAG today
 
-1. **Measure on your own documents first.** HyDE's sign flipped between scientific abstracts and
-   regulatory guidance. A 60-question dev set was enough to see that.
+1. **Measure on your own documents first.** HyDE added 4–7 points on scientific abstracts and
+   nothing on regulatory guidance. A 60-question dev set was enough to see that, and the choices
+   made on it held on the test set.
 2. **If you use HyDE, use one hypothetical document,** and never let the question drop below about
    half of the vector.
 3. **Start with BM25 + dense hybrid, then try a cross-encoder.** Check the reranker on your data;
    it was the best and worst idea here, depending on the corpus.
-4. **Retrieval gains don't automatically reach the answers.** Evaluate the answers, not just
+4. **Retrieval gains don't automatically reach the answers.** HyDE on SciFact (+4.5) and
+   reranking on food (+13.7) each left answer correctness unchanged. Evaluate the answers, not just
    nDCG, and check your LLM judge against a few dozen human labels before trusting it.
 5. **None of this needs a budget.** Every LLM call here ran on free tiers, and the GPU work (a
    171K-document encoding and an embedder fine-tune) ran on free Colab T4s.
