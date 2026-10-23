@@ -33,6 +33,7 @@
       "abstention_recall": 0.868421052631579,
       "false_refusal_rate": 0.1935483870967742,
       "gated": 17,
+      "citation_grounded": 1.0,
       "citation_validity": 0.8909090909090909,
       "faithfulness": 0.8702020202020203,
       "faithfulness_ci95": [
@@ -57,6 +58,7 @@
       "abstention_recall": 0.868421052631579,
       "false_refusal_rate": 0.20967741935483872,
       "gated": 19,
+      "citation_grounded": 1.0,
       "citation_validity": 0.9259259259259259,
       "faithfulness": 0.869701646090535,
       "faithfulness_ci95": [

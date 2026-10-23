@@ -526,3 +526,21 @@ was not a valid value, so 49 count.
   vs reference) is a different task and has no human validation; that is stated with the results.
 - A stronger judge (reasoning on, or a larger model) is future work, and would need fresh labels
   to validate it.
+
+**D-GEN-6 Citation checking: parser fix, and two validity measures (2026-10-23).**
+- Bug: the sentence splitter broke text at every ". " followed by a capital letter. "U.S. Department",
+  "No. A foreign facility" and numbered lists ("should: / 1. Be ...") produced uncited fragments.
+  On food answers that wrongly marked citations invalid. It also hid those fragments' citations
+  from the faithfulness judge, which saw "(no passages cited)".
+- Fix: uncited fragments now join the next sentence. A fragment is a piece that ends in an
+  abbreviation or initial, is a list number, is a lead-in ending in ":", or has fewer than three
+  words. "Label: VALUE" lines such as "Verdict: SUPPORTED" stay separate. gpt-oss's native
+  `【id】` citations are accepted. SciFact segmentation is unchanged (0 of 111 answers), so its
+  results stand. 20 food answers re-segment and are re-judged.
+- Finding: gpt-oss-20b often cites once per paragraph, not per sentence (29 of the 30 remaining
+  invalid food answers with dense bge). Results therefore report two measures:
+  - strict validity: every sentence cites, which is what the prompt asks for;
+  - grounded: every answer cites, and only passages it was given.
+- Faithfulness stays sentence-level by design: a claim counts as supported only by the passages its
+  own sentence cites. Paragraph-level citing therefore lowers it, alongside the judge's strictness
+  (D-EVAL-8).

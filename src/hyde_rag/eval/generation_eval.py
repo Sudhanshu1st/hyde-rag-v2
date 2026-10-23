@@ -45,6 +45,7 @@ class ItemResult:
     abstained: bool
     gated: bool
     citations_valid: bool | None
+    citations_grounded: bool | None = None
     faithfulness: float | None = None
     citation_precision: float | None = None
     n_claims: int = 0
@@ -224,6 +225,7 @@ class GenerationEval:
                     a.gated,
                     None if a.abstained else a.citations.valid,
                 )
+                r.citations_grounded = None if a.abstained else a.citations.grounded
                 if q in usage:
                     r.tokens, r.latency_s = usage[q]
                 claims: list[dict] = []
@@ -302,6 +304,9 @@ class GenerationEval:
             if answerable
             else None,
             "gated": sum(r.gated for r in results),
+            "citation_grounded": sum(bool(r.citations_grounded) for r in answered) / len(answered)
+            if answered
+            else None,
             "citation_validity": (
                 sum(bool(r.citations_valid) for r in answered) / len(answered) if answered else None
             ),

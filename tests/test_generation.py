@@ -130,3 +130,31 @@ def test_judge_request_and_parsing():
     res = parse_faithfulness(raw, ans)
     assert res.faithfulness == pytest.approx(2 / 3)
     assert res.citation_precision == pytest.approx(2 / 3)
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "The rule was issued by the U.S. Department of Agriculture (USDA). [fc:424:0]",
+        "No. A foreign facility is not required to submit a report. [rfr:30:0]",
+        "Procedures should:\n1. Be scientifically valid. [lm:41:0]\n2. Name the sampling sites. [lm:41:0]",
+        "Keep it cold, e.g. Below 41°F. [fc:1:0]",
+    ],
+)
+def test_fragments_join_the_next_sentence(answer):
+    report = validate(answer, {"fc:424:0", "rfr:30:0", "lm:41:0", "fc:1:0"})
+    assert report.valid, (report.uncited, [s.text for s in report.sentences])
+
+
+def test_real_uncited_sentences_are_still_flagged():
+    report = validate("Cool food within 2 hours. [fc:1:0] Then store it below 5C for later use.", {"fc:1:0"})
+    assert report.uncited == [1]
+    report = validate(
+        "Repeat the check at step 2. [fc:1:0] Record the result in the cooling log.", {"fc:1:0"}
+    )
+    assert report.uncited == [1]
+
+
+def test_fullwidth_bracket_citations_count():
+    report = validate("Three agencies regulate pesticides: EPA, FDA and USDA FSIS【fc:22:1】.", {"fc:22:1"})
+    assert report.valid and report.sentences[0].cited_ids == ["fc:22:1"]

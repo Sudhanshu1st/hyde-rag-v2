@@ -30,7 +30,14 @@ class CitationReport:
 
     @property
     def valid(self) -> bool:
+        """Strict: every sentence cites, and only IDs from the context."""
         return not self.unknown_ids and not self.uncited
+
+    @property
+    def grounded(self) -> bool:
+        """Lenient: the answer cites at least one passage, and only IDs from the context
+        (one citation may cover a whole paragraph)."""
+        return bool(self.cited_ids) and not self.unknown_ids
 
     @property
     def cited_ids(self) -> list[str]:
@@ -41,8 +48,31 @@ class CitationReport:
         return list(seen)
 
 
+_ABBREVIATION_END = re.compile(
+    r"(?:\b[A-Z]\.|\b(?:e\.g|i\.e|etc|vs|cf|ca|approx|No|Nos|Sec|Fig|Dr|Inc|Ltd|Co|St|al)\.)$", re.IGNORECASE
+)
+_LABEL_LINE = re.compile(r"^[A-Z][A-Za-z]*:\s*[A-Z]")  # one-word label + value: "Verdict: SUPPORTED"
+# gpt-oss sometimes cites in its native 【id】 style; same citation, different brackets.
+_FULLWIDTH_BRACKETS = str.maketrans({"【": "[", "】": "]"})
+_LIST_MARKER_END = re.compile(r"(?:^|:\s*)(?:\d+|[a-z])[.)]$")  # "1." alone, or after a lead-in
+
+
+def _is_fragment(part: str) -> bool:
+    """A piece that is not a sentence of its own: it ends in an abbreviation or initial ("U.S."),
+    is a list number ("1."), is a lead-in ("... should:"), or is under three words ("No.")."""
+    if CITATION_GROUP.search(part) or _LABEL_LINE.match(part):
+        return False  # it carries its own citation, or is a "Verdict: ..." style label line
+    return bool(
+        _ABBREVIATION_END.search(part)
+        or _LIST_MARKER_END.search(part)
+        or part.endswith(":")
+        or len(part.split()) < 3
+    )
+
+
 def split_sentences(text: str) -> list[str]:
-    """Split into sentences, keeping citation groups that follow the full stop with their sentence."""
+    """Split into sentences, keeping citation groups that follow the full stop with their sentence.
+    Uncited fragments (abbreviations, list numbers, lead-ins, "No.") join the following sentence."""
     text = text.strip()
     if not text:
         return []
@@ -52,9 +82,20 @@ def split_sentences(text: str) -> list[str]:
         start = m.end()
     parts.append(text[start:].strip())
     # Lines like "- item" or headings are separate sentences too.
-    out = []
+    pieces = []
     for p in parts:
-        out.extend(line.strip() for line in p.splitlines() if line.strip())
+        pieces.extend(line.strip() for line in p.splitlines() if line.strip())
+    out: list[str] = []
+    carry = ""
+    for piece in pieces:
+        piece = f"{carry} {piece}".strip() if carry else piece
+        carry = ""
+        if _is_fragment(piece):
+            carry = piece
+            continue
+        out.append(piece)
+    if carry:
+        out.append(carry)
     return out
 
 
@@ -73,7 +114,7 @@ def validate(answer: str, context_ids: set[str], exempt: tuple[str, ...] = ()) -
     """Check citations against the context. Sentences starting with an ``exempt`` prefix
     (e.g. a "Verdict:" label line) don't need a citation."""
     report = CitationReport()
-    for sentence in split_sentences(answer):
+    for sentence in split_sentences(answer.translate(_FULLWIDTH_BRACKETS)):
         ids = extract_ids(sentence)
         clean = strip_citations(sentence)
         if not clean and ids and report.sentences:
